@@ -3,9 +3,12 @@ import logging
 import math
 import sys
 import numpy as np
+from scipy.spatial import Delaunay
+
 
 
 # todo update nach Änderung sofort in GUI Event, hier nicht nochmaliges Update
+["VFS 0", "VFS I", "VFS II", "VFS III", "VFS IV", "VFS V"]
 
 
 class LuftlinienCalculator:
@@ -13,19 +16,20 @@ class LuftlinienCalculator:
     ## Konstruktor
     def __init__(self, source,
                  attr_vfs: str = "TypeNo",
-                 list_vfs: list = ["VFS 0", "VFS I", "VFS II", "VFS III", "VFS IV", "VFS V"],
+                 dict_vfs: dict = {"VFS 0": 1, "VFS I": 2, "VFS II": 3, "VFS III": 4, "VFS IV": 5, "VFS V": 6},
                  use_gui: bool = False):
 
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
-        self.attr_vfs = attr_vfs
+        self.attr_central_level = attr_vfs
+        self.attr_zones.append(self.attr_central_level)
 
         # Liste der VFS, die bearbeitet werden sollen todo Preprocessing, das Liste nur diese VFS enthält
-        self.vfs = list_vfs
+        self.vfs = dict_vfs
 
         # todo Fallunterscheidungen Input
         # Ziel: dict mit VFS: Wert
-        self.param_austauschfkt_vfs = dict(zip(list_vfs, 1 * np.ones(len(list_vfs), dtype=int)))
-        self.param_austauschfkt_vfs = dict(zip(list_vfs, 1 * np.ones(len(list_vfs), dtype=int)))
+        self.param_austauschfkt_vfs = dict(zip(dict_vfs.keys(), 1 * np.ones(len(dict_vfs), dtype=int)))
+        self.param_versorgungsfkt_vfs = dict(zip(dict_vfs, 1 * np.ones(len(dict_vfs), dtype=int)))
 
         # Erhöhen des Rekursionslimit des python Interpreters
         self.recursion_limit = 6000
@@ -56,13 +60,28 @@ class LuftlinienCalculator:
             
 
     # entspricht Funktion Program.LLCalc
-    def calculate_vfs(self, vfs, austauschfkt, versorgungsfkt):
+    def calculate_vfs(self, vfs):
         a = 1
-        # Test, ob Bezirke mit gleichen Koordinaten existieren --> Abbruch
+        austauschfkt = self.param_austauschfkt_vfs[vfs]
+        versorgungsfkt = self.param_versorgungsfkt_vfs[vfs]
+
+        # todo Test, ob Bezirke mit gleichen Koordinaten existieren --> Abbruch
 
         # Filtere Bezirksdaten, die die Bedingungen erfüllen
-        # Sind Aktiv
-        # TypNr < VFS
+        # Sind Aktiv todo Erweiterung Filterung nach attr_filter
+        # TypNr <= VFS
+        active_zones = self.zones
+        active_zones = active_zones.loc[active_zones[self.attr_vfs] <= vfs + 1, :]
+
+        # Delaunay Triangulation
+        tri = Delaunay(active_zones[["XCoord", "YCoord"]].values)
+
+        # Adjazenzmatrix ausfüllen
+        a=1
+
+        # Nachbarschaften Grad n bestimmen
+
+        # Versorgungsfunktion
 
     def init_results(self):
         dict_vfs = {}
