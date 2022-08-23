@@ -38,18 +38,24 @@ class LuftlinienCalculator:
         self.use_gui = use_gui
         
         # Einlesen der Bezirksdaten
+        # Wichtig: Index der Tabelle = 0...n
         if not isinstance(source, str):
-            self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(self.attr_zones), columns=self.attr_zones)
+            self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(self.attr_zones, OnlyActive=False), columns=self.attr_zones)
             logging.info("%s Bezirke eingelesen", len(self.zones))
         else:
             logging.warning("Einlesen der Bezirksdaten ist fehlgeschlagen, Inputformat ist nicht implementiert")
 
         # Init VFS Matrizen
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
-        self.matrizen_VFS = self.init_results()
+        self.init_results()
 
 
     def calculate_main(self):
+        # Init Ergebnisse
+        logging.info(f"Berechnung über alle VFS wird gestartet")
+        self.init_results()
+        logging.info(f"Adjazenzmatrizen wurden initialisiert")
+
         # Schleife über alle vfs
         for vfs in self.vfs:
             self.calculate_vfs(vfs)
@@ -62,6 +68,8 @@ class LuftlinienCalculator:
     # entspricht Funktion Program.LLCalc
     def calculate_vfs(self, vfs):
         a = 1
+        value_vfs = self.vfs[vfs]
+
         austauschfkt = self.param_austauschfkt_vfs[vfs]
         versorgungsfkt = self.param_versorgungsfkt_vfs[vfs]
 
@@ -71,24 +79,50 @@ class LuftlinienCalculator:
         # Sind Aktiv todo Erweiterung Filterung nach attr_filter
         # TypNr <= VFS
         active_zones = self.zones
-        active_zones = active_zones.loc[active_zones[self.attr_vfs] <= vfs + 1, :]
+        active_zones = active_zones.loc[active_zones[self.attr_central_level] <= value_vfs, :]
+        
+        logging.info(f"{vfs}: Delauney Triangulation wird für {len(active_zones)} Bezirke durchgeführt")
 
         # Delaunay Triangulation
-        tri = Delaunay(active_zones[["XCoord", "YCoord"]].values)
+        tri = Delaunay(active_zones[["XCoord", "YCoord"]])
+        zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
+        logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
 
         # Adjazenzmatrix ausfüllen
-        a=1
+
+        # Schleife über Dreiecke
+        for p1, p2, p3 in zone_orig_idx_triangles:
+            # die drei Punkte des Dreiecks
+            # folgende Abhängigkeiten sind einzufügen:
+            # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
+            self.matrizen_VFS[vfs][p1, p2] = 1
+            self.matrizen_VFS[vfs][p1, p3] = 1
+            self.matrizen_VFS[vfs][p2, p1] = 1
+            self.matrizen_VFS[vfs][p2, p3] = 1
+            self.matrizen_VFS[vfs][p3, p1] = 1
+            self.matrizen_VFS[vfs][p3, p2] = 1
+
+        logging.info(f"{vfs}: Die Ergebnisse wurden als Adjazenzmatrix festgehalten")
 
         # Nachbarschaften Grad n bestimmen
+        if austauschfkt > 0:
+            logging.info(f"{vfs}: Der Nachbarschaftsgrad muss berechnet werden")
+
 
         # Versorgungsfunktion
 
     def init_results(self):
         dict_vfs = {}
         for vfs in self.vfs:
-            dict_vfs[vfs] = np.zeros(len(self.zones))
+            dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
         self.matrizen_VFS = dict_vfs
+
+    def export_matrix(self):
+        todo=1
+
+    def export_net(self):
+        todo=1
 
 
 
