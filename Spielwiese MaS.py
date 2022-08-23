@@ -13,11 +13,11 @@ def open_visum(path, version=220):
         Visum
         name = Visum.UserPreferences.DocumentName
     except NameError:
-        print('initialize visum instance')
+        logging.info('initialize visum instance')
         Visum = com.Dispatch(f"Visum.Visum.{version}")
-        print('open visum file: {}'.format(path))
+        logging.info('open visum file: {}'.format(path))
         Visum.LoadVersion(path)
-        print('erfolgreich geladen')
+        logging.info('erfolgreich geladen')
     return Visum
 
 if __name__ == '__main__':
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     import luftlinientool as llt
 
     # Parameterübergabe
-    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Python3\Beispielnetz")
+    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
     file_source = 'ZentraleOrteBW_Bezirke.ver'
 
     # Settings Logging
@@ -51,6 +51,8 @@ if __name__ == '__main__':
         ltt1 = llt.LuftlinienCalculator(Visum)
     else:
         print("nicht implementiert")
+
+    ltt1.calculate_main()
 
     del Visum
 
