@@ -61,6 +61,9 @@ class LuftlinienCalculator:
         if attr_ziel is not None:
             self.attr_zones.append(attr_ziel)
 
+        self.attr_is_from_zone = attr_quelle
+        self.attr_is_to_zone = attr_ziel
+
         # Liste der VFS, die bearbeitet werden sollen todo Preprocessing, das Liste nur diese VFS enthält
         self.vfs = dict_vfs
 
@@ -106,7 +109,6 @@ class LuftlinienCalculator:
 
     # entspricht Funktion Program.LLCalc
     def calculate_vfs(self, vfs):
-        a = 1
         value_vfs = self.vfs[vfs]
 
         austauschfkt = self.param_austauschfkt_vfs[vfs]
@@ -119,7 +121,7 @@ class LuftlinienCalculator:
         # TypNr <= VFS
         active_zones = self.zones
         active_zones = active_zones.loc[active_zones[self.attr_central_level] <= value_vfs,
-                       :]  # todo check <= -> alle größeren Bezirke werden mti geladen
+                       :]
 
         if len(active_zones) < 1:
             logging.info(f"{vfs}: es sind keine Bezirke aktiv")
@@ -132,7 +134,6 @@ class LuftlinienCalculator:
         logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
 
         # Adjazenzmatrix ausfüllen
-
         # Schleife über Dreiecke
         for p1, p2, p3 in zone_orig_idx_triangles:
             # die drei Punkte des Dreiecks
@@ -148,13 +149,24 @@ class LuftlinienCalculator:
         logging.info(f"{vfs}: Die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
 
         # inaktive Quelle oder Ziel
+        if (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
+            # Aufbau Maske mit aktiven und inaktiven OD Paaren
+            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
+            idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
+                                     self.zones[self.attr_is_to_zone].values.reshape(1, -1))
+
+            idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
+
+            # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
+        elif (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
+            raise ValueError("Fall ist nicht implementiert: Quell oder Zielattribut gegeben aber nicht beides")
 
         # debugzwecke
         if self.debug_mode:
             list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
             self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
             logging.info(f"{vfs}: Das Ergebnis kann in Visum bestaunt werden")
-
 
 
         # Nachbarschaften Grad n bestimmen
