@@ -265,6 +265,11 @@ class LuftlinienCalculator:
         dict_no = dict(zip(df_edges["No"].drop_duplicates(), range(no_start,int(len(df_edges) / 2) + 1)))
         df_edges["No"].replace(dict_no, inplace=True)
 
+        # Lösche Strecken, die in unterschiedlichen VFS mehrmals vorkommen
+        # höchste Stufe wird behalten (Sortierung nach aufsteigender Nummer & Löschen der Duplikate)
+        df_edges.sort_values("TypeNo", inplace=True)
+        df_edges.drop_duplicates(["FromNodeNo", "ToNodeNo"], inplace=True)
+
         # Abgleich Knotennummern/Namen
         # if visum is not None:
         #     node_no_max_existing = visum.Net.AttValue(r"Max:Nodes\No")
