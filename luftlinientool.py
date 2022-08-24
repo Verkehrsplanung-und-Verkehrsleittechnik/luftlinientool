@@ -69,8 +69,8 @@ class LuftlinienCalculator:
 
         # todo Fallunterscheidungen Input
         # Ziel: dict mit VFS: Wert
-        self.param_austauschfkt_vfs = dict(zip(dict_vfs.keys(), 1 * np.ones(len(dict_vfs), dtype=int)))
-        self.param_versorgungsfkt_vfs = dict(zip(dict_vfs, 1 * np.ones(len(dict_vfs), dtype=int)))
+        self.param_austauschfkt_vfs = dict(zip(dict_vfs.keys(), 2 * np.ones(len(dict_vfs), dtype=int)))
+        self.param_versorgungsfkt_vfs = dict(zip(dict_vfs, 2 * np.ones(len(dict_vfs), dtype=int)))
 
         # Erhöhen des Rekursionslimit des python Interpreters
         self.recursion_limit = 6000
@@ -146,7 +146,13 @@ class LuftlinienCalculator:
             self.matrizen_VFS[vfs][p3, p1] = 1
             self.matrizen_VFS[vfs][p3, p2] = 1
 
-        logging.info(f"{vfs}: Die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
+        logging.info(f"{vfs}: die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
+
+        # Nachbarschaften Grad n bestimmen
+        if austauschfkt > 1:
+            logging.info(f"{vfs}: der Nachbarschaftsgrad muss berechnet werden")
+            adj_k_steps = self.calculate_reachability_max_steps(austauschfkt, vfs)
+            self.matrizen_VFS[vfs] = adj_k_steps
 
         # inaktive Quelle oder Ziel
         if (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
@@ -162,23 +168,18 @@ class LuftlinienCalculator:
         elif (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
             raise ValueError("Fall ist nicht implementiert: Quell oder Zielattribut gegeben aber nicht beides")
 
-        # debugzwecke
-        if self.debug_mode:
-            list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
-            self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
-            logging.info(f"{vfs}: Das Ergebnis kann in Visum bestaunt werden")
-
-
-        # Nachbarschaften Grad n bestimmen
-        if austauschfkt > 1:
-            logging.info(f"{vfs}: Der Nachbarschaftsgrad muss berechnet werden")
-            self.calculate_reachability_max_steps(austauschfkt)
-
         # Verbindungen mit Versorgungsfunktion
         if versorgungsfkt > 0:
             a = 1
 
-        # Versorgungsfunktion
+        # debugzwecke
+        if self.debug_mode:
+            # zeigt an, mit welchen Bezirken ein Bezirk verbunden ist (=benachbarte Zentren)
+            list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
+
+            # Zeigt das Ergebnis in Visum an
+            self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
+            logging.info(f"{vfs}: das Ergebnis kann in Visum bestaunt werden")
 
     def init_results(self):
         dict_vfs = {}
@@ -187,8 +188,11 @@ class LuftlinienCalculator:
 
         self.matrizen_VFS = dict_vfs
 
-    def calculate_reachability_max_steps(self, max_steps):
-        a = 1
+    def calculate_reachability_max_steps(self, max_steps, vfs):
+        matrix = np.linalg.matrix_power(self.matrizen_VFS[vfs], max_steps)
+        np.fill_diagonal(matrix, 0)
+
+        return matrix
 
     def adj_matrix_to_set_of_connected_zones(self, vfs):
         df = pd.DataFrame(self.matrizen_VFS[vfs], index=self.zones["Name"], columns=self.zones["Name"])
@@ -274,7 +278,7 @@ class LuftlinienCalculator:
         else:
             no_start = 1
 
-        dict_no = dict(zip(df_edges["No"].drop_duplicates(), range(no_start,int(len(df_edges) / 2) + 1)))
+        dict_no = dict(zip(df_edges["No"].drop_duplicates(), range(no_start, int(len(df_edges) / 2) + 1)))
         df_edges["No"].replace(dict_no, inplace=True)
 
         # Lösche Strecken, die in unterschiedlichen VFS mehrmals vorkommen
@@ -313,7 +317,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
             visum.IO.LoadNet(str(path_net), ReadAdditive=True)
             
-            if visum.Net.Links.Count <= no_start:
+            if visum.Net.Links.Count < len(df_edges):
                 logging.warning("Da hat beim Import der Netzdatei etwas nicht geklappt")    
 
         logging.info(f"die Netzdatei wurde erfolgreich erstellt")

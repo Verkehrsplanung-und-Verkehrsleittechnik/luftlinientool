@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Parameterübergabe
     path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
-    file_source = 'ZentraleOrteBW_Bezirke.ver'
+    file_source = 'ZentraleOrteBW_Bezirke_OZ.ver'
 
     # Settings Logging
     path_logfile = Path(__file__)
