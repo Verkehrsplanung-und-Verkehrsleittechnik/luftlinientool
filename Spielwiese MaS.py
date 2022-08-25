@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Parameterübergabe
     path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
-    file_source = 'ZentraleOrteBW_Bezirke_OZ.ver'
+    file_source = 'ZentraleOrteBW_Bezirke.ver'
 
     # Settings Logging
     path_logfile = Path(__file__)
@@ -48,11 +48,18 @@ if __name__ == '__main__':
 
     if source.suffix == ".ver":
         Visum = open_visum(source)
-        ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel")
+        ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
     else:
         print("nicht implementiert")
 
     ltt1.calculate_main()
+    ltt1.export_matrix()
+    ltt1.export_net(visum=ltt1.visum, links_additive=False)
+
+
+    ltt1.delete_unused_nodes()
+
+
 
     del Visum
 
