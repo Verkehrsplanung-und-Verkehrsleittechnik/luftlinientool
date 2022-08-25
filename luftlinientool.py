@@ -191,9 +191,12 @@ class LuftlinienCalculator:
         # Wichtig: Index der Tabelle = 0...n
         if not isinstance(source, str):
             self.visum = source
-            attr_zones = self.attr_zones + ["IsInSelection"]
+            attr_zones = self.attr_zones
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
+            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=True), dtype=int)[:,1])
+            self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
+
             logging.info("%s Bezirke eingelesen", len(self.zones))
         else:
             self.visum = None
@@ -294,10 +297,10 @@ class LuftlinienCalculator:
         # TypNr <= VFS
         active_zones = self.zones
         active_zones = active_zones.loc[(active_zones[self.attr_central_level] <= value_vfs)
-                                        & (active_zones["IsInSelection"] > 0),
+                                        & (active_zones["IsActive"] > 0),
                        :]
 
-        if len(active_zones) > len(active_zones[["XCoords", "YCoords"]].drop_duplicates()):
+        if len(active_zones) > len(active_zones[["XCoord", "YCoord"]].drop_duplicates()):
             logging.info(f"{vfs}: es existeiren Bezirke mit den gleichen Koordinaten")
         elif len(active_zones) < 3:
             logging.info(f"{vfs}: es sind zu wenige Bezirke aktiv")
