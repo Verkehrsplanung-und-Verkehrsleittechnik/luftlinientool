@@ -53,13 +53,10 @@ if __name__ == '__main__':
         print("nicht implementiert")
 
     ltt1.calculate_main()
-    ltt1.export_matrix()
+    ltt1.export_matrix(visum=ltt1.visum)
     ltt1.export_net(visum=ltt1.visum, links_additive=False)
 
-
     ltt1.delete_unused_nodes()
-
-
 
     del Visum
 

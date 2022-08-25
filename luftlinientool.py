@@ -96,7 +96,7 @@ class LuftlinienCalculator:
     # @param path_output:
     def __init__(self, source,
                  attr_vfs: str = "TypeNo",
-                 dict_vfs: dict = {"VFS 0": 1, "VFS I": 2, "VFS II": 3, "VFS III": 4, "VFS IV": 5, "VFS V": 6},
+                 dict_vfs: dict = {"VFS 0": 0, "VFS I": 1, "VFS II": 2, "VFS III": 3, "VFS IV": 4, "VFS V": 5},
                  max_entfernung=1,
                  anz_versorger=0,
                  attr_quelle=None,
@@ -108,7 +108,7 @@ class LuftlinienCalculator:
         self.attr_central_level = attr_vfs
         self.attr_zones.append(self.attr_central_level)
 
-        self.debug_mode = True
+        self.debug_mode = False
 
         # Pfade
         self.path_output = path_output
@@ -239,101 +239,101 @@ class LuftlinienCalculator:
         active_zones = active_zones.loc[active_zones[self.attr_central_level] <= value_vfs,
                        :]
 
-        if len(active_zones) < 1:
-            logging.info(f"{vfs}: es sind keine Bezirke aktiv")
+        if len(active_zones) < 3:
+            logging.info(f"{vfs}: es sind zu wenige Bezirke aktiv")
         else:
             logging.info(f"{vfs}: Delauney Triangulation wird für {len(active_zones)} Bezirke durchgeführt")
 
-        # Delaunay Triangulation
-        tri = Delaunay(active_zones[["XCoord", "YCoord"]])
-        zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
-        logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
+            # Delaunay Triangulation
+            tri = Delaunay(active_zones[["XCoord", "YCoord"]])
+            zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
+            logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
 
-        # Adjazenzmatrix ausfüllen
-        # Schleife über Dreiecke
-        for p1, p2, p3 in zone_orig_idx_triangles:
-            # die drei Punkte des Dreiecks
-            # folgende Abhängigkeiten sind einzufügen:
-            # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
-            self.matrizen_VFS[vfs][p1, p2] = 1
-            self.matrizen_VFS[vfs][p1, p3] = 1
-            self.matrizen_VFS[vfs][p2, p1] = 1
-            self.matrizen_VFS[vfs][p2, p3] = 1
-            self.matrizen_VFS[vfs][p3, p1] = 1
-            self.matrizen_VFS[vfs][p3, p2] = 1
+            # Adjazenzmatrix ausfüllen
+            # Schleife über Dreiecke
+            for p1, p2, p3 in zone_orig_idx_triangles:
+                # die drei Punkte des Dreiecks
+                # folgende Abhängigkeiten sind einzufügen:
+                # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
+                self.matrizen_VFS[vfs][p1, p2] = 1
+                self.matrizen_VFS[vfs][p1, p3] = 1
+                self.matrizen_VFS[vfs][p2, p1] = 1
+                self.matrizen_VFS[vfs][p2, p3] = 1
+                self.matrizen_VFS[vfs][p3, p1] = 1
+                self.matrizen_VFS[vfs][p3, p2] = 1
 
-        logging.info(
-            f"{vfs}: die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
+            logging.info(
+                f"{vfs}: die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
 
-        # Nachbarschaften Grad n bestimmen
-        if k_nachbar > 1:
-            logging.info(f"{vfs}: der Nachbarschaftsgrad muss berechnet werden")
-            adj_k_steps = self.calculate_reachability_max_steps(k_nachbar, vfs)
-            self.matrizen_VFS[vfs] = adj_k_steps
+            # Nachbarschaften Grad n bestimmen
+            if k_nachbar > 1:
+                logging.info(f"{vfs}: der Nachbarschaftsgrad muss berechnet werden")
+                adj_k_steps = self.calculate_reachability_max_steps(k_nachbar, vfs)
+                self.matrizen_VFS[vfs] = adj_k_steps
 
-        # Verbindungen mit Versorgungsfunktion
-        if anz_versorger > 0:
-            # Erstelle für jeden Bezirk eine Liste der verbundenen Bezirke
-            df_list_zones = self.adj_matrix_to_set_of_connected_zones(vfs, use_zone_names=False)
+            # Verbindungen mit Versorgungsfunktion
+            if anz_versorger > 0:
+                # Erstelle für jeden Bezirk eine Liste der verbundenen Bezirke
+                df_list_zones = self.adj_matrix_to_set_of_connected_zones(vfs, use_zone_names=False)
 
-            # Tabelle der möglichen Versorgungszentren
-            provider = self.zones.loc[(self.zones[self.attr_central_level] < self.vfs[vfs])
-                                      & (self.zones[self.attr_is_from_zone] > 0), :]
-            # Menge der möglichen Versorgungszentren
-            set_names_provider = set(provider.index)
+                # Tabelle der möglichen Versorgungszentren
+                provider = self.zones.loc[(self.zones[self.attr_central_level] < self.vfs[vfs])
+                                          & (self.zones[self.attr_is_from_zone] > 0), :]
+                # Menge der möglichen Versorgungszentren
+                set_names_provider = set(provider.index)
 
-            # Bestimme für jeden aktiven Bezirk, ob dieser bereits an ein Versorgungszentrum angeschlossen ist
-            df_list_zones = df_list_zones.loc[df_list_zones.index.isin(
-                active_zones.loc[active_zones[self.attr_is_from_zone] > 0, :].index), :]
-            df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(len)
-            df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
-                                        | (df_list_zones["no_provider"] >= anz_versorger)
+                # Bestimme für jeden aktiven Bezirk, ob dieser bereits an ein Versorgungszentrum angeschlossen ist
+                df_list_zones = df_list_zones.loc[df_list_zones.index.isin(
+                    active_zones.loc[active_zones[self.attr_is_from_zone] > 0, :].index), :]
+                df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(len)
+                df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
+                                            | (df_list_zones["no_provider"] >= anz_versorger)
 
-            # Für alle Bezirke, die die Bedingung nich erfüllen: Verbinde die nächsten k Versorgungszentren
-            for zone in df_list_zones.index[df_list_zones["provider"] < True]:
-                zone_data = self.zones.loc[zone, :]
+                # Für alle Bezirke, die die Bedingung nich erfüllen: Verbinde die nächsten k Versorgungszentren
+                for zone in df_list_zones.index[df_list_zones["provider"] < True]:
+                    zone_data = self.zones.loc[zone, :]
 
-                # falls bereits mit einem Versorgungszentrum verbunden -> Lösche das Zentrum aus der Menge der Punkte
-                tmp_set_provider = set_names_provider - df_list_zones.loc[zone, "set zones"]
-                provider_tmp = provider.loc[list(tmp_set_provider), :]
+                    # falls bereits mit einem Versorgungszentrum verbunden -> Lösche das Zentrum aus der Menge der Punkte
+                    tmp_set_provider = set_names_provider - df_list_zones.loc[zone, "set zones"]
+                    provider_tmp = provider.loc[list(tmp_set_provider), :]
 
-                # Bestimme die fehlende Anzahl an Versorgungszentren
-                # Auswahlkriterium: nächstgelegen
-                list_idx_provider = get_nearest_points_from_set(x_point=zone_data.loc["XCoord"],
-                                                                y_point=zone_data.loc["YCoord"],
-                                                                n=anz_versorger - df_list_zones.loc[
-                                                                    zone, "no_provider"],
-                                                                array_points=provider_tmp[["XCoord", "YCoord"]].values)
-                self.matrizen_VFS[vfs][zone, provider_tmp.index[list_idx_provider]] = 1
-                self.matrizen_VFS[vfs][provider_tmp.index[list_idx_provider], zone] = 1
-                # debugbefehl Entfernungen
-                # distances = calculate_distance_coordinates(x1=zone_data.loc["XCoord"], y1=zone_data.loc["YCoord"],
-                #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
-                #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
+                    # Bestimme die fehlende Anzahl an Versorgungszentren
+                    # Auswahlkriterium: nächstgelegen
+                    list_idx_provider = get_nearest_points_from_set(x_point=zone_data.loc["XCoord"],
+                                                                    y_point=zone_data.loc["YCoord"],
+                                                                    n=anz_versorger - df_list_zones.loc[
+                                                                        zone, "no_provider"],
+                                                                    array_points=provider_tmp[["XCoord", "YCoord"]].values)
+                    self.matrizen_VFS[vfs][zone, provider_tmp.index[list_idx_provider]] = 1
+                    self.matrizen_VFS[vfs][provider_tmp.index[list_idx_provider], zone] = 1
+                    # debugbefehl Entfernungen
+                    # distances = calculate_distance_coordinates(x1=zone_data.loc["XCoord"], y1=zone_data.loc["YCoord"],
+                    #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
+                    #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
 
-        # inaktive Quelle oder Ziel
-        if (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
-            # Aufbau Maske mit aktiven und inaktiven OD Paaren
-            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
-            idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
-                                     self.zones[self.attr_is_to_zone].values.reshape(1, -1))
+            # inaktive Quelle oder Ziel
+            if (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
+                # Aufbau Maske mit aktiven und inaktiven OD Paaren
+                # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
+                idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
+                                         self.zones[self.attr_is_to_zone].values.reshape(1, -1))
 
-            idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
+                idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
 
-            # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
-        elif (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
-            raise ValueError("Fall ist nicht implementiert: Quell oder Zielattribut gegeben aber nicht beides")
+                # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
+                self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
+            elif (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
+                raise ValueError("Fall ist nicht implementiert: Quell oder Zielattribut gegeben aber nicht beides")
 
-        # debugzwecke
-        if self.debug_mode:
-            # zeigt an, mit welchen Bezirken ein Bezirk verbunden ist (=benachbarte Zentren)
-            list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
+            # debugzwecke
+            if self.debug_mode:
+                # zeigt an, mit welchen Bezirken ein Bezirk verbunden ist (=benachbarte Zentren)
+                list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
 
-            # Zeigt das Ergebnis in Visum an
-            self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
+                # Zeigt das Ergebnis in Visum an
+                self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
 
-            logging.info(f"{vfs}: das Ergebnis kann in Visum bestaunt werden")
+                logging.info(f"{vfs}: das Ergebnis kann in Visum bestaunt werden")
 
     def delete_unused_nodes(self):
         # Lösche Punkte ohne Strecke
@@ -443,6 +443,9 @@ class LuftlinienCalculator:
         df_linktypes = df_edges["TypeNo"].drop_duplicates().to_frame(name="Name")
         df_linktypes["No"] = df_linktypes["Name"].replace(self.vfs)
         df_linktypes["Rank"] = df_linktypes["No"]
+
+        list_tsys_net = pd.DataFrame(visum.Net.TSystems.GetMultipleAttributes(["Code"])).squeeze().values.tolist()
+        df_linktypes["TSysSet"] = ",".join(list_tsys_net)
 
         # Übersetze VFS in TypeNo
         df_edges["TypeNo"].replace(self.vfs, inplace=True)
