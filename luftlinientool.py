@@ -640,16 +640,13 @@ if __name__ == '__main__':
 
     source = path_source / file_source
 
-    if source.suffix == ".ver":
-        Visum = open_visum(source)
-        ltt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
-    else:
-        print("nicht implementiert")
+    Visum = open_visum(source)
+    llt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
 
-    ltt1.calculate_main()
-    ltt1.export_matrix(visum=ltt1.visum)
-    ltt1.export_net(visum=ltt1.visum, links_additive=False)
+    llt1.calculate_main()
+    llt1.export_matrix(visum=llt1.visum)
+    llt1.export_net(visum=llt1.visum, links_additive=False)
 
-    ltt1.delete_unused_nodes()
+    llt1.delete_unused_nodes()
 
     del Visum
