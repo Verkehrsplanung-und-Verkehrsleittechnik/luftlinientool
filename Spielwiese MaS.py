@@ -1,24 +1,7 @@
 from VisumOverlay import *
-import win32com.client as com
+
 import logging
 
-# ========= functions =========
-def open_visum(path, version=220):
-    try:
-        ''' VisumStart
-        - enables the usage in the procedure sequence or as Visum instance
-        - name of the Visum version that is opened
-        '''
-        global Visum
-        Visum
-        name = Visum.UserPreferences.DocumentName
-    except NameError:
-        logging.info('initialize visum instance')
-        Visum = com.Dispatch(f"Visum.Visum.{version}")
-        logging.info('open visum file: {}'.format(path))
-        Visum.LoadVersion(path)
-        logging.info('erfolgreich geladen')
-    return Visum
 
 if __name__ == '__main__':
     from pathlib import Path
@@ -47,7 +30,7 @@ if __name__ == '__main__':
     source = path_source / file_source
 
     if source.suffix == ".ver":
-        Visum = open_visum(source)
+        Visum = llt.open_visum(source)
         ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
     else:
         print("nicht implementiert")

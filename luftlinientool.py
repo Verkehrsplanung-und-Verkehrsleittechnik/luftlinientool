@@ -7,30 +7,56 @@ import logging
 import numpy as np
 from scipy.spatial import Delaunay
 from pathlib import Path
-from math import sin, cos, sqrt, atan2, radians
+from math import radians
+import win32com.client as com
 
 
 # todo update nach Änderung sofort in GUI Event, hier nicht nochmaliges Update
 
 # ====== allgemeine, nützliche FUnktionen =====
 
-## writes data of defined object type to .net file
-# @param[in] f: target file opened in "write" or "append" mode
-# @param[in]:
+## öffnet eine Visuminstanz falls nicht bereits offen
+# ermöglicht simultanes Aufrufen der Datei Visumintern und -extern
+# @param path: Dateipfad (Path/str) einer Visumversionsdatei
+# @param version: Visumversion, default 22
+# @return: Visuminstanz
+def open_visum(path, version=220):
+
+    try:
+        # testet ob die Variable Visum existiert
+        global Visum
+        Visum
+        name = Visum.UserPreferences.DocumentName
+    except NameError:
+        # falls nicht - Öffne eine Visuminstanz
+        logging.info('initialize visum instance')
+        Visum = com.Dispatch(f"Visum.Visum.{version}")
+        logging.info('open visum file: {}'.format(path))
+        Visum.LoadVersion(path)
+        logging.info('erfolgreich geladen')
+    return Visum
+
+## Exportiert die Daten eines Visumobjekttyps in Netzdateiformat
+# @param[in] object: Visumobjekttyp (Singular), z.B. 'link'
+# @param[in] df_object_attributes_to_write: Datentabelle des Objekts. Tabelle enthält nur Attribute, die in Visum
+# importiert werden können (insbesondere die notwendigen Attribute)
+# @param[in] file: Zieldatei, im Schreib- oder Erweiterungsmodus (w oder a)
 def write_object_to_net(object, df_object_attributes_to_write, file):
     header = ["*", "*"]
     header.insert(1, "* Table: " + object + "s")
     header.append(
         ("$" + object.upper().replace(" ", "") + ":" + ";".join(df_object_attributes_to_write.columns)).upper() + "\n")
 
+    # Header wird geschrieben
     file.write("\n".join(header))
+    # Tabelle wird geschrieben
     df_object_attributes_to_write.to_csv(file, header=False, sep=";", index=False)
 
 
 ## check if a matrix is symmetric
-#     @param matrix:
-#     @param tol:
-#     @return:
+#@param matrix: Matrix, die auf Symmetrie getestet werden soll
+#@param tol: Toleranz für erlaubte Abweichung, default 1e-8
+#@return: True oder False
 def is_symmetric(matrix, tol=1e-8):
     # Anwendung der Maximums-Norm für die Diff zwischen der Matrix und der Transponierten
     # Norm > 0 -> keine Symmetrie
@@ -39,11 +65,11 @@ def is_symmetric(matrix, tol=1e-8):
 
 ## Berechnung der Distanz zwischen Koordinaten
 # Implementation der Haversine Formel
-# @param x1:
-# @param y1:
-# @param vec_x2:
-# @param vec_y2:
-# @return:
+# @param x1: x-Koordinate Punkt 1
+# @param y1: y-Koordinate Punkt 1
+# @param vec_x2: x-Koordinate Punktevektor
+# @param vec_y2: y-Koordinate Punktevektor
+# @return Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1
 def calculate_distance_coordinates(x1, y1, vec_x2, vec_y2):
     # approximate radius of earth in km
     R = 6373.0
@@ -64,8 +90,17 @@ def calculate_distance_coordinates(x1, y1, vec_x2, vec_y2):
     return distances_km
 
 
-## identifiziert die nächsten n Punkte aus einer gegebenen Tabelle
+## identifiziert die nächsten n Punkte aus einer gegebenen Punktemenge zu einem einzelnen Punkt
+# zuerst werden die Distanzen aller Punkte zu dem einzelnen Punkt berechnet (Haversine)
+# danach werden die n am kürzesten entfernten Punkte gefiltert und deren Indizes zurückgegeben
+# @param x_point: x-Koordinate des Referenzpunktes
+# @param y_point: y-Koordinate des Referenzpunktes
+# @param array_points: Array mit den x- & y-Koordinaten der Punkte
+# @param n: gewünschte Punkteanzahl
+# @return list_indizes: Liste der Indizes der nächstgelegenen n Punkte
 def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
+
+    # Falls keine Auswahl existiert
     if (n is not None) and (n >= len(array_points)):
         # es werden alle möglichen Punkte zurückgegeben
         return list(range(0, n))
@@ -82,6 +117,7 @@ def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
 
 # ===== Klassendefinition ======
 ## Klasse LuftlinienCalculator
+# eine Instanz der Klasse enthält Attribute und Berechnungsmöglichkeiten um die VFS zwischen Bezirken zu ermitteln
 class LuftlinienCalculator:
 
     ## Konstruktor
@@ -93,6 +129,7 @@ class LuftlinienCalculator:
     # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird
     # @param attr_ziel:
     # @param use_gui:
+    # @param use_filter: nur berücksichtigt, wenn source = Visuminstanz
     # @param path_output:
     def __init__(self, source,
                  attr_vfs: str = "TypeNo",
@@ -102,6 +139,7 @@ class LuftlinienCalculator:
                  attr_quelle=None,
                  attr_ziel=None,
                  use_gui: bool = False,
+                 use_filter: bool = False,
                  path_output=None):
 
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
@@ -153,8 +191,9 @@ class LuftlinienCalculator:
         # Wichtig: Index der Tabelle = 0...n
         if not isinstance(source, str):
             self.visum = source
-            self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(self.attr_zones, OnlyActive=False),
-                                      columns=self.attr_zones)
+            attr_zones = self.attr_zones + ["IsInSelection"]
+            self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
+                                      columns=attr_zones)
             logging.info("%s Bezirke eingelesen", len(self.zones))
         else:
             self.visum = None
@@ -164,7 +203,11 @@ class LuftlinienCalculator:
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
         self.init_results()
 
+    ## übersetzt die Adjazenzmatrizen der gewünschten VFS in eine Streckenliste
+    # @param list_vfs: Liste der VFS. Falls nicht gegeben, werden alle VFS der Instanz verwendet
+    # @return: DataFrame mit allen Strecken und ihrer VFS. Achtung: Duplikate werden nicht entfernt
     def adj_matrix_to_links(self, list_vfs=None):
+
         if list_vfs is None:
             list_vfs = self.vfs.keys()
 
@@ -188,13 +231,22 @@ class LuftlinienCalculator:
 
         return df_edges
 
+    ## wandelt die Adjazenzmatrix in eine Liste der verbundenen Bezirke je Bezirk um
+    # @param vfs: str, Name der zu betrachtenden VFS
+    # @param use_zone_names: bool, falls True werden die hitnerlegten Bezirksnamen verwendet
+    # @return: DataFrame mit list Objekt je Bezirk und einer Spalte, die die Anzahl enthält
     def adj_matrix_to_set_of_connected_zones(self, vfs, use_zone_names=True):
+        # Matrix zu DataFrame
         if use_zone_names:
+            # Falls Namen verwendet werden sollen, werden die Zeilen & Spalten benannt
             df = pd.DataFrame(self.matrizen_VFS[vfs], index=self.zones["Name"], columns=self.zones["Name"])
         else:
             df = pd.DataFrame(self.matrizen_VFS[vfs])
+
+        # Erstellt einen DataFrame, der für jede Zeile der Matrix die Spaltennamen enthält, für die der Eintrag True ist
         df_set_zones = df.mul(df.columns.tolist()).apply(lambda x: set(zone for zone in x if zone), axis=1).to_frame(
             name="set zones")
+        # Ermittelt die Länge jeder Liste
         df_set_zones["no zones"] = df_set_zones["set zones"].apply(len)
 
         return df_set_zones
@@ -205,8 +257,7 @@ class LuftlinienCalculator:
 
         return matrix
 
-    ## a
-    #
+    ## berechnet für jede hinterlegte VFS der Instanz die Adjazenzmatrix
     def calculate_main(self):
         # Init Ergebnisse
         logging.info(f"Berechnung über alle VFS wird gestartet")
@@ -215,31 +266,40 @@ class LuftlinienCalculator:
 
         # Schleife über alle vfs
         for vfs in self.vfs:
+            # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
 
             # todo Idee Aktivierung Outputexportbuttions in GUI
             if self.use_gui:
                 a = 1
 
-    ## entspricht Funktion Program.LLCalc
+        logging.info("Die Berechnung über alle VFS ist abgeschlossen")
+
+    ## berechnet die Verbindungen einer VFS
+    # entspricht Funktion Program.LLCalc
+    # @param vfs: die Verbindungsfunktionsstufe, für die Verbindungen ermittel werden
     def calculate_vfs(self, vfs):
 
         # Attributswert der Bezirke für die gewählte VFS
         value_vfs = self.vfs[vfs]
 
+        # Attribute der VFS
         k_nachbar = self.nachbarschaftsgrad_vfs[vfs]
         anz_versorger = self.anz_versorger_vfs[vfs]
 
-        # todo Test, ob Bezirke mit gleichen Koordinaten existieren --> Abbruch
+
 
         # Filtere Bezirksdaten, die die Bedingungen erfüllen
         # Sind Aktiv todo Erweiterung Filterung nach attr_filter
         # TypNr <= VFS
         active_zones = self.zones
-        active_zones = active_zones.loc[active_zones[self.attr_central_level] <= value_vfs,
+        active_zones = active_zones.loc[(active_zones[self.attr_central_level] <= value_vfs)
+                                        & (active_zones["IsInSelection"] > 0),
                        :]
 
-        if len(active_zones) < 3:
+        if len(active_zones) > len(active_zones[["XCoords", "YCoords"]].drop_duplicates()):
+            logging.info(f"{vfs}: es existeiren Bezirke mit den gleichen Koordinaten")
+        elif len(active_zones) < 3:
             logging.info(f"{vfs}: es sind zu wenige Bezirke aktiv")
         else:
             logging.info(f"{vfs}: Delauney Triangulation wird für {len(active_zones)} Bezirke durchgeführt")
@@ -261,9 +321,6 @@ class LuftlinienCalculator:
                 self.matrizen_VFS[vfs][p2, p3] = 1
                 self.matrizen_VFS[vfs][p3, p1] = 1
                 self.matrizen_VFS[vfs][p3, p2] = 1
-
-            logging.info(
-                f"{vfs}: die initiale Adjazenzmatrix ohne Berücksichtigung der zusätzlichen Bedingungen, wurde erstellt")
 
             # Nachbarschaften Grad n bestimmen
             if k_nachbar > 1:
@@ -335,6 +392,8 @@ class LuftlinienCalculator:
 
                 logging.info(f"{vfs}: das Ergebnis kann in Visum bestaunt werden")
 
+            logging.info(f"Die Berechnung {vfs} ist abgeschlossen")
+
     def delete_unused_nodes(self):
         # Lösche Punkte ohne Strecke
 
@@ -343,13 +402,20 @@ class LuftlinienCalculator:
         self.visum.Filters.NodeFilter().AddCondition("OP_NONE", True, "Count:InLinks", "GreaterVal", 0)
         self.visum.Filters.NodeFilter().UseFilter = True
 
+        n = self.visum.Net.Nodes.CountActive
+
         # Löschen
         self.visum.Net.Nodes.RemoveAll(OnlyActive=True)
 
         # Filter initialisieren
         self.visum.Filters.NodeFilter().Init()
 
+        logging.info(f"{n} Knoten wurden gelöscht")
+
     def export_matrix(self, visum=None, list_vfs=None):
+        # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
+        # Sonst: Speichere .mtx Datei
+
         if list_vfs is None:
             list_vfs = self.vfs.keys()
 
@@ -409,11 +475,9 @@ class LuftlinienCalculator:
                     f.write(str_header)
                     df_mat.to_csv(f, header=False, sep=" ", index=False)
 
+        logging.info(f"{len(list_vfs)} Matrizen wurden exportiert")
 
-        # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
 
-        # Sonst: Speichere .mtx Datei
-        todo = 1
 
     def export_net(self, visum=None, links_additive=True, list_vfs=None):
         if self.path_output is None:
@@ -507,7 +571,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             if visum.Net.Links.Count < len(df_edges):
                 logging.warning("Da hat beim Import der Netzdatei etwas nicht geklappt")
 
-        logging.info(f"die Netzdatei wurde erfolgreich erstellt")
+        logging.info(f"die Netzdatei von {len(list_vfs)} VFS wurde exportiert")
 
     ## initialisiert die Adjazenzmatrizen
     def init_results(self):
@@ -516,3 +580,43 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
         self.matrizen_VFS = dict_vfs
+
+
+if __name__ == '__main__':
+    from pathlib import Path
+
+    # Parameterübergabe
+    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
+    file_source = 'ZentraleOrteBW_Bezirke.ver'
+
+    # Settings Logging
+    path_logfile = Path(__file__)
+    path_logfile = path_source / path_logfile.name.replace(".py", ".log")
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %I:%M:%S %p")
+    # Output in Konsole & Logfile
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logger_format)
+    file_handler = logging.FileHandler(path_logfile, mode="w")
+    file_handler.setFormatter(logger_format)
+    # add handles to logger
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(stream_handler)
+
+    source = path_source / file_source
+
+    if source.suffix == ".ver":
+        Visum = open_visum(source)
+        ltt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
+    else:
+        print("nicht implementiert")
+
+    ltt1.calculate_main()
+    ltt1.export_matrix(visum=ltt1.visum)
+    ltt1.export_net(visum=ltt1.visum, links_additive=False)
+
+    ltt1.delete_unused_nodes()
+
+    del Visum
