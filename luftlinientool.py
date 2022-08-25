@@ -122,15 +122,15 @@ class LuftlinienCalculator:
 
     ## Konstruktor
     # @param source: Dateiname (str) oder Visuminstanz
-    # @param attr_vfs: Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält
+    # @param attr_vfs: Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält. Default: TypeNr
     # @param dict_vfs: Dictionary, das die Attributwerte für die jeweiligen VFS enthält
     # @param max_entfernung: Angabe, bis zu welcher Entfernung, Nachbar angebunden werden
     # @param anz_versorger: Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll
-    # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird
-    # @param attr_ziel:
-    # @param use_gui:
-    # @param use_filter: nur berücksichtigt, wenn source = Visuminstanz
-    # @param path_output:
+    # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
+    # @param attr_ziel: Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default: None
+    # @param use_gui: gibt an, ob die Instanz mit einer GUI vernetzt ist. Default: False
+    # @param use_filter: gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz
+    # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
     def __init__(self, source,
                  attr_vfs: str = "TypeNo",
                  dict_vfs: dict = {"VFS 0": 0, "VFS I": 1, "VFS II": 2, "VFS III": 3, "VFS IV": 4, "VFS V": 5},
@@ -142,15 +142,14 @@ class LuftlinienCalculator:
                  use_filter: bool = False,
                  path_output=None):
 
+        # True, wenn am Debuggen. Ermöglicht die Durchführung von Zwischenanalysen, die im normalen Programmablauf nicht berücksichtigt werden
+        self.debug_mode = False
+
+        # Benötigte Bezirksattribute
+        # verarbeiten der Übergabeparameter
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
         self.attr_central_level = attr_vfs
         self.attr_zones.append(self.attr_central_level)
-
-        self.debug_mode = False
-
-        # Pfade
-        self.path_output = path_output
-
         if attr_quelle is not None:
             self.attr_zones.append(attr_quelle)
         if attr_ziel is not None:
@@ -159,7 +158,11 @@ class LuftlinienCalculator:
         self.attr_is_from_zone = attr_quelle
         self.attr_is_to_zone = attr_ziel
 
-        # Liste der VFS, die bearbeitet werden sollen todo Preprocessing, das Liste nur diese VFS enthält
+
+        # Pfade
+        self.path_output = path_output
+
+        # Liste der VFS, die bearbeitet werden sollen
         self.vfs = dict_vfs
 
         # gibt an, bis zu welchem "Nachbarschaftsgrad" gleichrangige verbindungen verfolgt werden sollen
@@ -254,7 +257,12 @@ class LuftlinienCalculator:
 
         return df_set_zones
 
+    # Berechnet, welche Nachbarn innerhalb von n Schritten erreicht werden können
+    # @param max_steps: maximale Entfernung (Schritte)
+    # @param vfs: zu untersuchende VFS
+    # @return matrix: Adjazenzmatrix für die Erreichbare Nachbarn innerhalb der max-steps
     def calculate_reachability_max_steps(self, max_steps, vfs):
+
         matrix = np.linalg.matrix_power(self.matrizen_VFS[vfs], max_steps)
         np.fill_diagonal(matrix, 0)
 
@@ -397,7 +405,15 @@ class LuftlinienCalculator:
 
             logging.info(f"Die Berechnung {vfs} ist abgeschlossen")
 
+    ## löschte Knoten in Visum, die keine Strecken anbinden
+    # geht nur, wenn eine Visuminstanz enthalten ist
+    # alle Knoten ohne Strecken werden gefiltert & die aktiven Knoten werden gelöscht
+    # anschließend wird der Filter zurückgesetzt
     def delete_unused_nodes(self):
+        if self.visum is None:
+            logging.warning("Knoten löschen: es ist keine Visuminstanz verknüpft")
+            return
+
         # Lösche Punkte ohne Strecke
 
         # Filter anpassen
@@ -415,7 +431,15 @@ class LuftlinienCalculator:
 
         logging.info(f"{n} Knoten wurden gelöscht")
 
+    ## exportiert die gewünschten Adjazenzmatrizen
+    # entweder direkt nach Visum (falls Visuminstanz verknüpft)
+    # oder als .mtx datei
+    # Vorhandene matrizen werden überschrieben
+    # @param visum: optionale Übergabe einer Visuminstanz. Default None
+    # @param list_vfs: optionale Übergabe einer Menge an VFS. Default: None (alle des Objekts)
     def export_matrix(self, visum=None, list_vfs=None):
+
+
         # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
         # Sonst: Speichere .mtx Datei
 
@@ -425,7 +449,9 @@ class LuftlinienCalculator:
         for vfs in list_vfs:
             matrix = self.matrizen_VFS[vfs]
             if visum is not None:
+                # Benennung
                 name_matrix = f"{vfs}_{self.nachbarschaftsgrad_vfs[vfs]}_{self.anz_versorger_vfs[vfs]}"
+                # Suche existierende Matrizen mit der Benennung
                 matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
 
                 if matrix_instances.Count < 1:
@@ -480,9 +506,13 @@ class LuftlinienCalculator:
 
         logging.info(f"{len(list_vfs)} Matrizen wurden exportiert")
 
-
-
+    ## exportiert eine Netzdatei
+    # falls eine Visuminstanz übergeben wird, wird die Netdatei in Visum geladen
+    # @param visum: optionale Übergabe einer Visuminstanz. Default None
+    # @param links_additive: falls False werden die existierenden Strecken in Visum gelöscht
+    # @param list_vfs: Liste der VFS, die berücksichtigt werden sollen. Default: Alle des Objekts
     def export_net(self, visum=None, links_additive=True, list_vfs=None):
+
         if self.path_output is None:
             # falls kein Dateipfad übergeben ist: Verwende Visumdateipfad, falls eine Visuminstanz existiert, ansonsten verwende den aktuellen Pfad
             if visum is not None:
