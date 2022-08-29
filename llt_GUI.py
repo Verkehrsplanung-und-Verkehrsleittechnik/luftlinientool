@@ -125,6 +125,7 @@ class LLTFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.event_set_default, default)
 
     def event_set_default(self, event):
+        # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
         self.buttons_value_k_nachbar_vfs["VFS 0"].SetValue(self.default_k_nachbar)
         self.buttons_value_k_nachbar_vfs["VFS I"].SetValue(self.default_k_nachbar)
@@ -141,9 +142,10 @@ class LLTFrame(wx.Frame):
         self.buttons_value_n_versorger["VFS V"].SetValue(self.default_anz_vf)
 
         self.SetStatusText('Default-Werte hergestellt')
-        self.WriteLogText('Default-Werte hergestellt')
 
     def event_calculate(self, event):
+        # Fehler irgendwo
+
         self.update_param_vfs()
         self.llt_calculator.calculate_main()
 
@@ -152,6 +154,7 @@ class LLTFrame(wx.Frame):
         self.Close()
 
     def event_import_data(self, event):
+        # funktioniert soweit, Berücksichtigung Attributswerte VFS fehlt
 
         # Erstellen einer Calculator Instanz
         if self.visum is not None:
@@ -358,7 +361,7 @@ class MainTab(wx.Panel):
         for vfs, btn in self.buttons_export_mat.items():
             btn.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_mtx)
 
-        self.btn_export_master.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_all)
+        self.btn_export_master.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_master)
 
 
 class LogTab(wx.Panel):
