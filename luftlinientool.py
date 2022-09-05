@@ -103,7 +103,7 @@ def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
     # Falls keine Auswahl existiert
     if (n is not None) and (n >= len(array_points)):
         # es werden alle möglichen Punkte zurückgegeben
-        return list(range(0, n))
+        return list(range(0, len(array_points)))
 
     # Berechne Entfernungen
     distances = calculate_distance_coordinates(x1=x_point, y1=y_point,
@@ -540,7 +540,7 @@ class LuftlinienCalculator:
         df_edges = self.adj_matrix_to_links(list_vfs=list_vfs)
         if len(df_edges) < 1:
             logging.warning("es existieren keine Strecken")
-            return
+            #return
 
         # Erstelle Liste mit Streckentypen
         df_linktypes = df_edges["TypeNo"].drop_duplicates().to_frame(name="Name")
@@ -625,7 +625,7 @@ if __name__ == '__main__':
     from pathlib import Path
 
     # Parameterübergabe
-    path_source = Path(r"S:\Mitarbeiter\Schilling")
+    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
     file_source = 'ZentraleOrteBW_Bezirke.ver'
 
     # Settings Logging
@@ -647,7 +647,7 @@ if __name__ == '__main__':
     source = path_source / file_source
 
     Visum = open_visum(source)
-    llt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
+    llt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=2, max_entfernung=1)
 
     llt1.calculate_main()
     llt1.export_matrix(visum=llt1.visum)
