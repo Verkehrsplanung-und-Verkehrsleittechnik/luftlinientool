@@ -11,6 +11,7 @@ class LLTFrame(wx.Frame):
         super().__init__(parent=None)
 
         # ===== Attribute =====
+        self.buttons_vfs_value = None
         self.buttons_value_k_nachbar_vfs = None
         self.button_vfs_active = None
         self.llt_calculator = None  # llt.LuftlinienCalculator()
@@ -58,7 +59,7 @@ class LLTFrame(wx.Frame):
 
     def __set_properties(self):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
-        self.SetMinSize((900,450))
+        self.SetMinSize((950,450))
 
         max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
         idx = 0
@@ -119,7 +120,7 @@ class LLTFrame(wx.Frame):
         # self.Bind(wx.EVT_TOOL, self.my_btn, qtool)
 
         # bind the menu event to an event handler, share QuitBtn event
-        self.Bind(wx.EVT_MENU, self.event_quit_button, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_CLOSE, self.event_quit_button)
         self.Bind(wx.EVT_MENU, self.event_import_data, einlesen)
         self.Bind(wx.EVT_MENU, self.event_calculate, calculate)
         self.Bind(wx.EVT_MENU, self.event_info, show_help)
@@ -152,8 +153,11 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Berechnung durchgeführt')
 
     def event_quit_button(self, event):
-        del self.visum
-        self.Close()
+        # del self.visum
+        self.stop = True
+        self.Destroy()
+        wx.Exit()
+
 
     def event_import_data(self, event):
         # funktioniert soweit,
@@ -321,7 +325,7 @@ class MainTab(wx.Panel):
 
         # Buttons Export Matrix
         vbox1.Add(
-            wx.StaticText(self, -1, "Export Ergebnis"),
+            wx.StaticText(self, -1, "anlegen in Visum als"),
             pos=(0, 4), span=(1,2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"),
                                    "VFS I": wx.Button(self, -1, "MTX"),
@@ -350,10 +354,10 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons export all
-        self.btn_export_master = wx.Button(self, -1, "Export alle VFS ")
+        self.btn_export_master = wx.Button(self, -1, "Import nach Visum alle VFS \n Strecken + Mtx ")
         self.btn_export_master.vfs = 'alle'
         vbox1.Add(self.btn_export_master,
-                  pos=(7,4),  span=(2,2), flag= wx.EXPAND)
+                  pos=(7,4),  span=(3,2), flag= wx.EXPAND)
         # AAufbau Layout
         hbox2.Add(vbox1,  1, wx.ALL | wx.EXPAND, 1)
         # hbox2.Add(vbox2)
