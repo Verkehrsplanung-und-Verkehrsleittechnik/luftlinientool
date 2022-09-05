@@ -11,6 +11,7 @@ class LLTFrame(wx.Frame):
         super().__init__(parent=None)
 
         # ===== Attribute =====
+        self.buttons_value_k_nachbar_vfs = None
         self.button_vfs_active = None
         self.llt_calculator = None  # llt.LuftlinienCalculator()
         self.default_k_nachbar = 1
@@ -51,21 +52,22 @@ class LLTFrame(wx.Frame):
         self.attr_vfs = "TypeNo"
 
         self.__set_layout__()
-        # self.__set_properties()
+        self.__set_properties()
 
         self.Show()
 
     def __set_properties(self):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
-        self.SetMinSize((768,480))
+        self.SetMinSize((900,450))
 
-        for btn in self.buttons_value_k_nachbar_vfs.values():
-            btn.SetRange(0, 99)
-            btn.SetValue(self.default_k_nachbar)
-
-        for btn in self.buttons_value_n_versorger.values():
-            btn.SetRange(0, 99)
-            btn.SetValue(self.default_anz_vf)
+        max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
+        idx = 0
+        for btn in self.buttons_vfs_value.values():
+            btn.SetRange(0, max_value_vfs)
+            btn.SetValue(idx)
+            idx += 1
+        
+        self.event_set_default()
 
     def __set_layout__(self):
         # Layout
@@ -124,7 +126,7 @@ class LLTFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.event_reset, reset_results)
         self.Bind(wx.EVT_MENU, self.event_set_default, default)
 
-    def event_set_default(self, event):
+    def event_set_default(self):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
         self.buttons_value_k_nachbar_vfs["VFS 0"].SetValue(self.default_k_nachbar)
@@ -145,17 +147,16 @@ class LLTFrame(wx.Frame):
 
     def event_calculate(self, event):
         # Fehler irgendwo
-
         self.update_param_vfs()
         self.llt_calculator.calculate_main()
+        self.SetStatusText('Berechnung durchgeführt')
 
     def event_quit_button(self, event):
         del self.visum
         self.Close()
 
     def event_import_data(self, event):
-        # funktioniert soweit, Berücksichtigung Attributswerte VFS fehlt
-
+        # funktioniert soweit,
         # Erstellen einer Calculator Instanz
         if self.visum is not None:
             # Init Calculator Instanz
@@ -169,6 +170,7 @@ class LLTFrame(wx.Frame):
             self.update_param_vfs()
         else:
             logging.warning("Umgang mit Nichtvisum Dateien ist nicht implementiert")
+        self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
         a=1
@@ -179,41 +181,49 @@ class LLTFrame(wx.Frame):
         else:
             self.llt_calculator.init_results()
 
+        self.SetStatusText('Ergebnisse gelöscht, ggf Ergebnisse neu nach Visum importieren')
+
     def event_export_results(self, event):
         if self.llt_calculator is not None:
-            self.ltt_calculator.export_net(visum=self.visum,
+            self.llt_calculator.export_net(visum=self.visum,
                                            links_additive=False)
-            self.ltt_calculator.export_matrix(visum=self.visum)
+            self.llt_calculator.export_matrix(visum=self.visum)
 
     def event_export_net(self, event):
         vfs = event.GetEventObject().vfs
 
         if self.llt_calculator is not None:
-            self.ltt_calculator.export_net(list_vfs=[vfs],
+            self.llt_calculator.export_net(list_vfs=[vfs],
                                            visum=self.visum,
                                            links_additive=False)
+        self.SetStatusText(f'{vfs}: Net-Datei exportiert und in Visum importiert')
 
 
     def event_export_mtx(self, event):
         vfs = event.GetEventObject().vfs
 
         if self.llt_calculator is not None:
-            self.ltt_calculator.export_matrix(list_vfs=[vfs],
-                                           visum=self.visum)
+            self.llt_calculator.export_matrix(list_vfs=[vfs],   visum=self.visum)
+
+        self.SetStatusText(f'{vfs}: Matrix in Visum geladen')
 
     def event_export_master(self, event):
-        self.ltt_calculator.export_matrix(visum=self.visum)
-        self.ltt_calculator.export_net(visum=self.visum,
+        self.llt_calculator.export_matrix(visum=self.visum)
+        self.llt_calculator.export_net(visum=self.visum,
                                        links_additive=False)
+
+        self.SetStatusText(f'die kombinierten Ergebnisse wurden in Visum importiert')
 
     def update_param_vfs(self):
         if self.llt_calculator is not None:
             list_vfs = [vfs[0] for vfs in self.button_vfs_active.items() if vfs[1].Value > 0]
             dict_anz_versorger = {vfs: self.buttons_value_n_versorger[vfs].Value for vfs in list_vfs}
             dict_max_nachbar = {vfs: self.buttons_value_k_nachbar_vfs[vfs].Value for vfs in list_vfs}
+            dict_vfs = {vfs: self.buttons_vfs_value[vfs].Value for vfs in list_vfs}
 
             self.llt_calculator.nachbarschaftsgrad_vfs = dict_max_nachbar
             self.llt_calculator.anz_versorger_vfs = dict_anz_versorger
+            self.llt_calculator.vfs = dict_vfs
 
 class MainTab(wx.Panel):
     def __init__(self, parent):
@@ -261,18 +271,18 @@ class MainTab(wx.Panel):
         # Spalte 2 Angabe Wert je VFS
         vbox1.Add(wx.StaticText(self, -1, "Attributwert VFS"),
                   pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.button_vfs_value = {"VFS 0": wx.SpinCtrl(self, -1, ""),
+        self.buttons_vfs_value = {"VFS 0": wx.SpinCtrl(self, -1, ""),
                                  "VFS I": wx.SpinCtrl(self, -1, ""),
                                  "VFS II": wx.SpinCtrl(self, -1, ""),
                                  "VFS III": wx.SpinCtrl(self, -1, ""),
                                  "VFS IV": wx.SpinCtrl(self, -1, ""),
                                  "VFS V": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
-        for btn in self.button_vfs_value.values():
+        for btn in self.buttons_vfs_value.values():
             vbox1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
-        self.TopLevelParent.button_vfs_value = self.button_vfs_value
+        self.TopLevelParent.buttons_vfs_value = self.buttons_vfs_value
 
         # Spalte 2 Auswahl Austauschfunktion je VFS
         vbox1.Add(wx.StaticText(self, -1, "Austauschfunktion \n n-naechste Nachbarn"),
@@ -327,12 +337,12 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons Export Net
-        self.buttons_export_net = {"VFS 0": wx.Button(self, -1, "MTX"),
-                                   "VFS I": wx.Button(self, -1, "MTX"),
-                                   "VFS II": wx.Button(self, -1, "MTX"),
-                                   "VFS III": wx.Button(self, -1, "MTX"),
-                                   "VFS IV": wx.Button(self, -1, "MTX"),
-                                   "VFS V": wx.Button(self, -1, "MTX")}
+        self.buttons_export_net = {"VFS 0": wx.Button(self, -1, "Net"),
+                                   "VFS I": wx.Button(self, -1, "Net"),
+                                   "VFS II": wx.Button(self, -1, "Net"),
+                                   "VFS III": wx.Button(self, -1, "Net"),
+                                   "VFS IV": wx.Button(self, -1, "Net"),
+                                   "VFS V": wx.Button(self, -1, "Net")}
         tmp_iterator = 1
         for vfs, btn in self.buttons_export_net.items():
             btn.vfs = vfs
@@ -394,10 +404,12 @@ class LogTab(wx.Panel):
         log = wx.TextCtrl(self, wx.ID_ANY, size=(700,200),
                           style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL |wx.EXPAND)
         handler = WxTextCtrlHandler(log)
+        handler.setFormatter(logger_format)
         self.logger.addHandler(handler)
 
         vbox.Add(log, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(vbox)
+
 
 class WxTextCtrlHandler(logging.Handler):
     def __init__(self, ctrl):
@@ -409,6 +421,6 @@ class WxTextCtrlHandler(logging.Handler):
         wx.CallAfter(self.ctrl.WriteText, s)
 
 if __name__ == '__main__':
-    app = wx.App(redirect=True)
+    app = wx.App()
     frame = LLTFrame()
     app.MainLoop()
