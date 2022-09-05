@@ -155,10 +155,6 @@ class LuftlinienCalculator:
         if attr_ziel is not None:
             self.attr_zones.append(attr_ziel)
 
-        self.attr_is_from_zone = attr_quelle
-        self.attr_is_to_zone = attr_ziel
-
-
         # Pfade
         self.path_output = path_output
 
@@ -204,6 +200,17 @@ class LuftlinienCalculator:
         else:
             self.visum = None
             logging.warning("Einlesen der Bezirksdaten ist fehlgeschlagen, Inputformat ist nicht implementiert")
+
+        if attr_quelle is None:
+            attr_quelle = 'quelle'
+            self.zones[attr_quelle] = 1
+
+        if attr_ziel is None:
+            attr_ziel = 'ziel'
+            self.zones[attr_ziel] = 1
+
+        self.attr_is_from_zone = attr_quelle
+        self.attr_is_to_zone = attr_ziel
 
         # Init VFS Matrizen
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
@@ -380,18 +387,17 @@ class LuftlinienCalculator:
                     #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
 
             # inaktive Quelle oder Ziel
-            if (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
-                # Aufbau Maske mit aktiven und inaktiven OD Paaren
-                # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
-                idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
-                                         self.zones[self.attr_is_to_zone].values.reshape(1, -1))
 
-                idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
+            # Aufbau Maske mit aktiven und inaktiven OD Paaren
+            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
+            idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
+                                     self.zones[self.attr_is_to_zone].values.reshape(1, -1))
 
-                # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-                self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
-            elif (self.attr_is_from_zone is not None) & (self.attr_is_to_zone is not None):
-                raise ValueError("Fall ist nicht implementiert: Quell oder Zielattribut gegeben aber nicht beides")
+            idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
+
+            # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
+
 
             # debugzwecke
             if self.debug_mode:
