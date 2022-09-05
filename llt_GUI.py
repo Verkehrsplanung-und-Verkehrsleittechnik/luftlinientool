@@ -77,31 +77,31 @@ class LLTFrame(wx.Frame):
 
         # create a panel (between menubar and statusbar) ...
         self.panel = wx.Panel(self)
-        notebook = wx.Notebook(self.panel)
+        self.notebook = wx.Notebook(self.panel)
 
         # create tabs
-        tabMain = MainTab(notebook)
-        tabLog = LogTab(notebook)
+        self.tabMain = MainTab(self.notebook)
+        self.tabLog = LogTab(self.notebook)
 
-        notebook.AddPage(tabMain, "Main")
-        notebook.AddPage(tabLog, "Log")
+        self.notebook.AddPage(self.tabMain, "Main")
+        self.notebook.AddPage(self.tabLog, "Log")
 
         # create a menubar at the top of the user frame
-        menu_bar = wx.MenuBar()
+        self.menu_bar = wx.MenuBar()
 
         # create a menu ...
-        menu = wx.Menu()
-        einlesen = menu.Append(-1, "&Einlesen Bezirke")
-        calculate = menu.Append(-1, "&Berechne Luftlinien-Netz")
-        menu.AppendSeparator()
-        reset_results = menu.Append(-1, "&Matrix initialisieren")
-        show_help = menu.Append(-1, "&Info")
-        menu.AppendSeparator()
-        default = menu.Append(-1, "&Set Default Values")
-        menu.AppendSeparator()
+        self.menu = wx.Menu()
+        einlesen = self.menu.Append(-1, "&Einlesen Bezirke")
+        calculate = self.menu.Append(-1, "&Berechne Luftlinien-Netz")
+        self.menu.AppendSeparator()
+        reset_results = self.menu.Append(-1, "&Matrix initialisieren")
+        show_help = self.menu.Append(-1, "&Info")
+        self.menu.AppendSeparator()
+        default = self.menu.Append(-1, "&Set Default Values")
+        self.menu.AppendSeparator()
         # put the menu on the menubar
-        menu_bar.Append(menu, "&Auswahl")
-        self.SetMenuBar(menu_bar)
+        self.menu_bar.Append(self.menu, "&Auswahl")
+        self.SetMenuBar(self.menu_bar)
 
         # # # create tool bar
         # # toolbar = self.CreateToolBar()
@@ -113,7 +113,7 @@ class LLTFrame(wx.Frame):
 
         # Set noteboook in a sizer to create the layout
         sizer = wx.BoxSizer()
-        sizer.Add(notebook, 1, wx.EXPAND)
+        sizer.Add(self.notebook, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
 
         # Event Handler
@@ -154,9 +154,10 @@ class LLTFrame(wx.Frame):
 
     def event_quit_button(self, event):
         # del self.visum
-        self.stop = True
+        #self.stop = True
+        self.panel.Destroy()
         self.Destroy()
-        wx.Exit()
+        wx.GetApp().ExitMainLoop()
 
 
     def event_import_data(self, event):
@@ -405,13 +406,13 @@ class LogTab(wx.Panel):
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
 
-        log = wx.TextCtrl(self, wx.ID_ANY, size=(700,200),
+        self.log = wx.TextCtrl(self, wx.ID_ANY, size=(700,200),
                           style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL |wx.EXPAND)
-        handler = WxTextCtrlHandler(log)
-        handler.setFormatter(logger_format)
-        self.logger.addHandler(handler)
+        self.handler = WxTextCtrlHandler(self.log)
+        self.handler.setFormatter(logger_format)
+        self.logger.addHandler(self.handler)
 
-        vbox.Add(log, 1, wx.ALL | wx.EXPAND, 5)
+        vbox.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(vbox)
 
 
