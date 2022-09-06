@@ -20,6 +20,7 @@ class LLTFrame(wx.Frame):
         super().__init__(parent=None)
 
         # ===== Attribute =====
+        self.buttons_value_n_versorger = None
         self.cb_quelle = None
         self.cb_ziel = None
         self.cb_vfs = None
@@ -107,13 +108,13 @@ class LLTFrame(wx.Frame):
 
         # create a menu ...
         self.menu = wx.Menu()
-        einlesen = self.menu.Append(-1, "&Einlesen Bezirke")
-        calculate = self.menu.Append(-1, "&Berechne Luftlinien-Netz")
+        einlesen = self.menu.Append(-1, "&Daten einlesen")
+        calculate = self.menu.Append(-1, "&Berechnung Luftlinien-Netz")
         self.menu.AppendSeparator()
-        reset_results = self.menu.Append(-1, "&Matrix initialisieren")
+        reset_results = self.menu.Append(-1, "&Ergebnisse initialisieren")
         show_help = self.menu.Append(-1, "&Info")
         self.menu.AppendSeparator()
-        default = self.menu.Append(-1, "&Set Default Values")
+        default = self.menu.Append(-1, "&Defaultwerte übernehmen")
         self.menu.AppendSeparator()
         # put the menu on the menubar
         self.menu_bar.Append(self.menu, "&Auswahl")
@@ -183,6 +184,8 @@ class LLTFrame(wx.Frame):
                 self.attr_ziel = attr
         else:
             logging.warning("sollte nie passieren")
+            
+        self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen")
 
     def event_calculate(self, event):
         # Fehler irgendwo
@@ -423,7 +426,10 @@ class MainTab(wx.Panel):
             btn.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_mtx)
 
         self.btn_export_master.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_master)
+
         self.cb_vfs.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_quelle.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_ziel.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
 
 class LogTab(wx.Panel):
