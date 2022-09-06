@@ -64,7 +64,7 @@ class LLTFrame(wx.Frame):
         self.list_attr = get_attr_zones(self.visum)
 
         # mögliche Bezirksattribute Zentralität
-        # self.list_attr_zones_centrality = [attr.Code for attr in Visum.Net.Zones.Attributes.GetAll]
+        self.list_attr_zones_centrality = [attr.Code for attr in Visum.Net.Zones.Attributes.GetAll]
         self.attr_quelle = None
         self.attr_ziel = None
         self.attr_vfs = "TypeNo"
@@ -84,7 +84,7 @@ class LLTFrame(wx.Frame):
             btn.SetRange(0, max_value_vfs)
             btn.SetValue(idx)
             idx += 1
-        
+
         self.event_set_default()
 
     def __set_layout__(self):
@@ -120,6 +120,17 @@ class LLTFrame(wx.Frame):
         self.menu_bar.Append(self.menu, "&Auswahl")
         self.SetMenuBar(self.menu_bar)
 
+        self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
+
+        # Workaroun keine Bilder zur Verfügung: Leeres Bitmap Objekt
+        self.toolbar.AddTool(101, 'Daten einlesen', wx.Bitmap())
+        self.toolbar.AddTool(102, 'Berechnung Luftlinien-Netz', wx.Bitmap())
+        self.toolbar.AddTool(103, 'Ergebnisse initialisieren', wx.Bitmap())
+        self.toolbar.AddTool(104, 'Defaultwerte', wx.Bitmap())
+        self.toolbar.AddTool(105, 'Info', wx.Bitmap())
+        self.toolbar.Realize()
+
+
         # # # create tool bar
         # # toolbar = self.CreateToolBar()
         # # qtool = toolbar.AddTool(wx.ID_ANY, 'Quit', wx.Bitmap('Exit.bmp'))
@@ -143,6 +154,12 @@ class LLTFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.event_info, show_help)
         self.Bind(wx.EVT_MENU, self.event_reset, reset_results)
         self.Bind(wx.EVT_MENU, self.event_set_default, default)
+
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_calculate, id=102)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_reset, id=103)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_set_default, id=104)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
 
     def event_set_default(self, event=None):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
