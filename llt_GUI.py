@@ -3,7 +3,16 @@ import luftlinientool as llt
 from pathlib import Path
 import logging
 
-# Erstellt das Layout für das GUI, ohen Funktionalität (schneller)
+# Erstellt das Layout für das GUI
+
+# ===== Hilfsfkt =====
+
+## lädt alle Visumattribute
+def get_attr_zones(Visum):
+    list_attr = Visum.Net.Zones.Attributes.GetAll
+    list_attr_names = [attr.Code for attr in list_attr]
+
+    return list_attr_names
 
 # Definiert das komplette Fenster, erzeugt die einzelnen Bestandtteile udn verbindet diese mit der Logik
 class LLTFrame(wx.Frame):
@@ -11,12 +20,19 @@ class LLTFrame(wx.Frame):
         super().__init__(parent=None)
 
         # ===== Attribute =====
+        self.buttons_value_n_versorger = None
+        self.cb_quelle = None
+        self.cb_ziel = None
+        self.cb_vfs = None
         self.buttons_vfs_value = None
         self.buttons_value_k_nachbar_vfs = None
         self.button_vfs_active = None
         self.llt_calculator = None  # llt.LuftlinienCalculator()
         self.default_k_nachbar = 1
         self.default_anz_vf = 0
+        self.attr_vfs = "TypeNo"
+        self.attr_quelle = None
+        self.attr_ziel = None
 
         # Falls Visum existiert -> nichts
         # ansonsten Fenster öffnen, mit dem Datei ausgewählt werden kann
@@ -45,9 +61,10 @@ class LLTFrame(wx.Frame):
                 Visum.LoadVersion(source)
 
         self.visum = Visum
+        self.list_attr = get_attr_zones(self.visum)
 
         # mögliche Bezirksattribute Zentralität
-        # self.list_attr_zones_centrality = [attr.Code for attr in Visum.Net.Zones.Attributes.GetAll]
+        self.list_attr_zones_centrality = [attr.Code for attr in Visum.Net.Zones.Attributes.GetAll]
         self.attr_quelle = None
         self.attr_ziel = None
         self.attr_vfs = "TypeNo"
@@ -59,7 +76,7 @@ class LLTFrame(wx.Frame):
 
     def __set_properties(self):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
-        self.SetMinSize((950,450))
+        self.SetMinSize((1000,500))
 
         max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
         idx = 0
@@ -67,7 +84,7 @@ class LLTFrame(wx.Frame):
             btn.SetRange(0, max_value_vfs)
             btn.SetValue(idx)
             idx += 1
-        
+
         self.event_set_default()
 
     def __set_layout__(self):
@@ -91,17 +108,28 @@ class LLTFrame(wx.Frame):
 
         # create a menu ...
         self.menu = wx.Menu()
-        einlesen = self.menu.Append(-1, "&Einlesen Bezirke")
-        calculate = self.menu.Append(-1, "&Berechne Luftlinien-Netz")
+        einlesen = self.menu.Append(-1, "&Daten einlesen")
+        calculate = self.menu.Append(-1, "&Berechnung Luftlinien-Netz")
         self.menu.AppendSeparator()
-        reset_results = self.menu.Append(-1, "&Matrix initialisieren")
+        reset_results = self.menu.Append(-1, "&Ergebnisse initialisieren")
         show_help = self.menu.Append(-1, "&Info")
         self.menu.AppendSeparator()
-        default = self.menu.Append(-1, "&Set Default Values")
+        default = self.menu.Append(-1, "&Defaultwerte übernehmen")
         self.menu.AppendSeparator()
         # put the menu on the menubar
         self.menu_bar.Append(self.menu, "&Auswahl")
         self.SetMenuBar(self.menu_bar)
+
+        self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
+
+        # Workaroun keine Bilder zur Verfügung: Leeres Bitmap Objekt
+        self.toolbar.AddTool(101, 'Daten einlesen', wx.Bitmap())
+        self.toolbar.AddTool(102, 'Berechnung Luftlinien-Netz', wx.Bitmap())
+        self.toolbar.AddTool(103, 'Ergebnisse initialisieren', wx.Bitmap())
+        self.toolbar.AddTool(104, 'Defaultwerte', wx.Bitmap())
+        self.toolbar.AddTool(105, 'Info', wx.Bitmap())
+        self.toolbar.Realize()
+
 
         # # # create tool bar
         # # toolbar = self.CreateToolBar()
@@ -127,7 +155,13 @@ class LLTFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.event_reset, reset_results)
         self.Bind(wx.EVT_MENU, self.event_set_default, default)
 
-    def event_set_default(self):
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_calculate, id=102)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_reset, id=103)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_set_default, id=104)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
+
+    def event_set_default(self, event=None):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
         self.buttons_value_k_nachbar_vfs["VFS 0"].SetValue(self.default_k_nachbar)
@@ -144,7 +178,31 @@ class LLTFrame(wx.Frame):
         self.buttons_value_n_versorger["VFS IV"].SetValue(self.default_anz_vf)
         self.buttons_value_n_versorger["VFS V"].SetValue(self.default_anz_vf)
 
+        self.cb_vfs.SetValue("TypeNo")
+        self.cb_quelle.SetValue('')
+        self.cb_ziel.SetValue('')
+
         self.SetStatusText('Default-Werte hergestellt')
+
+    def event_choose_attr(self, event):
+        attr = event.GetEventObject().GetStringSelection()
+
+        if event.GetEventObject().Label == 'attr_vfs':
+            self.attr_vfs = attr
+        elif event.GetEventObject().Label == 'attr_quelle':
+            if attr == '':
+                self.attr_quelle = None
+            else:
+                self.attr_quelle = attr
+        elif event.GetEventObject().Label == 'attr_ziel':
+            if attr == '':
+                self.attr_ziel = None
+            else:
+                self.attr_ziel = attr
+        else:
+            logging.warning("sollte nie passieren")
+            
+        self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen")
 
     def event_calculate(self, event):
         # Fehler irgendwo
@@ -240,25 +298,36 @@ class MainTab(wx.Panel):
     def __set_layout__(self):
         # Zeilen mit einzelnen Elementen (vbox_outer)
         # Zeile 1: Bezirksattributauswahl
-        # Zeile 2: enthält 2 Spalten
-        # Spalte 1: GridbagSizer mit allem auser Log, Spalte 2: Message Log
-        # unten ggf Statusbar
+        # Zeile 2: GridbagSizer mit allem auser Log
+        # unten Statusbar
 
-        # horizontaler Sizer Ebene 1 (realisiert Spalten)
         vbox_outer = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        vbox1 = wx.GridBagSizer(vgap=10, hgap=50)
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        # vbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        # vbox1 = wx.BoxSizer(wx.VERTICAL)
-        vbox2 = wx.BoxSizer(wx.VERTICAL)
-        # vbox3 = wx.BoxSizer(wx.VERTICAL)
+        gridbagsizer1 = wx.GridBagSizer(vgap=10, hgap=50)
 
-        hbox1.Add(wx.StaticText(self, -1, "ToDo Auswahl Bezirkattribute"), 0, 0, 0, 0)
+        # Auswahl Bezirksattribute
+        self.cb_vfs = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_vfs.Label= 'attr_vfs'
+        self.TopLevelParent.cb_vfs = self.cb_vfs
+
+        self.cb_quelle = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_quelle.Label= 'attr_quelle'
+        self.TopLevelParent.cb_quelle = self.cb_quelle
+
+        self.cb_ziel = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_ziel.Label= 'attr_ziel'
+        self.TopLevelParent.cb_ziel = self.cb_ziel
+
+        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n VFS"), 0, wx.ALL|wx.EXPAND,5)
+        hbox1.Add(self.cb_vfs, 0, wx.ALL|wx.EXPAND,15)
+        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n 'ist Quelle'"), 0, wx.ALL|wx.EXPAND,5)
+        hbox1.Add(self.cb_quelle, 0, wx.ALL|wx.EXPAND,15)
+        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n 'ist Ziel'"), 0, wx.ALL|wx.EXPAND,5)
+        hbox1.Add(self.cb_ziel, 0, wx.ALL|wx.EXPAND,15 )
 
         # Überschrift Spalte 1
-        vbox1.Add(wx.StaticText(self, -1, "Verbindungsfunktionsstufe"),
-                  pos=(0,0), flag=wx.TOP|wx.LEFT|wx.BOTTOM, border=5)
+        gridbagsizer1.Add(wx.StaticText(self, -1, "Verbindungsfunktionsstufe"),
+                          pos=(0,0), flag=wx.TOP|wx.LEFT|wx.BOTTOM, border=5)
         self.button_vfs_active = {"VFS 0": wx.CheckBox(self, -1, "VFS 0"),
                                   "VFS I": wx.CheckBox(self, -1, "VFS I"),
                                   "VFS II": wx.CheckBox(self, -1, "VFS II"),
@@ -268,14 +337,14 @@ class MainTab(wx.Panel):
 
         tmp_iterator = 1
         for btn in self.button_vfs_active.values():
-            vbox1.Add(btn, pos=(tmp_iterator, 0), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 0), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         self.TopLevelParent.button_vfs_active = self.button_vfs_active
 
         # Spalte 2 Angabe Wert je VFS
-        vbox1.Add(wx.StaticText(self, -1, "Attributwert VFS"),
-                  pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
+        gridbagsizer1.Add(wx.StaticText(self, -1, "Attributwert VFS"),
+                          pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_vfs_value = {"VFS 0": wx.SpinCtrl(self, -1, ""),
                                  "VFS I": wx.SpinCtrl(self, -1, ""),
                                  "VFS II": wx.SpinCtrl(self, -1, ""),
@@ -284,14 +353,14 @@ class MainTab(wx.Panel):
                                  "VFS V": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_vfs_value.values():
-            vbox1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         self.TopLevelParent.buttons_vfs_value = self.buttons_vfs_value
 
         # Spalte 2 Auswahl Austauschfunktion je VFS
-        vbox1.Add(wx.StaticText(self, -1, "Austauschfunktion \n n-naechste Nachbarn"),
-                  pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
+        gridbagsizer1.Add(wx.StaticText(self, -1, "Austauschfunktion \n n-naechste Nachbarn"),
+                          pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
         self.buttons_value_k_nachbar_vfs = {"VFS 0": wx.SpinCtrl(self, -1, ""),
                                             "VFS I": wx.SpinCtrl(self, -1, ""),
@@ -301,13 +370,13 @@ class MainTab(wx.Panel):
                                             "VFS V": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_value_k_nachbar_vfs.values():
-            vbox1.Add(btn, pos=(tmp_iterator, 2), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 2), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         self.TopLevelParent.buttons_value_k_nachbar_vfs = self.buttons_value_k_nachbar_vfs
 
         # Spalte 3 Versorgunsgfunktion
-        vbox1.Add(
+        gridbagsizer1.Add(
             wx.StaticText(self, -1, "Versorgungsfunktion \n n Versorgungszentren"),
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_value_n_versorger = {"VFS 0": wx.SpinCtrl(self, -1, ""),
@@ -319,13 +388,13 @@ class MainTab(wx.Panel):
 
         tmp_iterator = 1
         for btn in self.buttons_value_n_versorger.values():
-            vbox1.Add(btn, pos=(tmp_iterator, 3), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 3), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         self.TopLevelParent.buttons_value_n_versorger = self.buttons_value_n_versorger
 
         # Buttons Export Matrix
-        vbox1.Add(
+        gridbagsizer1.Add(
             wx.StaticText(self, -1, "anlegen in Visum als"),
             pos=(0, 4), span=(1,2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"),
@@ -338,7 +407,7 @@ class MainTab(wx.Panel):
         tmp_iterator = 1
         for vfs, btn in self.buttons_export_mat.items():
             btn.vfs = vfs
-            vbox1.Add(btn, pos=(tmp_iterator, 4), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 4), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         # Buttons Export Net
@@ -351,20 +420,17 @@ class MainTab(wx.Panel):
         tmp_iterator = 1
         for vfs, btn in self.buttons_export_net.items():
             btn.vfs = vfs
-            vbox1.Add(btn, pos=(tmp_iterator, 5), flag=wx.ALIGN_CENTER)
+            gridbagsizer1.Add(btn, pos=(tmp_iterator, 5), flag=wx.ALIGN_CENTER)
             tmp_iterator += 1
 
         # Buttons export all
         self.btn_export_master = wx.Button(self, -1, "Import nach Visum alle VFS \n Strecken + Mtx ")
         self.btn_export_master.vfs = 'alle'
-        vbox1.Add(self.btn_export_master,
-                  pos=(7,4),  span=(3,2), flag= wx.EXPAND)
-        # AAufbau Layout
-        hbox2.Add(vbox1,  1, wx.ALL | wx.EXPAND, 1)
-        # hbox2.Add(vbox2)
-        # hbox2.SetSizeHints(self)
+        gridbagsizer1.Add(self.btn_export_master,
+                          pos=(7,4), span=(3,2), flag= wx.EXPAND)
+        # Aufbau Layout
         vbox_outer.Add(hbox1, 0 , wx.ALL | wx.EXPAND, 1)
-        vbox_outer.Add(hbox2,  1, wx.ALL | wx.EXPAND, 5)
+        vbox_outer.Add(gridbagsizer1,  1, wx.ALL | wx.EXPAND, 6)
         self.SetSizer(vbox_outer)
 
         # ==== Event binding
@@ -377,6 +443,10 @@ class MainTab(wx.Panel):
             btn.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_mtx)
 
         self.btn_export_master.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_master)
+
+        self.cb_vfs.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_quelle.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_ziel.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
 
 class LogTab(wx.Panel):
