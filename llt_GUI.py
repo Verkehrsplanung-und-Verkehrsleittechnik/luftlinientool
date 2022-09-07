@@ -67,6 +67,7 @@ class LLTFrame(wx.Frame):
 
         self.__set_layout__()
         self.__set_properties__()
+        self.__bind_events__()
 
         self.Show()
 
@@ -145,11 +146,11 @@ class LLTFrame(wx.Frame):
         # Event Handler
         # bind the menu event to an event handler, share QuitBtn event
         self.Bind(wx.EVT_CLOSE, self.event_quit_button)
-        self.Bind(wx.EVT_MENU, self.event_import_data, 11)
-        self.Bind(wx.EVT_MENU, self.event_calculate, 12)
-        self.Bind(wx.EVT_MENU, self.event_info, 15)
-        self.Bind(wx.EVT_MENU, self.event_reset, 13)
-        self.Bind(wx.EVT_MENU, self.event_set_default, 14)
+        self.Bind(wx.EVT_MENU, self.event_import_data, id=11)
+        self.Bind(wx.EVT_MENU, self.event_calculate, id=12)
+        self.Bind(wx.EVT_MENU, self.event_info, id=15)
+        self.Bind(wx.EVT_MENU, self.event_reset, id=13)
+        self.Bind(wx.EVT_MENU, self.event_set_default, id=14)
 
         self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_calculate, id=102)
