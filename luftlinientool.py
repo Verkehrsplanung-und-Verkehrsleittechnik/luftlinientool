@@ -435,7 +435,7 @@ class LuftlinienCalculator:
         # Filter initialisieren
         self.visum.Filters.NodeFilter().Init()
 
-        logging.info(f"{n} Knoten wurden gelöscht")
+        logging.info(f"{n} isolierte Knoten wurden gelöscht")
 
     ## exportiert die gewünschten Adjazenzmatrizen
     # entweder direkt nach Visum (falls Visuminstanz verknüpft)

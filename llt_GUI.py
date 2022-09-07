@@ -14,7 +14,7 @@ def get_attr_zones(Visum):
 
     return list_attr_names
 
-# Definiert das komplette Fenster, erzeugt die einzelnen Bestandtteile udn verbindet diese mit der Logik
+# Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
 class LLTFrame(wx.Frame):
     def __init__(self):
         super().__init__(parent=None)
@@ -40,8 +40,6 @@ class LLTFrame(wx.Frame):
             # testet ob die Variable Visum existiert
             global Visum
             Visum
-            name = Visum.UserPreferences.DocumentName
-            use_visum = True
         except NameError:
             import win32com.client as com
             defDir = Path.cwd()
@@ -63,8 +61,6 @@ class LLTFrame(wx.Frame):
         self.visum = Visum
         self.list_attr = get_attr_zones(self.visum)
 
-        # mögliche Bezirksattribute Zentralität
-        self.list_attr_zones_centrality = [attr.Code for attr in Visum.Net.Zones.Attributes.GetAll]
         self.attr_quelle = None
         self.attr_ziel = None
         self.attr_vfs = "TypeNo"
@@ -205,9 +201,13 @@ class LLTFrame(wx.Frame):
         self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen")
 
     def event_calculate(self, event):
-        # Fehler irgendwo
+        # Vorgehen
+        # 1. Update der vorgegebenen parameter, falls was geändert wurde
+        # 2. berechnen
         self.update_param_vfs()
         self.llt_calculator.calculate_main()
+
+        # Statusleiste
         self.SetStatusText('Berechnung durchgeführt')
 
     def event_quit_button(self, event):
@@ -259,6 +259,8 @@ class LLTFrame(wx.Frame):
             self.llt_calculator.export_net(list_vfs=[vfs],
                                            visum=self.visum,
                                            links_additive=False)
+            self.llt_calculator.delete_unused_nodes()
+
         self.SetStatusText(f'{vfs}: Net-Datei exportiert und in Visum importiert')
 
 
@@ -274,6 +276,7 @@ class LLTFrame(wx.Frame):
         self.llt_calculator.export_matrix(visum=self.visum)
         self.llt_calculator.export_net(visum=self.visum,
                                        links_additive=False)
+        self.llt_calculator.delete_unused_nodes()
 
         self.SetStatusText(f'die kombinierten Ergebnisse wurden in Visum importiert')
 
