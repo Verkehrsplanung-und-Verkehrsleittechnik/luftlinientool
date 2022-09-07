@@ -70,11 +70,11 @@ class LLTFrame(wx.Frame):
         self.attr_vfs = "TypeNo"
 
         self.__set_layout__()
-        self.__set_properties()
+        self.__set_properties__()
 
         self.Show()
 
-    def __set_properties(self):
+    def __set_properties__(self):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
         self.SetMinSize((1000,500))
 
@@ -108,13 +108,14 @@ class LLTFrame(wx.Frame):
 
         # create a menu ...
         self.menu = wx.Menu()
-        einlesen = self.menu.Append(-1, "&Daten einlesen")
-        calculate = self.menu.Append(-1, "&Berechnung Luftlinien-Netz")
+        self.menu.Append(11, "&Daten einlesen")
+        self.menu.Append(12, "&Berechnung Luftlinien-Netz")
         self.menu.AppendSeparator()
-        reset_results = self.menu.Append(-1, "&Ergebnisse initialisieren")
-        show_help = self.menu.Append(-1, "&Info")
+        self.menu.Append(13, "&Ergebnisse initialisieren")
+        self.menu.Append(14, "&Defaultwerte übernehmen")
         self.menu.AppendSeparator()
-        default = self.menu.Append(-1, "&Defaultwerte übernehmen")
+        self.menu.Append(15, "&Info")
+
         self.menu.AppendSeparator()
         # put the menu on the menubar
         self.menu_bar.Append(self.menu, "&Auswahl")
@@ -144,16 +145,15 @@ class LLTFrame(wx.Frame):
         sizer.Add(self.notebook, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
 
+    def __bind_events__(self):
         # Event Handler
-        # self.Bind(wx.EVT_TOOL, self.my_btn, qtool)
-
         # bind the menu event to an event handler, share QuitBtn event
         self.Bind(wx.EVT_CLOSE, self.event_quit_button)
-        self.Bind(wx.EVT_MENU, self.event_import_data, einlesen)
-        self.Bind(wx.EVT_MENU, self.event_calculate, calculate)
-        self.Bind(wx.EVT_MENU, self.event_info, show_help)
-        self.Bind(wx.EVT_MENU, self.event_reset, reset_results)
-        self.Bind(wx.EVT_MENU, self.event_set_default, default)
+        self.Bind(wx.EVT_MENU, self.event_import_data, 11)
+        self.Bind(wx.EVT_MENU, self.event_calculate, 12)
+        self.Bind(wx.EVT_MENU, self.event_info, 15)
+        self.Bind(wx.EVT_MENU, self.event_reset, 13)
+        self.Bind(wx.EVT_MENU, self.event_set_default, 14)
 
         self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_calculate, id=102)
