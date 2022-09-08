@@ -242,10 +242,10 @@ class LLTFrame(wx.Frame):
     def event_info(self, event):
         try:
             os.startfile( Path(__file__).parents[0] / "Readme.html")
-            self.SetStatusText('Info geöffnet')
         except:
-            self.SetStatusText(str(Path.cwd()))
-            pass
+            os.startfile(Path(__file__).parents[0] / "Readme.md")
+
+        self.SetStatusText('Info geöffnet')
 
     def event_reset(self, event):
         if self.llt_calculator is None:
