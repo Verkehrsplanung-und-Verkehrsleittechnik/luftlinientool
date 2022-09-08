@@ -240,10 +240,13 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
-        try:
-            os.startfile( Path(__file__).parents[0] / "Readme.html")
-        except:
-            os.startfile(Path(__file__).parents[0] / "Readme.md")
+        # öffnet Infodatei als HTML oder als Markdown datei, wenn html nicht vorhanden ist
+
+        file = Path(__file__).parents[0] / "Readme.html"
+        if file.is_file == False:
+            file.name.replace(".html", ".md")
+
+        os.startfile(file)
 
         self.SetStatusText('Info geöffnet')
 
