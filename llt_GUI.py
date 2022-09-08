@@ -465,8 +465,9 @@ class LogTab(wx.Panel):
         #
 
         # ==== Logging =====
-        path_logfile = Path(__file__)
-        path_logfile = path_logfile.name.replace(".py", ".log")
+        # path_logfile = Path(__file__)
+        # path_logfile = path_logfile.name.replace(".py", ".log")
+        path_logfile = Path(self.TopLevelParent.visum.GetPath(57)) / "luftlinientool.log"
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
         logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %I:%M:%S %p")
