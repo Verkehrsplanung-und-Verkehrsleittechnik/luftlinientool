@@ -2,6 +2,7 @@ import wx
 import luftlinientool as llt
 from pathlib import Path
 import logging
+import os
 
 # Erstellt das Layout für das GUI
 
@@ -216,6 +217,8 @@ class LLTFrame(wx.Frame):
         #self.stop = True
         self.panel.Destroy()
         self.Destroy()
+        self.tabLog.logger.removeHandler(self.tabLog.handler)
+
         wx.GetApp().ExitMainLoop()
 
 
@@ -237,7 +240,12 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
-        a=1
+        try:
+            os.startfile( Path(__file__).parents[0] / "Readme.html")
+            self.SetStatusText('Info geöffnet')
+        except:
+            self.SetStatusText(str(Path.cwd()))
+            pass
 
     def event_reset(self, event):
         if self.llt_calculator is None:
