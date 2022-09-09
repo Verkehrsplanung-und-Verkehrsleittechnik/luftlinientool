@@ -220,7 +220,7 @@ class LLTFrame(wx.Frame):
         self.Destroy()
 
         wx.GetApp().ExitMainLoop()
-        sys.exit(0)
+
 
 
     def event_import_data(self, event):
