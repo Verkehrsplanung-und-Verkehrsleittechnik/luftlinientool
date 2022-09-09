@@ -215,11 +215,12 @@ class LLTFrame(wx.Frame):
     def event_quit_button(self, event):
         # del self.visum
         #self.stop = True
+        self.tabLog.logger.removeHandler(self.tabLog.handler)
         self.panel.Destroy()
         self.Destroy()
-        self.tabLog.logger.removeHandler(self.tabLog.handler)
 
         wx.GetApp().ExitMainLoop()
+        sys.exit(0)
 
 
     def event_import_data(self, event):
