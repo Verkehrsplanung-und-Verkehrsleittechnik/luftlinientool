@@ -9,6 +9,7 @@ from scipy.spatial import Delaunay
 from pathlib import Path
 from math import radians
 import win32com.client as com
+import webbrowser
 
 
 # todo update nach Änderung sofort in GUI Event, hier nicht nochmaliges Update
@@ -113,6 +114,11 @@ def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
     list_indizes = np.argpartition(distances, n)[:n]
 
     return list_indizes
+
+## Öffnet die Readme Datei
+
+def show_info(path_scripts: Path=Path.cwd()):
+    webbrowser.open(str(path_scripts / "README.md"), new=2)
 
 
 # ===== Klassendefinition ======

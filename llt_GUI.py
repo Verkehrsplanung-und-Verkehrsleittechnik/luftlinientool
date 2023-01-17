@@ -239,7 +239,9 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
-        a=1
+        path_scripts = Path(self.visum.GetPath(37))
+        logging.info(path_scripts)
+        llt.show_info(path_scripts)
 
     def event_reset(self, event):
         if self.llt_calculator is None:
