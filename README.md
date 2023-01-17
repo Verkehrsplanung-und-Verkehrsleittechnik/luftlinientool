@@ -1,7 +1,22 @@
 # Luftlinientool2022
 Erstellen von Luftlinienverbindungen für gegebene Bezirke anhand der RIN.
 
-## Beschreibung
+## Anwendung
+### Anwendung via Dialog
+Zwei Möglichkeiten
+* Visumversion ist noch geschlossen:
+  
+  GUI extern starten (*llt_GUI.py* ausführen)
+* Visumversion ist bereits geöffnet:
+  * Das Ausführen der GUI (*llt_GUI.py*) in das Skriptmenü integrieren
+  * Skript via Skriptmenü starten 
+    
+    Hinweis: Wenn die GUI mehrmals gestarten & beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben. 
+
+### Aufruf via Code
+Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse LuftlinienCalculator erstellt werden.
+Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden
+Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
 
 ### auszuführende Schritte
 1. Parameter setzen (welche VFS, Attributswerte etc.)
@@ -32,10 +47,6 @@ Anmerkungen:
 * Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren"). Die Adjazenzmatrizen werden sonst einfach erweitert!
 
 ## Vorraussetzung
-
-* getestet in Visum 20, 22
-
-
 Netz mit kategorisierten Bezirken:
 * Attribut für die Zentralität (Bezirke): je kleiner die Zahl, desto größer ist die Zentralität des Bezirks
 
@@ -52,21 +63,3 @@ Netz mit kategorisierten Bezirken:
 * (optional) Angabe eines Attributs, welcher Bezirk als Ziel verwendet werden soll) {0=Nein, 1=Ja}
  
  
-
-
-## Anwendung
-### Anwendung via Dialog
-Zwei Möglichkeiten
-* Visumversion ist noch geschlossen:
-  
-  GUI extern starten (*llt_GUI.py* ausführen)
-* Visumversion ist bereits geöffnet:
-  * Das Ausführen der GUI (*llt_GUI.py*) in das Skriptmenü integrieren
-  * Skript via Skriptmenü starten 
-    
-    Hinweis: Wenn die GUI mehrmals gestarten & beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben. 
-
-### Aufruf via Code
-Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse LuftlinienCalculator erstellt werden.
-Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden
-Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
