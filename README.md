@@ -18,6 +18,34 @@ Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausf�
 Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden
 Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
 
+### auszuführende Schritte
+1. Parameter setzen (welche VFS, Attributswerte etc.)
+
+2. Luftlinienkalkulatorobjekt initialisieren
+   
+    Code: Aufruf Konstruktor mit Parameterübergabe
+   
+    GUI: "Daten einlesen" in Toolbar ausführen
+   
+3. Luftlinienverbindungen berechnen/erzeugen
+
+    Code: Aufruf calculate_main Methode
+   
+    GUI: "Berechnung Luftlinien-Netz" in Toolbar ausführen
+   
+4. Ergebnisse in gewünschter Form nach Visum exportieren
+
+    Code: Aufruf der export_matrix/export_net Methode
+   
+    GUI: Die entsprechenden Buttons (Mtx/Net) in der Spalte "anlegen in Visum als" verwenden. Alternativ überträgt der Button "Import nach Visum alle VFS Strecken + Mtx" die kombinierten Ergebnisse aller VFS.
+  
+Anmerkungen:
+
+* Sollten sich bei der GUI Verwendung Bezirksattribute/-werte ändern, muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.
+* Die initialen Parameterwerte können in der GUI über das Tool "Defaultwerte" wieder aufgerufen werden
+* "Ergebnisse initialisieren" ermöglicht das Löschen bereits vorhandener Ergebnisse
+* Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren"). Die Adjazenzmatrizen werden sonst einfach erweitert!
+
 ## Vorraussetzung
 Netz mit kategorisierten Bezirken:
 * Attribut für die Zentralität (Bezirke): je kleiner die Zahl, desto größer ist die Zentralität des Bezirks
