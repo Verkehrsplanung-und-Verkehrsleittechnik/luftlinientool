@@ -10,9 +10,11 @@ import logging
 ## lädt alle Visumattribute
 def get_attr_zones(Visum):
     list_attr = Visum.Net.Zones.Attributes.GetAll
-    list_attr_names = [attr.Code for attr in list_attr]
+    list_attr_id = [attr.ID for attr in list_attr]
 
-    return list_attr_names
+    return list_attr_id
+
+# ======= Klassen ======
 
 # Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
 class LLTFrame(wx.Frame):

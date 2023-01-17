@@ -216,6 +216,9 @@ class LuftlinienCalculator:
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
         self.init_results()
 
+        # Sprache
+        self.language = self.visum.GetCurrentLanguage()
+
     ## übersetzt die Adjazenzmatrizen der gewünschten VFS in eine Streckenliste
     # @param list_vfs: Liste der VFS. Falls nicht gegeben, werden alle VFS der Instanz verwendet
     # @return: DataFrame mit allen Strecken und ihrer VFS. Achtung: Duplikate werden nicht entfernt
@@ -287,9 +290,9 @@ class LuftlinienCalculator:
             # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
 
-            # todo Idee Aktivierung Outputexportbuttions in GUI
-            if self.use_gui:
-                a = 1
+            # # todo Idee Aktivierung Outputexportbuttions in GUI
+            # if self.use_gui:
+            #     a = 1
 
         logging.info("Die Berechnung über alle VFS ist abgeschlossen")
 
