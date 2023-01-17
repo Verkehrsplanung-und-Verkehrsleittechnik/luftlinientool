@@ -9,6 +9,7 @@ from scipy.spatial import Delaunay
 from pathlib import Path
 from math import radians
 import win32com.client as com
+import webbrowser
 
 
 # todo update nach Änderung sofort in GUI Event, hier nicht nochmaliges Update
@@ -114,6 +115,11 @@ def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
 
     return list_indizes
 
+## Öffnet die Readme Datei
+
+def show_info(path_scripts: Path=Path.cwd()):
+    webbrowser.open(str(path_scripts / "README.md"), new=2)
+
 
 # ===== Klassendefinition ======
 ## Klasse LuftlinienCalculator
@@ -216,6 +222,9 @@ class LuftlinienCalculator:
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
         self.init_results()
 
+        # Sprache
+        self.language = self.visum.GetCurrentLanguage()
+
     ## übersetzt die Adjazenzmatrizen der gewünschten VFS in eine Streckenliste
     # @param list_vfs: Liste der VFS. Falls nicht gegeben, werden alle VFS der Instanz verwendet
     # @return: DataFrame mit allen Strecken und ihrer VFS. Achtung: Duplikate werden nicht entfernt
@@ -287,9 +296,9 @@ class LuftlinienCalculator:
             # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
 
-            # todo Idee Aktivierung Outputexportbuttions in GUI
-            if self.use_gui:
-                a = 1
+            # # todo Idee Aktivierung Outputexportbuttions in GUI
+            # if self.use_gui:
+            #     a = 1
 
         logging.info("Die Berechnung über alle VFS ist abgeschlossen")
 

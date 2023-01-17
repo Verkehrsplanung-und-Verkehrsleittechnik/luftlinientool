@@ -2,7 +2,6 @@ import wx
 import luftlinientool as llt
 from pathlib import Path
 import logging
-import os
 
 # Erstellt das Layout für das GUI
 
@@ -11,9 +10,11 @@ import os
 ## lädt alle Visumattribute
 def get_attr_zones(Visum):
     list_attr = Visum.Net.Zones.Attributes.GetAll
-    list_attr_names = [attr.Code for attr in list_attr]
+    list_attr_id = [attr.ID for attr in list_attr]
 
-    return list_attr_names
+    return list_attr_id
+
+# ======= Klassen ======
 
 # Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
 class LLTFrame(wx.Frame):
@@ -215,12 +216,9 @@ class LLTFrame(wx.Frame):
     def event_quit_button(self, event):
         # del self.visum
         #self.stop = True
-        self.tabLog.logger.removeHandler(self.tabLog.handler)
         self.panel.Destroy()
         self.Destroy()
-
         wx.GetApp().ExitMainLoop()
-
 
 
     def event_import_data(self, event):
@@ -241,15 +239,9 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
-        # öffnet Infodatei als HTML oder als Markdown datei, wenn html nicht vorhanden ist
-
-        file = Path(__file__).parents[0] / "Readme.html"
-        if file.is_file == False:
-            file.name.replace(".html", ".md")
-
-        os.startfile(file)
-
-        self.SetStatusText('Info geöffnet')
+        path_scripts = Path(self.visum.GetPath(37))
+        logging.info(path_scripts)
+        llt.show_info(path_scripts)
 
     def event_reset(self, event):
         if self.llt_calculator is None:
@@ -477,9 +469,8 @@ class LogTab(wx.Panel):
         #
 
         # ==== Logging =====
-        # path_logfile = Path(__file__)
-        # path_logfile = path_logfile.name.replace(".py", ".log")
-        path_logfile = Path(self.TopLevelParent.visum.GetPath(57)) / "luftlinientool.log"
+        path_logfile = Path(__file__)
+        path_logfile = path_logfile.name.replace(".py", ".log")
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
         logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %I:%M:%S %p")
