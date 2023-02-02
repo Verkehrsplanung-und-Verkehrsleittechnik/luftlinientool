@@ -8,15 +8,20 @@ Ziel: dieses Skript enthält Testszenarien & erwartete Ergebnisse, um bei Änder
 # hier bitte die Testszenarien anlegen
 # Erwartungswert in 'vergleich_mtx_sum' festlegen.
 dict_testcases = {
-    "VFS 0 n=0 a=1": {"vfs": "VFS 0", "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
-                  "vergleich_mtx_sum": 0},
-    "VFS 0 n=1 a=0": {"vfs": "VFS 0", "n_entfernung": 1, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
-                      "vergleich_mtx_sum": 26},
-    "VFS 2 n=1 a=0": {"vfs": "VFS II", "n_entfernung": 1, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
-                      "vergleich_mtx_sum": 26},
-    "VFS 2 n=0 a=1": {"vfs": "VFS II", "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
+    # "VFS 0 n=0 a=0": {"vfs": {"VFS 0": 0}, "n_entfernung": 0, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
+    #               "vergleich_mtx_sum": 0},
+    # "VFS 0 n=0 a=1": {"vfs": {"VFS 0": 0}, "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
+    #               "vergleich_mtx_sum": 0},
+    # "VFS 0 n=1 a=0": {"vfs": {"VFS 2": 2}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
+    #                   "vergleich_mtx_sum": 26},
+    # "VFS 2 n=1 a=0": {"vfs": {"VFS 2": 2}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
+    #                   "vergleich_mtx_sum": 26},
+    "VFS 2 n=0 a=1": {"vfs": {"VFS 2": 2}, "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
                       "vergleich_mtx_sum": 26},
     # Quelle & Ziel Filter
+    "VFS 2 n=1 a=0 quelle ziel": {"vfs": {"VFS 2": 2}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": "Quelle",
+                      "is_ziel": "Ziel",
+                      "vergleich_mtx_sum": 26},
 
     # Bezirksfilter
 
@@ -27,8 +32,8 @@ if __name__ == '__main__':
     import luftlinientool as llt
 
     # Parameterübergabe
-    path_source = Path(r"S:\VuV-Tools\Fertige Tools\Luftlinientool\Python (Visumintegration)")
-    file_source = 'Testnetz.ver'
+    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
+    file_source = 'BWNetz_V1.ver'
 
     # Settings Logging
     path_logfile = Path(__file__)
@@ -52,10 +57,11 @@ if __name__ == '__main__':
 
     for case, param in dict_testcases.items():
         ltt1 = llt.LuftlinienCalculator(Visum,
-                                        anz_versorger=1, max_entfernung=1,
-                                        dict_vfs={"VFS 0": 0, "VFS I": 1, "VFS II": 2, "VFS III": 3, "VFS IV": 4, "VFS V": 5},)
-
-
+                                        anz_versorger=param["anz_versorger"],
+                                        max_entfernung=param["n_entfernung"],
+                                        attr_quelle=param["is_quelle"],
+                                        attr_ziel=param["is_ziel"],
+                                        dict_vfs=param["vfs"])
         ltt1.calculate_main()
         ltt1.export_matrix(visum=ltt1.visum)
 
