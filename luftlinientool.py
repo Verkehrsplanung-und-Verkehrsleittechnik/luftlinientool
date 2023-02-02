@@ -110,18 +110,21 @@ def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
 # @param array_points: Array mit den x- & y-Koordinaten der Punkte
 # @param n: gewünschte Punkteanzahl
 # @return list_indizes: Liste der Indizes der nächstgelegenen n Punkte
-def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
+def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None):
     # Falls keine Auswahl existiert
     if (n is not None) and (n >= len(array_points)):
         # es werden alle möglichen Punkte zurückgegeben
         return list(range(0, len(array_points)))
 
     # Berechne Entfernungen
-    # distances = calculate_distance_coordinates_haversine(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
-    #                                                      vec_y2=array_points[:, 1])
-
-    distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
-                                                    vec_y2=array_points[:, 1])
+    if formula =="haversine":
+        distances = calculate_distance_coordinates_haversine(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
+                                                             vec_y2=array_points[:, 1])
+    elif formula == "euclidean":
+        distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
+                                                        vec_y2=array_points[:, 1])
+    else:
+        logging.warning("Fall Abstandsberechnung ist nicht implementiert")
 
     # Index der n niedrigsten Werte
     list_indizes = np.argpartition(distances, n)[:n]
@@ -160,6 +163,7 @@ class LuftlinienCalculator:
                  attr_ziel=None,
                  use_gui: bool = False,
                  use_filter: bool = False,
+                 formula_distance: str="euclidean",
                  path_output=None):
 
         # True, wenn am Debuggen. Ermöglicht die Durchführung von Zwischenanalysen, die im normalen Programmablauf nicht berücksichtigt werden
@@ -180,6 +184,9 @@ class LuftlinienCalculator:
 
         # Liste der VFS, die bearbeitet werden sollen
         self.vfs = dict_vfs
+
+        # Abstandsberechnung
+        self.formula_dist = formula_distance
 
         # gibt an, bis zu welchem "Nachbarschaftsgrad" gleichrangige verbindungen verfolgt werden sollen
         # (ehemals Austauschfkt)
@@ -403,7 +410,8 @@ class LuftlinienCalculator:
                                                                     n=anz_versorger - df_list_zones.loc[
                                                                         zone, "no_provider"],
                                                                     array_points=provider_tmp[
-                                                                        ["XCoord", "YCoord"]].values)
+                                                                        ["XCoord", "YCoord"]].values,
+                                                                    formula=self.formula_dist)
                     self.matrizen_VFS[vfs][zone, provider_tmp.index[list_idx_provider]] = 1
                     self.matrizen_VFS[vfs][provider_tmp.index[list_idx_provider], zone] = 1
                     # debugbefehl Entfernungen
