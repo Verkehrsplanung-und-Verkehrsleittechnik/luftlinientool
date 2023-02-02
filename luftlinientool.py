@@ -22,7 +22,6 @@ import webbrowser
 # @param version: Visumversion, default 22
 # @return: Visuminstanz
 def open_visum(path, version=220):
-
     try:
         # testet ob die Variable Visum existiert
         global Visum
@@ -36,6 +35,7 @@ def open_visum(path, version=220):
         Visum.LoadVersion(path)
         logging.info('erfolgreich geladen')
     return Visum
+
 
 ## Exportiert die Daten eines Visumobjekttyps in Netzdateiformat
 # @param[in] object: Visumobjekttyp (Singular), z.B. 'link'
@@ -55,23 +55,23 @@ def write_object_to_net(object, df_object_attributes_to_write, file):
 
 
 ## check if a matrix is symmetric
-#@param matrix: Matrix, die auf Symmetrie getestet werden soll
-#@param tol: Toleranz für erlaubte Abweichung, default 1e-8
-#@return: True oder False
+# @param matrix: Matrix, die auf Symmetrie getestet werden soll
+# @param tol: Toleranz für erlaubte Abweichung, default 1e-8
+# @return: True oder False
 def is_symmetric(matrix, tol=1e-8):
     # Anwendung der Maximums-Norm für die Diff zwischen der Matrix und der Transponierten
     # Norm > 0 -> keine Symmetrie
     return np.linalg.norm(matrix.astype(int) - matrix.T.astype(int), np.Inf) < tol
 
 
-## Berechnung der Distanz zwischen Koordinaten
+## Berechnung der Distanz zwischen Koordinaten (Lat, Lon)
 # Implementation der Haversine Formel
 # @param x1: x-Koordinate Punkt 1
 # @param y1: y-Koordinate Punkt 1
 # @param vec_x2: x-Koordinate Punktevektor
 # @param vec_y2: y-Koordinate Punktevektor
 # @return Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1
-def calculate_distance_coordinates(x1, y1, vec_x2, vec_y2):
+def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
     # approximate radius of earth in km
     R = 6373.0
 
@@ -91,6 +91,17 @@ def calculate_distance_coordinates(x1, y1, vec_x2, vec_y2):
     return distances_km
 
 
+def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
+    diff_x = vec_x2 - x1
+    diff_y = vec_y2 - y1
+
+    # todo Fallunterscheidung für negative Koordinaten
+
+    distances = np.sqrt(np.square(diff_x) + np.square(diff_y))
+
+    return distances
+
+
 ## identifiziert die nächsten n Punkte aus einer gegebenen Punktemenge zu einem einzelnen Punkt
 # zuerst werden die Distanzen aller Punkte zu dem einzelnen Punkt berechnet (Haversine)
 # danach werden die n am kürzesten entfernten Punkte gefiltert und deren Indizes zurückgegeben
@@ -100,24 +111,27 @@ def calculate_distance_coordinates(x1, y1, vec_x2, vec_y2):
 # @param n: gewünschte Punkteanzahl
 # @return list_indizes: Liste der Indizes der nächstgelegenen n Punkte
 def get_nearest_points_from_set(x_point, y_point, array_points, n=None):
-
     # Falls keine Auswahl existiert
     if (n is not None) and (n >= len(array_points)):
         # es werden alle möglichen Punkte zurückgegeben
         return list(range(0, len(array_points)))
 
     # Berechne Entfernungen
-    distances = calculate_distance_coordinates(x1=x_point, y1=y_point,
-                                               vec_x2=array_points[:, 0], vec_y2=array_points[:, 1])
+    # distances = calculate_distance_coordinates_haversine(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
+    #                                                      vec_y2=array_points[:, 1])
+
+    distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
+                                                    vec_y2=array_points[:, 1])
 
     # Index der n niedrigsten Werte
     list_indizes = np.argpartition(distances, n)[:n]
 
     return list_indizes
 
+
 ## Öffnet die Readme Datei
 
-def show_info(path_scripts: Path=Path.cwd()):
+def show_info(path_scripts: Path = Path.cwd()):
     webbrowser.open(str(path_scripts / "README.md"), new=2)
 
 
@@ -199,7 +213,7 @@ class LuftlinienCalculator:
             attr_zones = self.attr_zones
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
-            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=True), dtype=int)[:,1])
+            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=True), dtype=int)[:, 1])
             self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
 
             logging.info("%s Bezirke eingelesen", len(self.zones))
@@ -314,8 +328,6 @@ class LuftlinienCalculator:
         k_nachbar = self.nachbarschaftsgrad_vfs[vfs]
         anz_versorger = self.anz_versorger_vfs[vfs]
 
-
-
         # Filtere Bezirksdaten, die die Bedingungen erfüllen
         # Sind Aktiv todo Erweiterung Filterung nach attr_filter
         # TypNr <= VFS
@@ -331,23 +343,25 @@ class LuftlinienCalculator:
         else:
             logging.info(f"{vfs}: Delauney Triangulation wird für {len(active_zones)} Bezirke durchgeführt")
 
-            # Delaunay Triangulation
-            tri = Delaunay(active_zones[["XCoord", "YCoord"]])
-            zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
-            logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
+            if k_nachbar > 0:
 
-            # Adjazenzmatrix ausfüllen
-            # Schleife über Dreiecke
-            for p1, p2, p3 in zone_orig_idx_triangles:
-                # die drei Punkte des Dreiecks
-                # folgende Abhängigkeiten sind einzufügen:
-                # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
-                self.matrizen_VFS[vfs][p1, p2] = 1
-                self.matrizen_VFS[vfs][p1, p3] = 1
-                self.matrizen_VFS[vfs][p2, p1] = 1
-                self.matrizen_VFS[vfs][p2, p3] = 1
-                self.matrizen_VFS[vfs][p3, p1] = 1
-                self.matrizen_VFS[vfs][p3, p2] = 1
+                # Delaunay Triangulation
+                tri = Delaunay(active_zones[["XCoord", "YCoord"]])
+                zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
+                logging.info(f"{vfs}: es wurden {len(zone_orig_idx_triangles)} Dreiecke gebildet")
+
+                # Adjazenzmatrix ausfüllen
+                # Schleife über Dreiecke
+                for p1, p2, p3 in zone_orig_idx_triangles:
+                    # die drei Punkte des Dreiecks
+                    # folgende Abhängigkeiten sind einzufügen:
+                    # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
+                    self.matrizen_VFS[vfs][p1, p2] = 1
+                    self.matrizen_VFS[vfs][p1, p3] = 1
+                    self.matrizen_VFS[vfs][p2, p1] = 1
+                    self.matrizen_VFS[vfs][p2, p3] = 1
+                    self.matrizen_VFS[vfs][p3, p1] = 1
+                    self.matrizen_VFS[vfs][p3, p2] = 1
 
             # Nachbarschaften Grad n bestimmen
             if k_nachbar > 1:
@@ -369,7 +383,8 @@ class LuftlinienCalculator:
                 # Bestimme für jeden aktiven Bezirk, ob dieser bereits an ein Versorgungszentrum angeschlossen ist
                 df_list_zones = df_list_zones.loc[df_list_zones.index.isin(
                     active_zones.loc[active_zones[self.attr_is_from_zone] > 0, :].index), :]
-                df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(len)
+                df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(
+                    len)
                 df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
                                             | (df_list_zones["no_provider"] >= anz_versorger)
 
@@ -387,7 +402,8 @@ class LuftlinienCalculator:
                                                                     y_point=zone_data.loc["YCoord"],
                                                                     n=anz_versorger - df_list_zones.loc[
                                                                         zone, "no_provider"],
-                                                                    array_points=provider_tmp[["XCoord", "YCoord"]].values)
+                                                                    array_points=provider_tmp[
+                                                                        ["XCoord", "YCoord"]].values)
                     self.matrizen_VFS[vfs][zone, provider_tmp.index[list_idx_provider]] = 1
                     self.matrizen_VFS[vfs][provider_tmp.index[list_idx_provider], zone] = 1
                     # debugbefehl Entfernungen
@@ -398,7 +414,7 @@ class LuftlinienCalculator:
             # inaktive Quelle oder Ziel
 
             # Aufbau Maske mit aktiven und inaktiven OD Paaren
-            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon
+            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
             idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
                                      self.zones[self.attr_is_to_zone].values.reshape(1, -1))
 
@@ -406,7 +422,6 @@ class LuftlinienCalculator:
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
             self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
-
 
             # debugzwecke
             if self.debug_mode:
@@ -454,7 +469,6 @@ class LuftlinienCalculator:
     # @param list_vfs: optionale Übergabe einer Menge an VFS. Default: None (alle des Objekts)
     def export_matrix(self, visum=None, list_vfs=None):
 
-
         # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
         # Sonst: Speichere .mtx Datei
 
@@ -490,7 +504,8 @@ class LuftlinienCalculator:
 
                 path_mat = path_mat / f"{vfs}_max_nachbar_{self.nachbarschaftsgrad_vfs[vfs]}_anz_versorgungszentren_{self.anz_versorger_vfs[vfs]}.mtx"
                 df_mat = pd.DataFrame(self.matrizen_VFS[vfs],
-                                      columns=self.zones["No"].values.astype(int), index=self.zones["No"].values.astype(int)
+                                      columns=self.zones["No"].values.astype(int),
+                                      index=self.zones["No"].values.astype(int)
                                       , dtype=int
                                       ).stack().reset_index()
 
@@ -549,7 +564,7 @@ class LuftlinienCalculator:
         df_edges = self.adj_matrix_to_links(list_vfs=list_vfs)
         if len(df_edges) < 1:
             logging.warning("es existieren keine Strecken")
-            #return
+            # return
 
         # Erstelle Liste mit Streckentypen
         df_linktypes = df_edges["TypeNo"].drop_duplicates().to_frame(name="Name")

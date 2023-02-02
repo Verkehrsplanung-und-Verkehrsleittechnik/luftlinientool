@@ -208,6 +208,7 @@ class LLTFrame(wx.Frame):
         # 1. Update der vorgegebenen parameter, falls was geändert wurde
         # 2. berechnen
         self.update_param_vfs()
+        self.llt_calculator.init_results()
         self.llt_calculator.calculate_main()
 
         # Statusleiste
