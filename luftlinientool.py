@@ -510,7 +510,13 @@ class LuftlinienCalculator:
             matrix = self.matrizen_VFS[vfs]
             if visum is not None:
                 # Benennung
-                name_matrix = f"{vfs}_{self.nachbarschaftsgrad_vfs[vfs]}_{self.anz_versorger_vfs[vfs]}"
+                if self.anz_versorger_vfs[vfs] < 1:
+                    # Term mit Versorgungsfkt wird weggelassen
+                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
+                else:
+                    # Term mit Versorgungsfkt wird weggelassen
+                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
+
                 # Suche existierende Matrizen mit der Benennung
                 matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
 
@@ -519,7 +525,7 @@ class LuftlinienCalculator:
                     matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
                     matrix_instance.SetAttValue("NAME", name_matrix)
-                elif matrix_instances.Count < 1:
+                elif matrix_instances.Count > 1:
                     logging.warning("Matrixcode ist mehrfach vorhanden")
                     matrix_instance = matrix_instances.Iterator.Item
                 else:
