@@ -164,18 +164,18 @@ class LLTFrame(wx.Frame):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
         self.buttons_value_k_nachbar_vfs["VFS 0"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS I"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS II"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS III"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS IV"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS V"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs["VFS 1"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs["VFS 2"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs["VFS 3"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs["VFS 4"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs["VFS 5"].SetValue(self.default_k_nachbar)
 
         self.buttons_value_n_versorger["VFS 0"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS I"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS II"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS III"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS IV"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS V"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger["VFS 1"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger["VFS 2"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger["VFS 3"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger["VFS 4"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger["VFS 5"].SetValue(self.default_anz_vf)
 
         self.cb_vfs.SetValue("TypeNo")
         self.cb_quelle.SetValue('')
@@ -338,11 +338,11 @@ class MainTab(wx.Panel):
         gridbagsizer1.Add(wx.StaticText(self, -1, "Verbindungsfunktionsstufe"),
                           pos=(0,0), flag=wx.TOP|wx.LEFT|wx.BOTTOM, border=5)
         self.button_vfs_active = {"VFS 0": wx.CheckBox(self, -1, "VFS 0"),
-                                  "VFS I": wx.CheckBox(self, -1, "VFS I"),
-                                  "VFS II": wx.CheckBox(self, -1, "VFS II"),
-                                  "VFS III": wx.CheckBox(self, -1, "VFS III"),
-                                  "VFS IV": wx.CheckBox(self, -1, "VFS IV"),
-                                  "VFS V": wx.CheckBox(self, -1, "VFS V")}
+                                  "VFS 1": wx.CheckBox(self, -1, "VFS 1"),
+                                  "VFS 2": wx.CheckBox(self, -1, "VFS 2"),
+                                  "VFS 3": wx.CheckBox(self, -1, "VFS 3"),
+                                  "VFS 4": wx.CheckBox(self, -1, "VFS 4"),
+                                  "VFS 5": wx.CheckBox(self, -1, "VFS 5")}
 
         tmp_iterator = 1
         for btn in self.button_vfs_active.values():
@@ -355,11 +355,11 @@ class MainTab(wx.Panel):
         gridbagsizer1.Add(wx.StaticText(self, -1, "Attributwert VFS"),
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_vfs_value = {"VFS 0": wx.SpinCtrl(self, -1, ""),
-                                 "VFS I": wx.SpinCtrl(self, -1, ""),
-                                 "VFS II": wx.SpinCtrl(self, -1, ""),
-                                 "VFS III": wx.SpinCtrl(self, -1, ""),
-                                 "VFS IV": wx.SpinCtrl(self, -1, ""),
-                                 "VFS V": wx.SpinCtrl(self, -1, "")}
+                                 "VFS 1": wx.SpinCtrl(self, -1, ""),
+                                 "VFS 2": wx.SpinCtrl(self, -1, ""),
+                                 "VFS 3": wx.SpinCtrl(self, -1, ""),
+                                 "VFS 4": wx.SpinCtrl(self, -1, ""),
+                                 "VFS 5": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_vfs_value.values():
             gridbagsizer1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
@@ -372,11 +372,11 @@ class MainTab(wx.Panel):
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
         self.buttons_value_k_nachbar_vfs = {"VFS 0": wx.SpinCtrl(self, -1, ""),
-                                            "VFS I": wx.SpinCtrl(self, -1, ""),
-                                            "VFS II": wx.SpinCtrl(self, -1, ""),
-                                            "VFS III": wx.SpinCtrl(self, -1, ""),
-                                            "VFS IV": wx.SpinCtrl(self, -1, ""),
-                                            "VFS V": wx.SpinCtrl(self, -1, "")}
+                                            "VFS 1": wx.SpinCtrl(self, -1, ""),
+                                            "VFS 2": wx.SpinCtrl(self, -1, ""),
+                                            "VFS 3": wx.SpinCtrl(self, -1, ""),
+                                            "VFS 4": wx.SpinCtrl(self, -1, ""),
+                                            "VFS 5": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_value_k_nachbar_vfs.values():
             gridbagsizer1.Add(btn, pos=(tmp_iterator, 2), flag=wx.ALIGN_CENTER)
@@ -389,11 +389,11 @@ class MainTab(wx.Panel):
             wx.StaticText(self, -1, "Versorgungsfunktion \n n Versorgungszentren"),
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_value_n_versorger = {"VFS 0": wx.SpinCtrl(self, -1, ""),
-                                          "VFS I": wx.SpinCtrl(self, -1, ""),
-                                          "VFS II": wx.SpinCtrl(self, -1, ""),
-                                          "VFS III": wx.SpinCtrl(self, -1, ""),
-                                          "VFS IV": wx.SpinCtrl(self, -1, ""),
-                                          "VFS V": wx.SpinCtrl(self, -1, "")}
+                                          "VFS 1": wx.SpinCtrl(self, -1, ""),
+                                          "VFS 2": wx.SpinCtrl(self, -1, ""),
+                                          "VFS 3": wx.SpinCtrl(self, -1, ""),
+                                          "VFS 4": wx.SpinCtrl(self, -1, ""),
+                                          "VFS 5": wx.SpinCtrl(self, -1, "")}
 
         tmp_iterator = 1
         for btn in self.buttons_value_n_versorger.values():
@@ -407,11 +407,11 @@ class MainTab(wx.Panel):
             wx.StaticText(self, -1, "anlegen in Visum als"),
             pos=(0, 4), span=(1,2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"),
-                                   "VFS I": wx.Button(self, -1, "MTX"),
-                                   "VFS II": wx.Button(self, -1, "MTX"),
-                                   "VFS III": wx.Button(self, -1, "MTX"),
-                                   "VFS IV": wx.Button(self, -1, "MTX"),
-                                   "VFS V": wx.Button(self, -1, "MTX")}
+                                   "VFS 1": wx.Button(self, -1, "MTX"),
+                                   "VFS 2": wx.Button(self, -1, "MTX"),
+                                   "VFS 3": wx.Button(self, -1, "MTX"),
+                                   "VFS 4": wx.Button(self, -1, "MTX"),
+                                   "VFS 5": wx.Button(self, -1, "MTX")}
 
         tmp_iterator = 1
         for vfs, btn in self.buttons_export_mat.items():
@@ -421,11 +421,11 @@ class MainTab(wx.Panel):
 
         # Buttons Export Net
         self.buttons_export_net = {"VFS 0": wx.Button(self, -1, "Net"),
-                                   "VFS I": wx.Button(self, -1, "Net"),
-                                   "VFS II": wx.Button(self, -1, "Net"),
-                                   "VFS III": wx.Button(self, -1, "Net"),
-                                   "VFS IV": wx.Button(self, -1, "Net"),
-                                   "VFS V": wx.Button(self, -1, "Net")}
+                                   "VFS 1": wx.Button(self, -1, "Net"),
+                                   "VFS 2": wx.Button(self, -1, "Net"),
+                                   "VFS 3": wx.Button(self, -1, "Net"),
+                                   "VFS 4": wx.Button(self, -1, "Net"),
+                                   "VFS 5": wx.Button(self, -1, "Net")}
         tmp_iterator = 1
         for vfs, btn in self.buttons_export_net.items():
             btn.vfs = vfs
