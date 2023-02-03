@@ -90,7 +90,13 @@ def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
 
     return distances_km
 
-
+## Berechnung der Distanz zwischen Koordinaten (x, y)
+# Euklidische Distanzberechnung!
+# @param x1: x-Koordinate Punkt 1
+# @param y1: y-Koordinate Punkt 1
+# @param vec_x2: x-Koordinate Punktevektor
+# @param vec_y2: y-Koordinate Punktevektor
+# @return Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1
 def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
     diff_x = vec_x2 - x1
     diff_y = vec_y2 - y1
@@ -235,6 +241,10 @@ class LuftlinienCalculator:
         if attr_ziel is None:
             attr_ziel = 'ziel'
             self.zones[attr_ziel] = 1
+
+        # Abfangen attr_ziel=attr_quelle: Lösche Spaltenduplikat
+        if attr_ziel == attr_quelle:
+            self.zones = self.zones.T.drop_duplicates().T
 
         self.attr_is_from_zone = attr_quelle
         self.attr_is_to_zone = attr_ziel
@@ -423,13 +433,26 @@ class LuftlinienCalculator:
 
             # Aufbau Maske mit aktiven und inaktiven OD Paaren
             # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
-            idx_inactive = np.matmul(self.zones[self.attr_is_from_zone].values.reshape(-1, 1),
-                                     self.zones[self.attr_is_to_zone].values.reshape(1, -1))
+            # Logik: Filtere OD-Paare mit X & Y NICHT aktiv
 
-            idx_inactive = (idx_inactive + idx_inactive.transpose()).astype(bool)
+            # Nur Attribut "ist_aktiv" ist vorhanden -> muss invertiert werden
+            vector_is_no_from_zone = 1 - self.zones[self.attr_is_from_zone].values
+            vector_is_no_to_zone = 1 - self.zones[self.attr_is_to_zone].values
+
+            # Verknüpfung Logik (UND durch Matrixmultiplikation zweier Vektoren realisiert)
+            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
+            idx_not_active = np.matmul(vector_is_no_from_zone.reshape(-1, 1),
+                                     vector_is_no_to_zone.reshape(1, -1)).astype(bool)
+
+            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
+            idx_active = ~idx_not_active
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_inactive
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active.astype(int)
+
+            # Symmetrietest
+            if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0:
+                raise ValueError("Matrix ist nicht symmetrisch")
 
             # debugzwecke
             if self.debug_mode:
@@ -487,20 +510,32 @@ class LuftlinienCalculator:
             matrix = self.matrizen_VFS[vfs]
             if visum is not None:
                 # Benennung
-                name_matrix = f"{vfs}_{self.nachbarschaftsgrad_vfs[vfs]}_{self.anz_versorger_vfs[vfs]}"
-                # Suche existierende Matrizen mit der Benennung
-                matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
+                if self.anz_versorger_vfs[vfs] < 1:
+                    # Term mit Versorgungsfkt wird weggelassen
+                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
+                else:
+                    # Term mit Versorgungsfkt wird weggelassen
+                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
-                if matrix_instances.Count < 1:
+                if Visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
                     matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
                     matrix_instance.SetAttValue("NAME", name_matrix)
-                elif matrix_instances.Count < 1:
-                    logging.warning("Matrixcode ist mehrfach vorhanden")
-                    matrix_instance = matrix_instances.Iterator.Item
                 else:
-                    matrix_instance = matrix_instances.Iterator.Item
+                    # Suche existierende Matrizen mit der Benennung
+                    matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
+
+                    if matrix_instances.Count < 1:
+                        # Erstelle Matrix
+                        matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
+                        matrix_instance.SetAttValue("CODE", name_matrix)
+                        matrix_instance.SetAttValue("NAME", name_matrix)
+                    elif matrix_instances.Count > 1:
+                        logging.warning("Matrixcode ist mehrfach vorhanden")
+                        matrix_instance = matrix_instances.Iterator.Item
+                    else:
+                        matrix_instance = matrix_instances.Iterator.Item
 
                 matrix_instance.SetValues(matrix)
 
