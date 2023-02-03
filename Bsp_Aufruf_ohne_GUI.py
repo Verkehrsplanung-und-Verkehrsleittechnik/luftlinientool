@@ -6,7 +6,7 @@ if __name__ == '__main__':
     import luftlinientool as llt
 
     # Parameterübergabe
-    path_source = Path(r"S:\VuV-Tools\Fertige Tools\Luftlinientool\Python (Visumintegration)")
+    path_source = Path(r"S:\VuV-Tools\Fertige Tools\Luftlinientool\Python (Visumintegration) in github")
     file_source = 'Beispielnetz.ver'
 
     # Settings Logging
@@ -36,6 +36,7 @@ if __name__ == '__main__':
     ltt1.calculate_main()
     ltt1.export_matrix(visum=ltt1.visum)
     ltt1.export_net(visum=ltt1.visum, links_additive=False)
+    ltt1.export_zones_uda_connections("VFS 1")
 
     ltt1.delete_unused_nodes()
 

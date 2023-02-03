@@ -466,6 +466,10 @@ class LuftlinienCalculator:
 
             logging.info(f"Die Berechnung {vfs} ist abgeschlossen")
 
+            df_zones_info = self.adj_matrix_to_set_of_connected_zones(vfs)
+            df_zones_info["set zones"] = df_zones_info["set zones"].str.join(",")
+            logging.info('\t'+ df_zones_info.to_string().replace('\n', '\n\t'))
+
     ## löschte Knoten in Visum, die keine Strecken anbinden
     # geht nur, wenn eine Visuminstanz enthalten ist
     # alle Knoten ohne Strecken werden gefiltert & die aktiven Knoten werden gelöscht
@@ -512,10 +516,10 @@ class LuftlinienCalculator:
                 # Benennung
                 if self.anz_versorger_vfs[vfs] < 1:
                     # Term mit Versorgungsfkt wird weggelassen
-                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
+                    name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
                 else:
                     # Term mit Versorgungsfkt wird weggelassen
-                    name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
+                    name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
                 if visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
@@ -678,6 +682,37 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
                 logging.warning("Da hat beim Import der Netzdatei etwas nicht geklappt")
 
         logging.info(f"die Netzdatei von {len(list_vfs)} VFS wurde exportiert")
+
+    def export_zones_uda_connections(self, vfs):
+        # Erstelle UDA wenn nicht vorhanden
+
+        str_no_conn =f"RIN_Anz_Verbindungen_{vfs}".replace(" ", "")
+        str_conn = f"RIN_Verbindungen_{vfs}".replace(" ", "")
+
+        try:
+            self.visum.Net.Zones.AddUserDefinedAttribute(str_no_conn,
+                                                         str_no_conn,
+                                                         str_no_conn, 5)
+            self.visum.Net.Zones.AddUserDefinedAttribute(str_conn,
+                                                         str_conn,
+                                                         str_conn, 5)
+        except:
+            pass
+
+        # Lade Verbindungen
+        df_zones = self.adj_matrix_to_set_of_connected_zones(vfs).reset_index()
+        df_zones["No"] = df_zones.Name.replace(self.zones.set_index("Name")["No"].astype(int).to_dict())
+        df_zones.set_index("No", inplace=True)
+
+        # Schreibe das Ergebnis nach Visum
+        df_format = pd.DataFrame(self.visum.Net.Zones.GetMultiAttValues("No"), columns=["Idx","No"]).set_index("No")
+
+        df_format = df_format.join(df_zones)
+        df_format[str_conn] = df_format["set zones"].str.join(",")
+
+        self.visum.Net.Zones.SetMultiAttValues(str_no_conn, df_format.loc[:, ["Idx", "no zones"]].values)
+        self.visum.Net.Zones.SetMultiAttValues(str_conn, df_format.loc[:, ["Idx", str_conn]].values)
+
 
     ## initialisiert die Adjazenzmatrizen
     def init_results(self):
