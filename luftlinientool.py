@@ -162,7 +162,7 @@ class LuftlinienCalculator:
     # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
     def __init__(self, source,
                  attr_vfs: str = "TypeNo",
-                 dict_vfs: dict = {"VFS 0": 0, "VFS I": 1, "VFS II": 2, "VFS III": 3, "VFS IV": 4, "VFS V": 5},
+                 dict_vfs: dict = {"VFS 0": 0, "VFS 1": 1, "VFS 2": 2, "VFS 3": 3, "VFS 4": 4, "VFS 5": 5},
                  max_entfernung=1,
                  anz_versorger=0,
                  attr_quelle=None,
@@ -517,7 +517,7 @@ class LuftlinienCalculator:
                     # Term mit Versorgungsfkt wird weggelassen
                     name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
-                if Visum.Net.Matrices.Count < 1:
+                if visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
                     matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
