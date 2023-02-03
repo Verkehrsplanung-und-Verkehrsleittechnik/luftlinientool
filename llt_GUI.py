@@ -66,6 +66,7 @@ class LLTFrame(wx.Frame):
         self.attr_quelle = None
         self.attr_ziel = None
         self.attr_vfs = "TypeNo"
+        self.attr_dist_fcn = "euclidean"
 
         self.__set_layout__()
         self.__set_properties__()
@@ -178,8 +179,9 @@ class LLTFrame(wx.Frame):
         self.buttons_value_n_versorger["VFS 5"].SetValue(self.default_anz_vf)
 
         self.cb_vfs.SetValue("TypeNo")
-        self.cb_quelle.SetValue('')
-        self.cb_ziel.SetValue('')
+        self.cb_quelle.SetValue("None")
+        self.cb_ziel.SetValue("None")
+        self.cb_dist_fcn.SetValue("euclidean")
 
         self.SetStatusText('Default-Werte hergestellt')
 
@@ -189,26 +191,28 @@ class LLTFrame(wx.Frame):
         if event.GetEventObject().Label == 'attr_vfs':
             self.attr_vfs = attr
         elif event.GetEventObject().Label == 'attr_quelle':
-            if attr == '':
+            if attr == 'None':
                 self.attr_quelle = None
             else:
                 self.attr_quelle = attr
         elif event.GetEventObject().Label == 'attr_ziel':
-            if attr == '':
+            if attr == 'None':
                 self.attr_ziel = None
             else:
                 self.attr_ziel = attr
+        elif event.GetEventObject().Label == 'attr_dist_fcn':
+            self.attr_dist_fcn = attr
         else:
             logging.warning("sollte nie passieren")
             
-        self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen")
+        self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen bei Änderungen an den Bezirksattributen")
 
     def event_calculate(self, event):
         # Vorgehen
         # 1. Update der vorgegebenen parameter, falls was geändert wurde
         # 2. berechnen
         self.update_param_vfs()
-        self.llt_calculator.init_results()
+        # self.llt_calculator.init_results() # bereits in calculate fcn implementiert
         self.llt_calculator.calculate_main()
 
         # Statusleiste
@@ -224,6 +228,7 @@ class LLTFrame(wx.Frame):
 
     def event_import_data(self, event):
         # funktioniert soweit,
+
         # Erstellen einer Calculator Instanz
         if self.visum is not None:
             # Init Calculator Instanz
@@ -296,6 +301,15 @@ class LLTFrame(wx.Frame):
             self.llt_calculator.nachbarschaftsgrad_vfs = dict_max_nachbar
             self.llt_calculator.anz_versorger_vfs = dict_anz_versorger
             self.llt_calculator.vfs = dict_vfs
+            self.llt_calculator.formula_dist = self.attr_dist_fcn
+
+            logging.info(
+f'''aktuelle Settings:
+Bezirke: Attr. Zentralität-{self.llt_calculator.attr_central_level} Attr istQuelle-{self.llt_calculator.attr_is_from_zone} Attr istZiel-{self.llt_calculator.attr_is_to_zone} 
+Distanzberechnung: {self.llt_calculator.formula_dist} 
+VFS {self.llt_calculator.vfs} 
+Nachbarschaftsgrad je VFS {self.llt_calculator.nachbarschaftsgrad_vfs} 
+Anzahl Versorger je VFS {self.llt_calculator.anz_versorger_vfs}''')
 
 class MainTab(wx.Panel):
     def __init__(self, parent):
@@ -437,6 +451,17 @@ class MainTab(wx.Panel):
         self.btn_export_master.vfs = 'alle'
         gridbagsizer1.Add(self.btn_export_master,
                           pos=(7,4), span=(3,2), flag= wx.EXPAND)
+
+        # Button Liste Distanzfkt
+        self.cb_dist_fcn = wx.ComboBox(self, size=(200, -1),
+                                             choices=["euclidean", "haversine"], style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+
+        self.cb_dist_fcn.Label= 'attr_dist_fcn'
+        self.TopLevelParent.cb_dist_fcn = self.cb_dist_fcn
+
+        gridbagsizer1.Add(wx.StaticText(self, -1, "Funktion Distanzberechnung"), pos=(8, 0), span=(1, 1), flag=wx.EXPAND)
+        gridbagsizer1.Add(self.cb_dist_fcn, pos=(8,1), span=(1,1), flag=wx.EXPAND)
+
         # Aufbau Layout
         vbox_outer.Add(hbox1, 0 , wx.ALL | wx.EXPAND, 1)
         vbox_outer.Add(gridbagsizer1,  1, wx.ALL | wx.EXPAND, 6)
@@ -456,6 +481,7 @@ class MainTab(wx.Panel):
         self.cb_vfs.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_quelle.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_ziel.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
 
 class LogTab(wx.Panel):
