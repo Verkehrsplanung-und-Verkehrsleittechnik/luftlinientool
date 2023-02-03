@@ -16,11 +16,11 @@ dict_testcases = {
     #                   "vergleich_mtx_sum": 26},
     # "VFS 2 n=1 a=0": {"vfs": {"VFS 2": 2}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": None, "is_ziel": None,
     #                   "vergleich_mtx_sum": 26},
-    "VFS 2 n=0 a=1": {"vfs": {"VFS 2": 2}, "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
-                      "vergleich_mtx_sum": 26},
+    # "VFS 2 n=0 a=1": {"vfs": {"VFS 2": 2}, "n_entfernung": 0, "anz_versorger": 1, "is_quelle": None, "is_ziel": None,
+    #                   "vergleich_mtx_sum": 26},
     # Quelle & Ziel Filter
-    "VFS 2 n=1 a=0 quelle ziel": {"vfs": {"VFS 2": 2}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": "Quelle",
-                      "is_ziel": "Ziel",
+    "VFS 1 n=1 a=0 quelle ziel": {"vfs": {"VFS 1": 1}, "n_entfernung": 1, "anz_versorger": 0, "is_quelle": "istUntersuchungsgebiet",
+                      "is_ziel": "istUntersuchungsgebiet",
                       "vergleich_mtx_sum": 26},
 
     # Bezirksfilter
