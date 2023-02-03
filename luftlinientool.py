@@ -448,10 +448,10 @@ class LuftlinienCalculator:
             idx_active = ~idx_not_active
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active.astype(int)
 
             # Symmetrietest
-            if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0.5:
+            if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0:
                 raise ValueError("Matrix ist nicht symmetrisch")
 
             # debugzwecke
@@ -517,19 +517,25 @@ class LuftlinienCalculator:
                     # Term mit Versorgungsfkt wird weggelassen
                     name_matrix = f"{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
-                # Suche existierende Matrizen mit der Benennung
-                matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
-
-                if matrix_instances.Count < 1:
+                if Visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
                     matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
                     matrix_instance.SetAttValue("NAME", name_matrix)
-                elif matrix_instances.Count > 1:
-                    logging.warning("Matrixcode ist mehrfach vorhanden")
-                    matrix_instance = matrix_instances.Iterator.Item
                 else:
-                    matrix_instance = matrix_instances.Iterator.Item
+                    # Suche existierende Matrizen mit der Benennung
+                    matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
+
+                    if matrix_instances.Count < 1:
+                        # Erstelle Matrix
+                        matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
+                        matrix_instance.SetAttValue("CODE", name_matrix)
+                        matrix_instance.SetAttValue("NAME", name_matrix)
+                    elif matrix_instances.Count > 1:
+                        logging.warning("Matrixcode ist mehrfach vorhanden")
+                        matrix_instance = matrix_instances.Iterator.Item
+                    else:
+                        matrix_instance = matrix_instances.Iterator.Item
 
                 matrix_instance.SetValues(matrix)
 
