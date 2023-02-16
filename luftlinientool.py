@@ -433,22 +433,29 @@ class LuftlinienCalculator:
 
             # Aufbau Maske mit aktiven und inaktiven OD Paaren
             # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
-            # Logik: Filtere OD-Paare mit X & Y NICHT aktiv
+            # Logik: Filtere OD-Paare mit Quelle & Ziel aktiv...
+            #
+            #  Quelle * Ziel  = Matrix
+            # (1 0).T * (1 1) = (1  1
+            #                    0  0)
+            #
+            # und symmetrisiere diese
+            # (1  1
+            #  1  0)
 
-            # Nur Attribut "ist_aktiv" ist vorhanden -> muss invertiert werden
-            vector_is_no_from_zone = 1 - self.zones[self.attr_is_from_zone].values
-            vector_is_no_to_zone = 1 - self.zones[self.attr_is_to_zone].values
 
-            # Verknüpfung Logik (UND durch Matrixmultiplikation zweier Vektoren realisiert)
-            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
-            idx_not_active = np.matmul(vector_is_no_from_zone.reshape(-1, 1),
-                                     vector_is_no_to_zone.reshape(1, -1)).astype(bool)
-
-            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
-            idx_active = ~idx_not_active
+            # Attribute Quelle und Ziel
+            vector_is_from_zone = self.zones[self.attr_is_from_zone].values
+            vector_is_to_zone = self.zones[self.attr_is_to_zone].values
+            # über dyadisches Produkt ("outer product") verknüpfen
+            # Logik als Maske über existierende Matrix legen
+            idx_active = np.outer(vector_is_from_zone, vector_is_to_zone).astype(bool)
+            # symmetrisieren der Matrix (Bool Oder-Verknüpfung mit transponierter Matrix)
+            # Wo OD-Relation, da DO-Relation
+            idx_active_symm = idx_active + idx_active.T
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active.astype(int)
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active_symm.astype(int)
 
             # Symmetrietest
             if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0:
