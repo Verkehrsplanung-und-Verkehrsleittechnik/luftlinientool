@@ -641,24 +641,41 @@ class LuftlinienCalculator:
             ["FromNodeNo", "ToNodeNo"]].max(axis=1).astype(str)
 
         # 2. Nummerierung
-        if links_additive:
-            no_start = visum.Net.AttValue(r"Max:Links\No") + 1
-        else:
-            no_start = 1
+        if links_additive & (visum is not None):
+            # Abgleich Knotennummern/Namen
+            no_node_max = visum.Net.AttValue(r"Max:Node\No")
+            no_link_max = visum.Net.AttValue(r"Max:Links\No")
 
-        dict_no = dict(zip(df_edges["No"].drop_duplicates(), range(no_start, int(len(df_edges) / 2) + 1)))
-        df_edges["No"].replace(dict_no, inplace=True)
+            if (no_node_max is not None) & (no_node_max > df_nodes["No"].max()):
+                no_node_start = no_node_max + 1
+            else:
+                no_node_start = 1
+                
+            if no_link_max is None:
+                no_link_start = 1
+            else:
+                no_link_start = no_link_max + 1
+
+        else:
+            no_link_start = 1
+            no_node_start = 1
+
+        dict_no_nodes = dict(zip(df_nodes["No"].drop_duplicates(), range(no_node_start, no_node_start + len(df_nodes) + 1)))
+        dict_no_links = dict(zip(df_edges["No"].drop_duplicates(), range(no_link_start, no_link_start + int(len(df_edges) / 2) + 1)))
+
+        # Test: für jede Strecke existiert eine Nummer
+        if len(dict_no_links) != len(df_edges["No"].drop_duplicates()):
+            logging.error("Streckennummerierung passt nicht zur Streckeanzahl")
+
+        df_edges["No"].replace(dict_no_links, inplace=True)
+        df_nodes["No"].replace(dict_no_nodes, inplace=True)
+        df_edges["FromNodeNo"].replace(dict_no_nodes, inplace=True)
+        df_edges["ToNodeNo"].replace(dict_no_nodes, inplace=True)
 
         # Lösche Strecken, die in unterschiedlichen VFS mehrmals vorkommen
         # höchste Stufe wird behalten (Sortierung nach aufsteigender Nummer & Löschen der Duplikate)
         df_edges.sort_values("TypeNo", inplace=True)
         df_edges.drop_duplicates(["FromNodeNo", "ToNodeNo"], inplace=True)
-
-        # Abgleich Knotennummern/Namen
-        # if visum is not None:
-        #     node_no_max_existing = visum.Net.AttValue(r"Max:Nodes\No")
-        # Wenn möglich: Knotennummern == Bezirksnummern
-        # Sonst nächste freie Nummern
 
         # Schreibe .net Datei
         with open(path_net, mode="w", newline="\n") as f:
@@ -674,7 +691,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 '''
 
             f.write(header)
-            write_object_to_net("Node", df_nodes[["No", "Name", "TypeNo", "XCoord", "YCoord"]], f)
+            write_object_to_net("Node", df_nodes[self.attr_zones], f)
             write_object_to_net("Link type", df_linktypes, f)
             write_object_to_net("Link", df_edges[["No", "FromNodeNo", "ToNodeNo", "TypeNo"]], f)
 

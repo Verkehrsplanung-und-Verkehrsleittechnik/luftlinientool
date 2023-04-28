@@ -260,7 +260,7 @@ class LLTFrame(wx.Frame):
     def event_export_results(self, event):
         if self.llt_calculator is not None:
             self.llt_calculator.export_net(visum=self.visum,
-                                           links_additive=False)
+                                           links_additive=True)
             self.llt_calculator.export_matrix(visum=self.visum)
 
     def event_export_net(self, event):
@@ -269,7 +269,7 @@ class LLTFrame(wx.Frame):
         if self.llt_calculator is not None:
             self.llt_calculator.export_net(list_vfs=[vfs],
                                            visum=self.visum,
-                                           links_additive=False)
+                                           links_additive=True)
             self.llt_calculator.delete_unused_nodes()
 
         self.SetStatusText(f'{vfs}: Net-Datei exportiert und in Visum importiert')
