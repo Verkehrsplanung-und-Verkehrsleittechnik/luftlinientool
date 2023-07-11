@@ -643,18 +643,15 @@ class LuftlinienCalculator:
         # 2. Nummerierung
         if links_additive & (visum is not None):
             # Abgleich Knotennummern/Namen
-            no_node_max = visum.Net.AttValue(r"Max:Node\No")
-            no_link_max = visum.Net.AttValue(r"Max:Links\No")
+            no_node_max = visum.Net.AttValue(r"Max:Nodes\No") or 0
+            no_link_max = visum.Net.AttValue(r"Max:Links\No") or 0
 
             if (no_node_max is not None) & (no_node_max > df_nodes["No"].max()):
                 no_node_start = no_node_max + 1
             else:
                 no_node_start = 1
                 
-            if no_link_max is None:
-                no_link_start = 1
-            else:
-                no_link_start = no_link_max + 1
+            no_link_start = no_link_max + 1
 
         else:
             no_link_start = 1
