@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     # Parameterübergabe
     path_source = Path(r"S:\VuV-Tools\Fertige Tools\Luftlinientool\Python (Visumintegration) in github")
-    file_source = 'ZentraleOrteBW_Bezirke_OZ.ver'
+    file_source = 'Beispielnetz.ver'
 
     # Settings Logging
     path_logfile = Path(__file__)
