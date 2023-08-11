@@ -353,8 +353,11 @@ class LuftlinienCalculator:
                                         & (active_zones["IsActive"] > 0),
                        :]
 
+        # Abfangen, falls es Bezirke mit identischen Koordinaten gibt, dann funktioniert DeLauney nicht zuverlässig
         if len(active_zones) > len(active_zones[["XCoord", "YCoord"]].drop_duplicates()):
-            logging.info(f"{vfs}: es existeiren Bezirke mit den gleichen Koordinaten")
+            duplicate_zones = active_zones[active_zones.duplicated(subset=["XCoord", "YCoord"], keep=False)]
+            duplicate_zones_string = ', '.join(duplicate_zones["No"].apply(lambda x: str(int(x))) + "/" + duplicate_zones["Name"])
+            raise ValueError(f"Abbruch: Bezirke mit den identischen Koordinaten (NUMMER/NAME):{duplicate_zones_string}")
         elif len(active_zones) < 3:
             logging.info(f"{vfs}: es sind zu wenige Bezirke aktiv")
         else:
@@ -525,7 +528,7 @@ class LuftlinienCalculator:
                     # Term mit Versorgungsfkt wird weggelassen
                     name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
                 else:
-                    # Term mit Versorgungsfkt wird weggelassen
+                    # Term mit Versorgungsfkt wird hinzugefügt
                     name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
                 if visum.Net.Matrices.Count < 1:
