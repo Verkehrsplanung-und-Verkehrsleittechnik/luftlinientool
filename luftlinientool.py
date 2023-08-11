@@ -433,22 +433,29 @@ class LuftlinienCalculator:
 
             # Aufbau Maske mit aktiven und inaktiven OD Paaren
             # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
-            # Logik: Filtere OD-Paare mit X & Y NICHT aktiv
+            # Logik: Filtere OD-Paare mit Quelle & Ziel aktiv...
+            #
+            #  Quelle * Ziel  = Matrix
+            # (1 0).T * (1 1) = (1  1
+            #                    0  0)
+            #
+            # und symmetrisiere diese
+            # (1  1
+            #  1  0)
 
-            # Nur Attribut "ist_aktiv" ist vorhanden -> muss invertiert werden
-            vector_is_no_from_zone = 1 - self.zones[self.attr_is_from_zone].values
-            vector_is_no_to_zone = 1 - self.zones[self.attr_is_to_zone].values
 
-            # Verknüpfung Logik (UND durch Matrixmultiplikation zweier Vektoren realisiert)
-            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
-            idx_not_active = np.matmul(vector_is_no_from_zone.reshape(-1, 1),
-                                     vector_is_no_to_zone.reshape(1, -1)).astype(bool)
-
-            # Logik muss invertiert werden, um als Maske über existeirende Matrix gelegt zu werden
-            idx_active = ~idx_not_active
+            # Attribute Quelle und Ziel
+            vector_is_from_zone = self.zones[self.attr_is_from_zone].values
+            vector_is_to_zone = self.zones[self.attr_is_to_zone].values
+            # über dyadisches Produkt ("outer product") verknüpfen
+            # Logik als Maske über existierende Matrix legen
+            idx_active = np.outer(vector_is_from_zone, vector_is_to_zone).astype(bool)
+            # symmetrisieren der Matrix (Bool Oder-Verknüpfung mit transponierter Matrix)
+            # Wo OD-Relation, da DO-Relation
+            idx_active_symm = idx_active + idx_active.T
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active.astype(int)
+            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active_symm.astype(int)
 
             # Symmetrietest
             if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0:
@@ -634,24 +641,38 @@ class LuftlinienCalculator:
             ["FromNodeNo", "ToNodeNo"]].max(axis=1).astype(str)
 
         # 2. Nummerierung
-        if links_additive:
-            no_start = visum.Net.AttValue(r"Max:Links\No") + 1
-        else:
-            no_start = 1
+        if links_additive & (visum is not None):
+            # Abgleich Knotennummern/Namen
+            no_node_max = visum.Net.AttValue(r"Max:Nodes\No") or 0
+            no_link_max = visum.Net.AttValue(r"Max:Links\No") or 0
 
-        dict_no = dict(zip(df_edges["No"].drop_duplicates(), range(no_start, int(len(df_edges) / 2) + 1)))
-        df_edges["No"].replace(dict_no, inplace=True)
+            if (no_node_max is not None) & (no_node_max > df_nodes["No"].max()):
+                no_node_start = no_node_max + 1
+            else:
+                no_node_start = 1
+                
+            no_link_start = no_link_max + 1
+
+        else:
+            no_link_start = 1
+            no_node_start = 1
+
+        dict_no_nodes = dict(zip(df_nodes["No"].drop_duplicates(), range(no_node_start, no_node_start + len(df_nodes) + 1)))
+        dict_no_links = dict(zip(df_edges["No"].drop_duplicates(), range(no_link_start, no_link_start + int(len(df_edges) / 2) + 1)))
+
+        # Test: für jede Strecke existiert eine Nummer
+        if len(dict_no_links) != len(df_edges["No"].drop_duplicates()):
+            logging.error("Streckennummerierung passt nicht zur Streckeanzahl")
+
+        df_edges["No"].replace(dict_no_links, inplace=True)
+        df_nodes["No"].replace(dict_no_nodes, inplace=True)
+        df_edges["FromNodeNo"].replace(dict_no_nodes, inplace=True)
+        df_edges["ToNodeNo"].replace(dict_no_nodes, inplace=True)
 
         # Lösche Strecken, die in unterschiedlichen VFS mehrmals vorkommen
         # höchste Stufe wird behalten (Sortierung nach aufsteigender Nummer & Löschen der Duplikate)
         df_edges.sort_values("TypeNo", inplace=True)
         df_edges.drop_duplicates(["FromNodeNo", "ToNodeNo"], inplace=True)
-
-        # Abgleich Knotennummern/Namen
-        # if visum is not None:
-        #     node_no_max_existing = visum.Net.AttValue(r"Max:Nodes\No")
-        # Wenn möglich: Knotennummern == Bezirksnummern
-        # Sonst nächste freie Nummern
 
         # Schreibe .net Datei
         with open(path_net, mode="w", newline="\n") as f:
@@ -667,7 +688,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 '''
 
             f.write(header)
-            write_object_to_net("Node", df_nodes[["No", "Name", "TypeNo", "XCoord", "YCoord"]], f)
+            write_object_to_net("Node", df_nodes[self.attr_zones], f)
             write_object_to_net("Link type", df_linktypes, f)
             write_object_to_net("Link", df_edges[["No", "FromNodeNo", "ToNodeNo", "TypeNo"]], f)
 
