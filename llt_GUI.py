@@ -123,7 +123,7 @@ class LLTFrame(wx.Frame):
 
         self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
 
-        # Workaroun keine Bilder zur Verfügung: Leeres Bitmap Objekt
+        # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
         self.toolbar.AddTool(101, 'Daten einlesen', wx.Bitmap())
         self.toolbar.AddTool(102, 'Berechnung Luftlinien-Netz', wx.Bitmap())
         self.toolbar.AddTool(103, 'Ergebnisse initialisieren', wx.Bitmap())
@@ -132,7 +132,7 @@ class LLTFrame(wx.Frame):
         self.toolbar.Realize()
 
 
-        # # # create tool bar
+        # # # create toolbar
         # # toolbar = self.CreateToolBar()
         # # qtool = toolbar.AddTool(wx.ID_ANY, 'Quit', wx.Bitmap('Exit.bmp'))
         # # toolbar.Realize()
@@ -398,7 +398,7 @@ class MainTab(wx.Panel):
 
         self.TopLevelParent.buttons_value_k_nachbar_vfs = self.buttons_value_k_nachbar_vfs
 
-        # Spalte 3 Versorgunsgfunktion
+        # Spalte 3 Versorgungsfunktion
         gridbagsizer1.Add(
             wx.StaticText(self, -1, "Versorgungsfunktion \n n Versorgungszentren"),
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
