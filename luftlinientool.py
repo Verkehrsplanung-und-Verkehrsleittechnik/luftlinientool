@@ -647,8 +647,10 @@ class LuftlinienCalculator:
         if links_additive & (visum is not None):
             # Abgleich Knotennummern/Namen
             #Bsp und/oder python
-            no_node_max = visum.Net.AttValue(r"Max:Nodes\No") or 0
-            no_link_max = visum.Net.AttValue(r"Max:Links\No") or 0
+            no_node_max = int(visum.Net.AttValue(r"Max:Nodes\No")) or 0
+            no_link_max = int(visum.Net.AttValue(r"Max:Links\No")) or 0
+
+            offset_link_types = int(visum.Net.AttValue(r"Max:LinkTypes\No")) or 0
 
             if (no_node_max is not None) & (no_node_max > df_nodes["No"].max()):
                 no_node_start = no_node_max + 1
@@ -660,9 +662,12 @@ class LuftlinienCalculator:
         else:
             no_link_start = 1
             no_node_start = 1
+            offset_link_types = 0
 
         dict_no_nodes = dict(zip(df_nodes["No"].drop_duplicates(), range(no_node_start, no_node_start + len(df_nodes) + 1)))
         dict_no_links = dict(zip(df_edges["No"].drop_duplicates(), range(no_link_start, no_link_start + int(len(df_edges) / 2) + 1)))
+        df_edges.loc[:,"TypeNo"] = df_edges["TypeNo"] + offset_link_types
+        df_linktypes.loc[:, "No"] += offset_link_types
 
         # Test: für jede Strecke existiert eine Nummer
         if len(dict_no_links) != len(df_edges["No"].drop_duplicates()):
@@ -698,10 +703,20 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
         # Falls Visuminstanz übergeben: lade die .net Datei
         if visum is not None:
+            # Konfliktmanagement
+            controller = visum.IO.CreateAddNetReadController()
+
             if links_additive is not True:
                 visum.Net.Links.RemoveAll(OnlyActive=True)
+            else:
+                controller.SetNumericOffset("Link", 99999)
+                controller.SetNumericOffset("Node", 99999)
+                controller.SetUseNumericOffset("Link", True)
+                controller.SetUseNumericOffset("Node", True)
+                controller.SetWhatToDo("LinkType", 3)
 
-            visum.IO.LoadNet(str(path_net), ReadAdditive=True)
+
+            visum.IO.LoadNet(str(path_net), ReadAdditive=True, AddNetRead=controller)
 
             if visum.Net.Links.Count < len(df_edges):
                 logging.warning("Da hat beim Import der Netzdatei etwas nicht geklappt")
