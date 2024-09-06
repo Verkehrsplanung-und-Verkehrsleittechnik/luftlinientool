@@ -21,7 +21,7 @@ import webbrowser
 # @param path: Dateipfad (Path/str) einer Visumversionsdatei
 # @param version: Visumversion, default 22
 # @return: Visuminstanz
-def open_visum(path, version=220):
+def open_visum(path, version=230):
     try:
         # testet ob die Variable Visum existiert
         global Visum
@@ -90,6 +90,7 @@ def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
 
     return distances_km
 
+
 ## Berechnung der Distanz zwischen Koordinaten (x, y)
 # Euklidische Distanzberechnung!
 # @param x1: x-Koordinate Punkt 1
@@ -123,7 +124,7 @@ def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None)
         return list(range(0, len(array_points)))
 
     # Berechne Entfernungen
-    if formula =="haversine":
+    if formula == "haversine":
         distances = calculate_distance_coordinates_haversine(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
                                                              vec_y2=array_points[:, 1])
     elif formula == "euclidean":
@@ -169,7 +170,7 @@ class LuftlinienCalculator:
                  attr_ziel=None,
                  use_gui: bool = False,
                  use_filter: bool = False,
-                 formula_distance: str="euclidean",
+                 formula_distance: str = "euclidean",
                  path_output=None):
 
         # True, wenn am Debuggen. Ermöglicht die Durchführung von Zwischenanalysen, die im normalen Programmablauf nicht berücksichtigt werden
@@ -446,7 +447,6 @@ class LuftlinienCalculator:
             # (1  1
             #  1  0)
 
-
             # Attribute Quelle und Ziel
             vector_is_from_zone = self.zones[self.attr_is_from_zone].values
             vector_is_to_zone = self.zones[self.attr_is_to_zone].values
@@ -478,7 +478,7 @@ class LuftlinienCalculator:
 
             df_zones_info = self.adj_matrix_to_set_of_connected_zones(vfs)
             df_zones_info["set zones"] = df_zones_info["set zones"].str.join(",")
-            logging.info('\t'+ df_zones_info.to_string().replace('\n', '\n\t'))
+            logging.info('\t' + df_zones_info.to_string().replace('\n', '\n\t'))
 
     ## löschte Knoten in Visum, die keine Strecken anbinden
     # geht nur, wenn eine Visuminstanz enthalten ist
@@ -493,7 +493,8 @@ class LuftlinienCalculator:
 
         # Filter anpassen
         self.visum.Filters.NodeFilter().Init()
-        self.visum.Filters.NodeFilter().AddCondition("OP_NONE", True, "Count:InLinks", "GreaterVal", 0)
+        self.visum.Filters.NodeFilter().AddCondition("OP_NONE", False, "Count:InLinks", "EqualVal", 0)
+        self.visum.Filters.NodeFilter().AddCondition("OP_AND", False, "Count:OutLinks", "EqualVal", 0)
         self.visum.Filters.NodeFilter().UseFilter = True
 
         n = self.visum.Net.Nodes.CountActive
@@ -598,7 +599,7 @@ class LuftlinienCalculator:
     # @param visum: optionale Übergabe einer Visuminstanz. Default None
     # @param links_additive: falls False werden die existierenden Strecken in Visum gelöscht
     # @param list_vfs: Liste der VFS, die berücksichtigt werden sollen. Default: Alle des Objekts
-    def export_net(self, visum=None, links_additive=True, list_vfs=None):
+    def export_net(self, visum=None, links_additive=True, list_vfs=None, create_connectors=True):
 
         if self.path_output is None:
             # falls kein Dateipfad übergeben ist: Verwende Visumdateipfad, falls eine Visuminstanz existiert, ansonsten verwende den aktuellen Pfad
@@ -615,7 +616,12 @@ class LuftlinienCalculator:
         path_net = path_net / f"{'_'.join(list_vfs)}.net"
 
         # Erstelle eine Knotenliste
-        df_nodes = self.zones
+        df_nodes = self.zones.copy()
+        # Überarbeiten
+        df_nodes = df_nodes.astype({'No': int, 'TypeNo': int})
+        df_nodes.loc[:, 'Name'] = 'LLT ' + df_nodes['No'].astype(int).astype(str) + ' ' + df_nodes['Name']
+        df_nodes["CODE"] = df_nodes["No"].astype(int)
+        df_nodes = df_nodes[['No', 'Name', 'XCoord', 'YCoord', 'TypeNo', 'CODE']].copy()
 
         # Erstelle Streckenliste
         df_edges = self.adj_matrix_to_links(list_vfs=list_vfs)
@@ -644,15 +650,15 @@ class LuftlinienCalculator:
             ["FromNodeNo", "ToNodeNo"]].max(axis=1).astype(str)
 
         # 2. Nummerierung
+        # Info: leider funktioniert UseNumericOffset nicht zuverlässig über COM, deswegen sollte der Offset beim erstellen der Net-Datei hart codiert werden.
         if links_additive & (visum is not None):
             # Abgleich Knotennummern/Namen
-            #Bsp und/oder python
+            # Bsp und/oder python
             no_node_max = visum.Net.AttValue(r"Max:Nodes\No")
             no_node_max = int(0 if no_node_max is None else no_node_max)
             no_link_max = visum.Net.AttValue(r"Max:Links\No")
             no_link_max = int(0 if no_link_max is None else no_link_max)
-
-            offset_link_types = int(visum.Net.AttValue(r"Max:LinkTypes\No") or 0)
+            no_linktype_max = int(visum.Net.AttValue(r"Max:LinkTypes\No") or 0)
 
             no_node_start = no_node_max + 1
             no_link_start = no_link_max + 1
@@ -660,26 +666,29 @@ class LuftlinienCalculator:
         else:
             no_link_start = 1
             no_node_start = 1
-            offset_link_types = int(0)
+            no_linktype_max = int(0)
 
+        # Zuordnung der alten Nummerierung zur neuen
+        # dict_no_nodes kann verwendet werden, um Anbindungen zu überzeugen, da es die alten Nummern (von zones) mit den neuen Nummern (nodes) verknüpft
         dict_no_nodes = dict(zip(df_nodes["No"].drop_duplicates(), range(no_node_start, no_node_start + len(df_nodes) + 1)))
         dict_no_links = dict(zip(df_edges["No"].drop_duplicates(), range(no_link_start, no_link_start + int(len(df_edges) / 2) + 1)))
-        df_edges.loc[:,"TypeNo"] = df_edges["TypeNo"] + offset_link_types
-        df_linktypes.loc[:, "No"] += offset_link_types
+        df_edges.loc[:, "TypeNo"] = df_edges["TypeNo"] + no_linktype_max
+        df_linktypes.loc[:, "No"] += no_linktype_max
 
         # Test: für jede Strecke existiert eine Nummer
         if len(dict_no_links) != len(df_edges["No"].drop_duplicates()):
             logging.error("Streckennummerierung passt nicht zur Streckeanzahl")
 
-        df_edges["No"].replace(dict_no_links, inplace=True)
         df_nodes["No"].replace(dict_no_nodes, inplace=True)
+        df_edges["No"].replace(dict_no_links, inplace=True)
+        df_edges["No"].replace(dict_no_links, inplace=True)
         df_edges["FromNodeNo"].replace(dict_no_nodes, inplace=True)
         df_edges["ToNodeNo"].replace(dict_no_nodes, inplace=True)
 
         # Lösche Strecken, die in unterschiedlichen VFS mehrmals vorkommen
         # höchste Stufe wird behalten (Sortierung nach aufsteigender Nummer & Löschen der Duplikate)
         df_edges.sort_values("TypeNo", inplace=True)
-        df_edges.drop_duplicates(["FromNodeNo", "ToNodeNo"], inplace=True)
+        df_edges.drop_duplicates(["FromNodeNo", "ToNodeNo"], keep='first', inplace=True)
 
         # Schreibe .net Datei
         with open(path_net, mode="w", newline="\n") as f:
@@ -695,9 +704,26 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 '''
 
             f.write(header)
-            write_object_to_net("Node", df_nodes[self.attr_zones], f)
+            write_object_to_net("Node", df_nodes, f)
             write_object_to_net("Link type", df_linktypes, f)
             write_object_to_net("Link", df_edges[["No", "FromNodeNo", "ToNodeNo", "TypeNo"]], f)
+            if create_connectors:
+                # Anbindungen vorbereiten von dict_no_nodes
+                df_conn = pd.DataFrame(list(dict_no_nodes.items()), columns=["ZONENO", "NODENO"])
+                # Duplicate rows for Directions O/D
+                df_conn = pd.concat([df_conn] * 2, ignore_index=True)
+                # Sort the DataFrame so
+                df_conn.sort_values(by=["ZONENO", "NODENO"], inplace=True)
+                # Reset index
+                df_conn.reset_index(drop=True, inplace=True)
+                # Add DIRECTION column
+                df_conn["DIRECTION"] = ["O", "D"] * (len(df_conn) // 2)
+                # Add TSYSSET for IV-Sys
+                tsys_net = pd.DataFrame(visum.Net.TSystems.GetMultipleAttributes(["CODE", "TYPE"]), columns=["CODE", "TYPE"])
+                list_ivtsys_net = tsys_net[tsys_net['TYPE'] != 'PUT']["CODE"].to_list()
+                df_conn["TSYSSET"] = ",".join(list_ivtsys_net)
+                # Schreibe Tabelle: Connectors in die Net-Datei
+                write_object_to_net("Connector", df_conn, f)
 
         # Falls Visuminstanz übergeben: lade die .net Datei
         if visum is not None:
@@ -707,21 +733,28 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             if links_additive is not True:
                 visum.Net.Links.RemoveAll(OnlyActive=True)
             else:
-                controller.SetNumericOffsetUseCompression('Node', True)
-                controller.SetNumericOffsetUseCompression('Link', True)
-                # controller.SetNumericOffsetUseCompression('LinkType', True)
+                controller.SetUseNumericOffset('Node', True)
+                controller.SetUseNumericOffset('LinkType', True)
+                controller.SetUseNumericOffset('Link', True)
 
             visum.IO.LoadNet(str(path_net), ReadAdditive=True, AddNetRead=controller)
 
-            if visum.Net.Links.Count < len(df_edges):
-                logging.warning("Da hat beim Import der Netzdatei etwas nicht geklappt")
+            ctrl = visum.IO.CreateAddNetReadController()
+            ctrl.SetUseNumericOffset('Node', True)
+            ctrl.SetUseNumericOffset('Link', True)
+            ctrl.SetUseNumericOffset('LinkType', True)
 
-        logging.info(f"die Netzdatei von {len(list_vfs)} VFS wurde exportiert")
+            visum.IO.LoadNet(path_net, ReadAdditive=True, AddNetRead=ctrl)
+
+            if visum.Net.Links.Count < len(df_edges):
+                logging.warning("Fehler beim Import der Netzdatei")
+
+        logging.info(f"die Netzdatei von {len(list_vfs)} VFS wurde nach Visum exportiert")
 
     def export_zones_uda_connections(self, vfs):
         # Erstelle UDA wenn nicht vorhanden
 
-        str_no_conn =f"RIN_Anz_Verbindungen_{vfs}".replace(" ", "")
+        str_no_conn = f"RIN_Anz_Verbindungen_{vfs}".replace(" ", "")
         str_conn = f"RIN_Verbindungen_{vfs}".replace(" ", "")
 
         try:
@@ -740,14 +773,13 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
         df_zones.set_index("No", inplace=True)
 
         # Schreibe das Ergebnis nach Visum
-        df_format = pd.DataFrame(self.visum.Net.Zones.GetMultiAttValues("No"), columns=["Idx","No"]).set_index("No")
+        df_format = pd.DataFrame(self.visum.Net.Zones.GetMultiAttValues("No"), columns=["Idx", "No"]).set_index("No")
 
         df_format = df_format.join(df_zones)
         df_format[str_conn] = df_format["set zones"].str.join(",")
 
         self.visum.Net.Zones.SetMultiAttValues(str_no_conn, df_format.loc[:, ["Idx", "no zones"]].values)
         self.visum.Net.Zones.SetMultiAttValues(str_conn, df_format.loc[:, ["Idx", str_conn]].values)
-
 
     ## initialisiert die Adjazenzmatrizen
     def init_results(self):
@@ -762,7 +794,7 @@ if __name__ == '__main__':
     from pathlib import Path
 
     # Parameterübergabe
-    path_source = Path(r"C:\Users\ac128405\Desktop\Software\Luftlinientool\Beispielnetz")
+    path_source = Path.cwd() / 'Version'
     file_source = 'ZentraleOrteBW_Bezirke.ver'
 
     # Settings Logging
@@ -788,7 +820,14 @@ if __name__ == '__main__':
 
     llt1.calculate_main()
     llt1.export_matrix(visum=llt1.visum)
-    llt1.export_net(visum=llt1.visum, links_additive=False)
+    llt1.export_net(visum=llt1.visum, links_additive=True)
+
+    ctrl = Visum.IO.CreateAddNetReadController()
+    ctrl.SetUseNumericOffset('Node', True)
+    ctrl.SetUseNumericOffset('Link', True)
+    ctrl.SetUseNumericOffset('LinkType', True)
+
+    Visum.IO.LoadNet(path_source / 'VFS 0_VFS 1_VFS 2_VFS 3_VFS 4_VFS 5.net', ReadAdditive=True, AddNetRead=ctrl)
 
     llt1.delete_unused_nodes()
 
