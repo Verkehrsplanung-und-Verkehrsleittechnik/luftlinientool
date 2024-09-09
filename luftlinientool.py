@@ -21,7 +21,7 @@ import webbrowser
 # @param path: Dateipfad (Path/str) einer Visumversionsdatei
 # @param version: Visumversion, default 22
 # @return: Visuminstanz
-def open_visum(path, version=230):
+def open_visum(path, version=240):
     try:
         # testet ob die Variable Visum existiert
         global Visum
