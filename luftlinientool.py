@@ -245,7 +245,7 @@ class LuftlinienCalculator:
 
         # Abfangen attr_ziel=attr_quelle: Lösche Spaltenduplikat
         if attr_ziel == attr_quelle:
-            self.zones = self.zones.T.drop_duplicates().T
+            self.zones = self.zones.loc[:, ~self.zones.columns.duplicated()]
 
         self.attr_is_from_zone = attr_quelle
         self.attr_is_to_zone = attr_ziel
