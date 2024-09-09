@@ -259,16 +259,15 @@ class LLTFrame(wx.Frame):
 
     def event_export_results(self, event):
         if self.llt_calculator is not None:
-            self.llt_calculator.export_net(visum=self.visum,
-                                           links_additive=False)
-            self.llt_calculator.export_matrix(visum=self.visum)
+            self.llt_calculator.export_net(
+                                           links_additive=True)
+            self.llt_calculator.export_matrix()
 
     def event_export_net(self, event):
         vfs = event.GetEventObject().vfs
 
         if self.llt_calculator is not None:
             self.llt_calculator.export_net(list_vfs=[vfs],
-                                           visum=self.visum,
                                            links_additive=True)
             self.llt_calculator.delete_unused_nodes()
 
@@ -279,14 +278,13 @@ class LLTFrame(wx.Frame):
         vfs = event.GetEventObject().vfs
 
         if self.llt_calculator is not None:
-            self.llt_calculator.export_matrix(list_vfs=[vfs],   visum=self.visum)
+            self.llt_calculator.export_matrix(list_vfs=[vfs])
 
         self.SetStatusText(f'{vfs}: Matrix in Visum geladen')
 
     def event_export_master(self, event):
-        self.llt_calculator.export_matrix(visum=self.visum)
-        self.llt_calculator.export_net(visum=self.visum,
-                                       links_additive=True)
+        self.llt_calculator.export_matrix()
+        self.llt_calculator.export_net(links_additive=True)
         self.llt_calculator.delete_unused_nodes()
 
         self.SetStatusText(f'die kombinierten Ergebnisse wurden in Visum importiert')
