@@ -527,7 +527,7 @@ class LuftlinienCalculator:
     # Vorhandene matrizen werden überschrieben
     # @param visum: optionale Übergabe einer Visuminstanz. Default None
     # @param list_vfs: optionale Übergabe einer Menge an VFS. Default: None (alle des Objekts)
-    def export_matrix(self, visum=None, list_vfs=None):
+    def export_matrix(self, list_vfs=None):
 
         # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
         # Sonst: Speichere .mtx Datei
@@ -537,7 +537,7 @@ class LuftlinienCalculator:
 
         for vfs in list_vfs:
             matrix = self.matrizen_VFS[vfs]
-            if visum is not None:
+            if self.visum is not None:
                 # Benennung
                 if self.anz_versorger_vfs[vfs] < 1:
                     # Term mit Versorgungsfkt wird weggelassen
@@ -546,9 +546,9 @@ class LuftlinienCalculator:
                     # Term mit Versorgungsfkt wird hinzugefügt
                     name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
-                if visum.Net.Matrices.Count < 1:
+                if self.visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
-                    matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
+                    matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
                     matrix_instance.SetAttValue("NAME", name_matrix)
                 else:
@@ -557,7 +557,7 @@ class LuftlinienCalculator:
 
                     if matrix_instances.Count < 1:
                         # Erstelle Matrix
-                        matrix_instance = visum.Net.AddMatrix(-1, 2, 3)
+                        matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                         matrix_instance.SetAttValue("CODE", name_matrix)
                         matrix_instance.SetAttValue("NAME", name_matrix)
                     elif matrix_instances.Count > 1:
