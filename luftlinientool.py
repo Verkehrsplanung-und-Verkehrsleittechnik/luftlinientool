@@ -826,3 +826,10 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
         filter.UseFilter = True
 
+    def delete_added_links(self):
+        # Achtung: Löscht Streckentypen NICHT
+        self.filter_links_vfs()
+        self.visum.Net.Links.RemoveAll(OnlyActive=True)
+        self.visum.Filters.LinkFilter().Init()
+
+
