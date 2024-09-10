@@ -262,7 +262,7 @@ class LuftlinienCalculator:
         self.dict_export_links_vfs = {} # Enthält die Strecken (VonKnoten-ZuKnoten
         self.dict_export_linktypes = {}
 
-        self.edges = None
+        self.edges = pd.DataFrame()
 
     ## übersetzt die Adjazenzmatrizen der gewünschten VFS in eine Streckenliste
     # @param list_vfs: Liste der VFS. Falls nicht gegeben, werden alle VFS der Instanz verwendet
@@ -616,7 +616,7 @@ class LuftlinienCalculator:
         # Erstelle eine Knotenliste
         df_nodes = self.zones.copy()
         # Überarbeiten
-        df_nodes = df_nodes.astype({'No': int, 'TypeNo': int})
+        df_nodes = df_nodes.astype({'No': int, self.attr_central_level: int})
 
         # Erstelle eine Zuordnung Bezirke -> Knoten
         if self.visum is None:
@@ -665,7 +665,7 @@ class LuftlinienCalculator:
         if len(self.dict_export_links_vfs) != len(df_edges["No"].drop_duplicates()):
             logging.error("Streckennummerierung passt nicht zur Streckeanzahl")
 
-        # df_edges.loc[:, "Name"] = df_edges["No"]  # wird später überschrieben
+        df_edges.loc[:, "Name"] = df_edges["No"]
         df_edges["No"].replace(self.dict_export_links_vfs, inplace=True)
 
         self.edges = df_edges
@@ -696,10 +696,19 @@ class LuftlinienCalculator:
         df_edges = self.adj_matrix_to_links(list_vfs)
         set_zones = set(df_edges['FromNodeNo']).union(set(df_edges['ToNodeNo']))
 
-        if len(set_zones - set(self.dict_export_zone2node.keys())) > 0:
+        if (len(set_zones - set(self.dict_export_zone2node.keys())) > 0) | (len(df_edges) > len(self.edges)):
             self.extract_net()
 
+
+        if len(self.edges) < 1:
+            logging.info("Keine Strecken zum Exportieren, Abbruch")
+            return
+
         df_nodes = self.zones.copy()
+
+        if "TypeNo" not in df_nodes.columns.tolist():
+            df_nodes["TypeNo"] = df_nodes[self.attr_central_level]
+
         # Überarbeiten
         df_nodes = df_nodes.astype({'No': int, 'TypeNo': int})
         df_nodes.loc[:, 'Name'] = 'LLT ' + df_nodes['No'].astype(int).astype(str) + ' ' + df_nodes['Name']
@@ -714,6 +723,7 @@ class LuftlinienCalculator:
         df_linktypes.columns = ["Name","No"]
         df_linktypes["TSysSet"] = ",".join(list_tsys_net)
         df_linktypes["Rank"] = df_linktypes["No"]
+
 
         if create_connectors:
             # Anbindungen vorbereiten von dict_no_nodes

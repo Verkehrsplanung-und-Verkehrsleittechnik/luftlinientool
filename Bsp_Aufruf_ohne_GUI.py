@@ -33,15 +33,15 @@ if __name__ == '__main__':
         llt1 = llt.LuftlinienCalculator(Visum, anz_versorger=0, max_entfernung=1,
                                         dict_vfs={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2},
                                         attr_quelle="IstUntersuchungsgebiet",
-                                        attr_ziel="IstUntersuchungsgebiet")
+                                        attr_ziel="AddVal1")
     else:
         print("nicht implementiert")
 
     llt1.calculate_main()
     llt1.export_matrix()
-    ltt1.export_net()
-    ltt1.export_zones_uda_connections("VFS 1")
+    llt1.export_net()
+    llt1.export_zones_uda_connections("VFS 1")
 
-    ltt1.delete_unused_nodes()
+    llt1.delete_unused_nodes()
 
     del Visum
