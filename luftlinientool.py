@@ -158,7 +158,6 @@ class LuftlinienCalculator:
     # @param anz_versorger: Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll
     # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
     # @param attr_ziel: Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default: None
-    # @param use_gui: gibt an, ob die Instanz mit einer GUI vernetzt ist. Default: False
     # @param use_filter: gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz
     # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
     def __init__(self, source,
@@ -168,7 +167,6 @@ class LuftlinienCalculator:
                  anz_versorger=0,
                  attr_quelle=None,
                  attr_ziel=None,
-                 use_gui: bool = False,
                  use_filter: bool = False,
                  formula_distance: str = "euclidean",
                  path_output=None):
@@ -217,9 +215,6 @@ class LuftlinienCalculator:
         else:
             raise TypeError("Type Übergabeparameter nicht implementiert")
 
-        # Verknüpfung mit GUI: True/False
-        self.use_gui = use_gui
-
         # Einlesen der Bezirksdaten
         # Wichtig: Index der Tabelle = 0...n
         if not isinstance(source, str):
@@ -227,7 +222,7 @@ class LuftlinienCalculator:
             attr_zones = self.attr_zones
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
-            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=True), dtype=int)[:, 1])
+            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=use_filter), dtype=int)[:, 1])
             self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
 
             logging.info("%s Bezirke eingelesen", len(self.zones))
@@ -341,10 +336,6 @@ class LuftlinienCalculator:
         for vfs in self.vfs:
             # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
-
-            # # todo Idee Aktivierung Outputexportbuttions in GUI
-            # if self.use_gui:
-            #     a = 1
 
         logging.info("Die Berechnung über alle VFS ist abgeschlossen")
 
@@ -816,46 +807,29 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
         self.matrizen_VFS = dict_vfs
 
+    ## filtert die Strecken der eingefügten Streckentypen in Visum
+    def filter_links_vfs(self):
+        filter = Visum.Filters.LinkFilter()
+        filter.Init()
+        filter.AddCondition("OP_NONE", False, "TypeNo", "ContainedIn", ",".join(str(x) for x in self.dict_export_linktypes.values()))
+        filter.UseFilter = True
 
-if __name__ == '__main__':
-    from pathlib import Path
+    def filter_zones_source_targets(self, filterFromZones: bool = True):
+        filter = Visum.Filters.ZoneFilter()
+        filter.Init()
+        if filterFromZones:
+            if self.attr_is_from_zone is not None:
+                filter.AddCondition("OP_NONE", False, self.attr_is_from_zone , "GreaterVal", 0)
+        else:
+            if self.attr_is_to_zone is not None:
+                filter.AddCondition("OP_NONE", False, self.attr_is_to_zone, "GreaterVal", 0)
 
-    # Parameterübergabe
-    path_source = Path.cwd() / 'Version'
-    file_source = 'ZentraleOrteBW_Bezirke.ver'
+        filter.UseFilter = True
 
-    # Settings Logging
-    path_logfile = Path(__file__)
-    path_logfile = path_source / path_logfile.name.replace(".py", ".log")
+    def delete_added_links(self):
+        # Achtung: Löscht Streckentypen NICHT
+        self.filter_links_vfs()
+        self.visum.Net.Links.RemoveAll(OnlyActive=True)
+        self.visum.Filters.LinkFilter().Init()
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %I:%M:%S %p")
-    # Output in Konsole & Logfile
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logger_format)
-    file_handler = logging.FileHandler(path_logfile, mode="w")
-    file_handler.setFormatter(logger_format)
-    # add handles to logger
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(stream_handler)
 
-    source = path_source / file_source
-
-    Visum = open_visum(source)
-    llt1 = LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=2, max_entfernung=1)
-
-    llt1.calculate_main()
-    llt1.export_matrix(visum=llt1.visum)
-    llt1.export_net(visum=llt1.visum, links_additive=True)
-
-    ctrl = Visum.IO.CreateAddNetReadController()
-    ctrl.SetUseNumericOffset('Node', True)
-    ctrl.SetUseNumericOffset('Link', True)
-    ctrl.SetUseNumericOffset('LinkType', True)
-
-    Visum.IO.LoadNet(path_source / 'VFS 0_VFS 1_VFS 2_VFS 3_VFS 4_VFS 5.net', ReadAdditive=True, AddNetRead=ctrl)
-
-    llt1.delete_unused_nodes()
-
-    del Visum
