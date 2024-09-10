@@ -158,7 +158,6 @@ class LuftlinienCalculator:
     # @param anz_versorger: Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll
     # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
     # @param attr_ziel: Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default: None
-    # @param use_gui: gibt an, ob die Instanz mit einer GUI vernetzt ist. Default: False
     # @param use_filter: gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz
     # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
     def __init__(self, source,
@@ -168,7 +167,6 @@ class LuftlinienCalculator:
                  anz_versorger=0,
                  attr_quelle=None,
                  attr_ziel=None,
-                 use_gui: bool = False,
                  use_filter: bool = False,
                  formula_distance: str = "euclidean",
                  path_output=None):
@@ -217,9 +215,6 @@ class LuftlinienCalculator:
         else:
             raise TypeError("Type Übergabeparameter nicht implementiert")
 
-        # Verknüpfung mit GUI: True/False
-        self.use_gui = use_gui
-
         # Einlesen der Bezirksdaten
         # Wichtig: Index der Tabelle = 0...n
         if not isinstance(source, str):
@@ -227,7 +222,7 @@ class LuftlinienCalculator:
             attr_zones = self.attr_zones
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
-            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=True), dtype=int)[:, 1])
+            set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=use_filter), dtype=int)[:, 1])
             self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
 
             logging.info("%s Bezirke eingelesen", len(self.zones))
@@ -341,10 +336,6 @@ class LuftlinienCalculator:
         for vfs in self.vfs:
             # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
-
-            # # todo Idee Aktivierung Outputexportbuttions in GUI
-            # if self.use_gui:
-            #     a = 1
 
         logging.info("Die Berechnung über alle VFS ist abgeschlossen")
 
@@ -815,4 +806,23 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
         self.matrizen_VFS = dict_vfs
+
+    ## filtert die Strecken der eingefügten Streckentypen in Visum
+    def filter_links_vfs(self):
+        filter = Visum.Filters.LinkFilter()
+        filter.Init()
+        filter.AddCondition("OP_NONE", False, "TypeNo", "ContainedIn", ",".join(str(x) for x in self.dict_export_linktypes.values()))
+        filter.UseFilter = True
+
+    def filter_zones_source_targets(self, filterFromZones: bool = True):
+        filter = Visum.Filters.ZoneFilter()
+        filter.Init()
+        if filterFromZones:
+            if self.attr_is_from_zone is not None:
+                filter.AddCondition("OP_NONE", False, self.attr_is_from_zone , "GreaterVal", 0)
+        else:
+            if self.attr_is_to_zone is not None:
+                filter.AddCondition("OP_NONE", False, self.attr_is_to_zone, "GreaterVal", 0)
+
+        filter.UseFilter = True
 
