@@ -41,10 +41,11 @@ Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
   
 Anmerkungen:
 
-* Sollten sich bei der GUI Verwendung Bezirksattribute/-werte ändern, muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.
+* Bei der GUI werden aktuelle Berchnungen zurückgesetzt, wenn die Auswahl eines der Bezirksattribtue geändert wird. Dabei wird eine neue Instanz des LLT Kalkulators erstellt.
+* Werden Bezirkswerte in Visum geändert, werden diese nicht automatisch im LLT Kalkulator geändert. Deshalb muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.
 * Die initialen Parameterwerte können in der GUI über das Tool "Defaultwerte" wieder aufgerufen werden
 * "Ergebnisse initialisieren" ermöglicht das Löschen bereits vorhandener Ergebnisse
-* Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren"). Die Adjazenzmatrizen werden sonst einfach erweitert!
+* Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren"). 
 
 ## Vorraussetzung
 Netz mit kategorisierten Bezirken:
