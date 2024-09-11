@@ -809,13 +809,13 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
     ## filtert die Strecken der eingefügten Streckentypen in Visum
     def filter_links_vfs(self):
-        filter = Visum.Filters.LinkFilter()
+        filter = self.visum.Filters.LinkFilter()
         filter.Init()
         filter.AddCondition("OP_NONE", False, "TypeNo", "ContainedIn", ",".join(str(x) for x in self.dict_export_linktypes.values()))
         filter.UseFilter = True
 
     def filter_zones_source_targets(self, filterFromZones: bool = True):
-        filter = Visum.Filters.ZoneFilter()
+        filter = self.visum.Filters.ZoneFilter()
         filter.Init()
         if filterFromZones:
             if self.attr_is_from_zone is not None:

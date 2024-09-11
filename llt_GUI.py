@@ -76,7 +76,7 @@ class LLTFrame(wx.Frame):
 
     def __set_properties__(self):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
-        self.SetMinSize((1000,500))
+        self.SetMinSize((1200,500))
 
         self.__set_values_vfs_buttons__()
 
@@ -124,6 +124,8 @@ class LLTFrame(wx.Frame):
         self.toolbar.AddTool(103, 'Ergebnisse initialisieren', wx.Bitmap())
         self.toolbar.AddTool(104, 'Defaultwerte', wx.Bitmap())
         self.toolbar.AddTool(105, 'Info', wx.Bitmap())
+        self.toolbar.AddTool(106, 'Filter: eingefügte Strecken', wx.Bitmap())
+        self.toolbar.AddTool(107, 'Löschen: eingefügte Strecken', wx.Bitmap())
         self.toolbar.Realize()
 
 
@@ -155,6 +157,8 @@ class LLTFrame(wx.Frame):
         self.toolbar.Bind(wx.EVT_TOOL, self.event_reset, id=103)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_set_default, id=104)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_filter, id=106)
+        self.toolbar.Bind(wx.EVT_TOOL, self.event_delete_links, id=107)
 
     def __set_values_vfs_buttons__(self):
         max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
@@ -267,7 +271,7 @@ class LLTFrame(wx.Frame):
         self.SetStatusText('Daten importiert')
 
     def event_info(self, event):
-        path_scripts = Path(self.visum.GetPath(37))
+        path_scripts = Path.cwd() #Path(self.visum.GetPath(37))
         logging.info(path_scripts)
         llt.show_info(path_scripts)
 
@@ -310,6 +314,15 @@ class LLTFrame(wx.Frame):
         self.llt_calculator.delete_unused_nodes()
 
         self.SetStatusText(f'die kombinierten Ergebnisse wurden in Visum importiert')
+
+    def event_filter(self, event):
+        if self.llt_calculator is not None:
+            self.llt_calculator.filter_links_vfs()
+
+    def event_delete_links(self, event):
+        if self.llt_calculator is not None:
+            self.llt_calculator.delete_added_links()
+            self.llt_calculator.delete_unused_nodes()
 
     def update_param_vfs(self):
         if self.llt_calculator is not None:
