@@ -6,7 +6,7 @@ if __name__ == '__main__':
     import luftlinientool as llt
 
     # Parameterübergabe
-    path_source = Path(r"S:\VuV-Tools\Fertige Tools\Luftlinientool\Python (Visumintegration) in github")
+    path_source = Path().cwd() / "Version"
     file_source = 'Beispielnetz.ver'
 
     # Settings Logging
@@ -29,15 +29,19 @@ if __name__ == '__main__':
 
     if source.suffix == ".ver":
         Visum = llt.open_visum(source)
-        ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
+        # ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
+        llt1 = llt.LuftlinienCalculator(Visum, anz_versorger=0, max_entfernung=1,
+                                        dict_vfs={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2},
+                                        attr_quelle="IstUntersuchungsgebiet",
+                                        attr_ziel="AddVal1")
     else:
         print("nicht implementiert")
 
-    ltt1.calculate_main()
-    ltt1.export_matrix(visum=ltt1.visum)
-    ltt1.export_net(visum=ltt1.visum, links_additive=False)
-    ltt1.export_zones_uda_connections("VFS 1")
+    llt1.calculate_main()
+    llt1.export_matrix()
+    llt1.export_net()
+    llt1.export_zones_uda_connections("VFS 1")
 
-    ltt1.delete_unused_nodes()
+    llt1.delete_unused_nodes()
 
     del Visum

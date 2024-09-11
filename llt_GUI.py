@@ -78,12 +78,7 @@ class LLTFrame(wx.Frame):
         self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
         self.SetMinSize((1000,500))
 
-        max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
-        idx = 0
-        for btn in self.buttons_vfs_value.values():
-            btn.SetRange(0, max_value_vfs)
-            btn.SetValue(idx)
-            idx += 1
+        self.__set_values_vfs_buttons__()
 
         self.event_set_default()
 
@@ -161,6 +156,14 @@ class LLTFrame(wx.Frame):
         self.toolbar.Bind(wx.EVT_TOOL, self.event_set_default, id=104)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
 
+    def __set_values_vfs_buttons__(self):
+        max_value_vfs = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_vfs}"))
+        idx = 0
+        for btn in self.buttons_vfs_value.values():
+            btn.SetRange(0, max_value_vfs)
+            btn.SetValue(idx)
+            idx += 1
+
     def event_set_default(self, event=None):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
@@ -190,6 +193,9 @@ class LLTFrame(wx.Frame):
 
         if event.GetEventObject().Label == 'attr_vfs':
             self.attr_vfs = attr
+            # Anpassen Buttons Attributwerte
+            self.__set_values_vfs_buttons__()
+
         elif event.GetEventObject().Label == 'attr_quelle':
             if attr == 'None':
                 self.attr_quelle = None
@@ -204,8 +210,23 @@ class LLTFrame(wx.Frame):
             self.attr_dist_fcn = attr
         else:
             logging.warning("sollte nie passieren")
-            
-        self.SetStatusText("Attribut übernommen, Bezirke neu importieren nicht vergessen bei Änderungen an den Bezirksattributen")
+
+        # Erstellen einer neuen Calculator Instanz
+        if self.visum is not None:
+            # Init Calculator Instanz
+            self.llt_calculator = llt.LuftlinienCalculator(self.visum,
+                                                           attr_vfs=self.attr_vfs,
+                                                           attr_quelle=self.attr_quelle,
+                                                           attr_ziel=self.attr_ziel,
+                                                           anz_versorger=1,
+                                                           max_entfernung=1,
+                                                           )
+            # Übergebe aktuelle Parameter
+            self.update_param_vfs()
+        else:
+            logging.warning("Umgang mit Nichtvisum Dateien ist nicht implementiert")
+
+        self.SetStatusText("Attribut übernommen, Bezirke neu importiert, Rechnungen zurückgesetzt")
 
     def event_calculate(self, event):
         # Vorgehen
@@ -237,7 +258,8 @@ class LLTFrame(wx.Frame):
                                                            attr_quelle=self.attr_quelle,
                                                            attr_ziel=self.attr_ziel,
                                                            anz_versorger=1,
-                                                           max_entfernung=1)
+                                                           max_entfernung=1,
+                                                           )
             # Übergebe aktuelle Parameter
             self.update_param_vfs()
         else:
