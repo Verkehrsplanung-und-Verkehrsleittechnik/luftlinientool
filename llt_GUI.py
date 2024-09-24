@@ -1,9 +1,10 @@
+## @package llt_GUI
+# @brief Verwaltet und definiert die grafische Benutzeroberfläche für das Luftlinientool
+
 import wx
 import luftlinientool as llt
 from pathlib import Path
 import logging
-
-# Erstellt das Layout für das GUI
 
 # ===== Hilfsfkt =====
 
@@ -16,7 +17,7 @@ def get_attr_zones(Visum):
 
 # ======= Klassen ======
 
-# Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
+## Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
 class LLTFrame(wx.Frame):
     def __init__(self):
         super().__init__(parent=None)
@@ -344,6 +345,7 @@ VFS {self.llt_calculator.vfs}
 Nachbarschaftsgrad je VFS {self.llt_calculator.nachbarschaftsgrad_vfs} 
 Anzahl Versorger je VFS {self.llt_calculator.anz_versorger_vfs}''')
 
+## Spezifiziert & verwaltet den Tab mit den Eingabe- und Aktionsmöglichkeiten
 class MainTab(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -516,7 +518,7 @@ class MainTab(wx.Panel):
         self.cb_ziel.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
-
+## Spezifiziert den Tab, der die Lognachrichten ausgibt
 class LogTab(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -553,7 +555,29 @@ class LogTab(wx.Panel):
         vbox.Add(self.log, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(vbox)
 
+        # Bind the panel destruction event to ensure cleanup
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.on_close)
 
+    def on_close(self, event):
+        """ Perform any cleanup actions here """
+
+        # Remove and close the custom handler
+        self.logger.removeHandler(self.handler)
+        self.handler.close()
+
+        # Remove the file and stream handlers (optional if they need cleanup)
+        for handler in self.logger.handlers[:]:
+            if isinstance(handler, (logging.FileHandler, logging.StreamHandler)):
+                self.logger.removeHandler(handler)
+                handler.close()
+
+        event.Skip()  # Ensure the event propagates to the parent if needed
+
+    def __del__(self):
+        """ Destructor, ensure the logger handler is removed """
+        self.logger.removeHandler(self.handler)
+
+## Handler der Logbefehle
 class WxTextCtrlHandler(logging.Handler):
     def __init__(self, ctrl):
         logging.Handler.__init__(self)
