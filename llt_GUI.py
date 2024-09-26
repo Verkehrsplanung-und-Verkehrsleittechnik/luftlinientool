@@ -1,4 +1,4 @@
-## @package llt_GUI
+## @package llt_GUI.py
 # @brief Verwaltet und definiert die grafische Benutzeroberfläche für das Luftlinientool
 
 import wx
@@ -168,6 +168,7 @@ class LLTFrame(wx.Frame):
             btn.SetRange(0, max_value_vfs)
             btn.SetValue(idx)
             idx += 1
+
 
     def event_set_default(self, event=None):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen

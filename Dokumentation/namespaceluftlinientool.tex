@@ -1,0 +1,194 @@
+%\hypertarget{namespaceluftlinientool}{}
+%\doxysection{Dokumentation luftlinientool.py}
+%\label{namespaceluftlinientool}\index{luftlinientool@{luftlinientool}}
+
+
+Enthält allgemeine Methoden und die Klasse \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator}{LuftlinienCalculator}} zur Berechnung von Luftlinienverbindungen unter Berücksichtigung der Zentralitäten von Bezirken.  
+
+
+\doxysubsection*{Klassen}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator}{LuftlinienCalculator}}
+\begin{DoxyCompactList}\small\item\em Klasse \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator}{LuftlinienCalculator}} eine Instanz der Klasse enthält Attribute und Berechnungsmöglichkeiten um die VFS zwischen Bezirken zu ermitteln. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Funktionen}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceluftlinientool_ae1e08123fd1bda2cbf61b3a74f673156}{open\_visum}} (path, version=240)
+\begin{DoxyCompactList}\small\item\em Öffnet eine Visuminstanz falls nicht bereits offen ermöglicht simultanes Aufrufen der Datei Visumintern und -\/extern. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceluftlinientool_aef3d66d7fccff04e85ea2ee0ac8fd890}{write\_object\_to\_net}} (object, df\_object\_attributes\_to\_write, file)
+\begin{DoxyCompactList}\small\item\em Exportiert die Daten eines Visumobjekttyps in Netzdateiformat. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceluftlinientool_aaec7eaef77cc0ad90b08c788c498293f}{is\_symmetric}} (matrix, tol=1e-\/8)
+\begin{DoxyCompactList}\small\item\em Überprüft eine Matrif auf Symmetrie. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceluftlinientool_a099de1c2de30efa6d566e0487c7690be}{calculate\_distance\_coordinates\_haversine}} (x1, y1, vec\_x2, vec\_y2)
+\begin{DoxyCompactList}\small\item\em Berechnung der Distanz zwischen Koordinaten (Lat, Lon) Implementation der Haversine Formel. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceluftlinientool_af97153e17cec30367db7898f2a74a882}{calculate\_eucl\_distance\_coordinates}} (x1, y1, vec\_x2, vec\_y2)
+\begin{DoxyCompactList}\small\item\em Berechnung der Distanz zwischen Koordinaten (x, y) Euklidische Distanzberechnung! \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceluftlinientool_a07c3130d9087aced33c394805e602005}{get\_nearest\_points\_from\_set}} (x\_point, y\_point, array\_points, formula, n=None)
+\begin{DoxyCompactList}\small\item\em Identifiziert die nächsten n Punkte aus einer gegebenen Punktemenge zu einem einzelnen Punkt. 
+Zuerst werden die Distanzen aller Punkte zu dem einzelnen Punkt berechnet.
+Anschließend werden die n am kürzesten entfernten Punkte gefiltert und deren Indizes zurückgegeben. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceluftlinientool_afd0d49b8551db61ed99bf74048a25d4d}\label{namespaceluftlinientool_afd0d49b8551db61ed99bf74048a25d4d}} 
+def \mbox{\hyperlink{namespaceluftlinientool_afd0d49b8551db61ed99bf74048a25d4d}{show\_info}} (Path path\_scripts=Path.cwd())
+\begin{DoxyCompactList}\small\item\em Öffnet die Readme Datei. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Ausführliche Beschreibung}
+Enthält allgemeine Methoden und die Klasse \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator}{LuftlinienCalculator}} zur Berechnung von Luftlinienverbindungen unter Berücksichtigung der Zentralitäten von Bezirken. 
+
+\doxysubsection{Dokumentation der Funktionen}
+\mbox{\Hypertarget{namespaceluftlinientool_a099de1c2de30efa6d566e0487c7690be}\label{namespaceluftlinientool_a099de1c2de30efa6d566e0487c7690be}} 
+\index{luftlinientool@{luftlinientool}!calculate\_distance\_coordinates\_haversine@{calculate\_distance\_coordinates\_haversine}}
+\index{calculate\_distance\_coordinates\_haversine@{calculate\_distance\_coordinates\_haversine}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{calculate\_distance\_coordinates\_haversine()}{calculate\_distance\_coordinates\_haversine()}}
+{\footnotesize\ttfamily def luftlinientool.calculate\_distance\_coordinates\_haversine (\begin{DoxyParamCaption}\item[{}]{x1,  }\item[{}]{y1,  }\item[{}]{vec\_x2,  }\item[{}]{vec\_y2 }\end{DoxyParamCaption})}
+
+
+
+Berechnung der Distanz zwischen Koordinaten (Lat, Lon) Implementation der Haversine Formel. 
+
+
+\begin{DoxyParams}[1]{Parameter}
+\mbox{\texttt{ in}}  & {\em x1} & x-\/Koordinate Punkt 1 \\
+\hline
+\mbox{\texttt{ in}}  & {\em y1} & y-\/Koordinate Punkt 1 \\
+\hline
+\mbox{\texttt{ in}}  & {\em vec\_x2} & x-\/Koordinate Punktevektor \\
+\hline
+\mbox{\texttt{ in}}  & {\em vec\_y2} & y-\/Koordinate Punktevektor \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 74 der Datei luftlinientool.py.
+
+\mbox{\Hypertarget{namespaceluftlinientool_af97153e17cec30367db7898f2a74a882}\label{namespaceluftlinientool_af97153e17cec30367db7898f2a74a882}} 
+\index{luftlinientool@{luftlinientool}!calculate\_eucl\_distance\_coordinates@{calculate\_eucl\_distance\_coordinates}}
+\index{calculate\_eucl\_distance\_coordinates@{calculate\_eucl\_distance\_coordinates}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{calculate\_eucl\_distance\_coordinates()}{calculate\_eucl\_distance\_coordinates()}}
+{\footnotesize\ttfamily def luftlinientool.calculate\_eucl\_distance\_coordinates (\begin{DoxyParamCaption}\item[{}]{x1,  }\item[{}]{y1,  }\item[{}]{vec\_x2,  }\item[{}]{vec\_y2 }\end{DoxyParamCaption})}
+
+
+
+Berechnung der Distanz zwischen Koordinaten (x, y) Euklidische Distanzberechnung! 
+
+
+\begin{DoxyParams}[1]{Parameter}
+\mbox{\texttt{ in}}  & {\em x1} & x-\/Koordinate Punkt 1 \\
+\hline
+\mbox{\texttt{ in}}  & {\em y1} & y-\/Koordinate Punkt 1 \\
+\hline
+\mbox{\texttt{ in}}  & {\em vec\_x2} & x-\/Koordinate Punktevektor \\
+\hline
+\mbox{\texttt{ in}}  & {\em vec\_y2} & y-\/Koordinate Punktevektor \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 101 der Datei luftlinientool.py.
+
+\mbox{\Hypertarget{namespaceluftlinientool_a07c3130d9087aced33c394805e602005}\label{namespaceluftlinientool_a07c3130d9087aced33c394805e602005}} 
+\index{luftlinientool@{luftlinientool}!get\_nearest\_points\_from\_set@{get\_nearest\_points\_from\_set}}
+\index{get\_nearest\_points\_from\_set@{get\_nearest\_points\_from\_set}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{get\_nearest\_points\_from\_set()}{get\_nearest\_points\_from\_set()}}
+{\footnotesize\ttfamily def luftlinientool.get\_nearest\_points\_from\_set (\begin{DoxyParamCaption}\item[{}]{x\_point,  }\item[{}]{y\_point,  }\item[{}]{array\_points,  }\item[{}]{formula,  }\item[{}]{n = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Identifiziert die nächsten n Punkte aus einer gegebenen Punktemenge zu einem einzelnen Punkt. Zuerst werden die Distanzen aller Punkte zu dem einzelnen Punkt berechnet. Anschließend werden die n am kürzesten entfernten Punkte gefiltert und deren Indizes zurückgegeben. 
+
+
+\begin{DoxyParams}[1]{Parameter}
+\mbox{\texttt{ in}}  & {\em x\_point} & x-\/Koordinate des Referenzpunktes \\
+\hline
+\mbox{\texttt{ in}}  & {\em y\_point} & y-\/Koordinate des Referenzpunktes \\
+\hline
+\mbox{\texttt{ in}}  & {\em array\_points} & Array mit den x-\/ \& y-\/Koordinaten der Punkte \\
+\hline
+\mbox{\texttt{ in}}  & {\em n} & gewünschte Punkteanzahl \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+list\_indizes: Liste der Indizes der nächstgelegenen n Punkte 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 120 der Datei luftlinientool.py.
+
+\mbox{\Hypertarget{namespaceluftlinientool_aaec7eaef77cc0ad90b08c788c498293f}\label{namespaceluftlinientool_aaec7eaef77cc0ad90b08c788c498293f}} 
+\index{luftlinientool@{luftlinientool}!is\_symmetric@{is\_symmetric}}
+\index{is\_symmetric@{is\_symmetric}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{is\_symmetric()}{is\_symmetric()}}
+{\footnotesize\ttfamily def luftlinientool.is\_symmetric (\begin{DoxyParamCaption}\item[{}]{matrix,  }\item[{}]{tol = {\ttfamily 1e-\/8} }\end{DoxyParamCaption})}
+
+
+
+Überprüft eine Matrif auf Symmetrie. 
+
+
+\begin{DoxyParams}[1]{Parameter}
+\mbox{\texttt{ in}}  & {\em matrix} & Matrix, die auf Symmetrie getestet werden soll \\
+\hline
+\mbox{\texttt{ in}}  & {\em tol} & Toleranz für erlaubte Abweichung, default 1e-\/8 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+: True oder False 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 61 der Datei luftlinientool.py.
+
+\mbox{\Hypertarget{namespaceluftlinientool_ae1e08123fd1bda2cbf61b3a74f673156}\label{namespaceluftlinientool_ae1e08123fd1bda2cbf61b3a74f673156}} 
+\index{luftlinientool@{luftlinientool}!open\_visum@{open\_visum}}
+\index{open\_visum@{open\_visum}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{open\_visum()}{open\_visum()}}
+{\footnotesize\ttfamily def luftlinientool.open\_visum (\begin{DoxyParamCaption}\item[{}]{path,  }\item[{}]{version = {\ttfamily 240} }\end{DoxyParamCaption})}
+
+
+
+Öffnet eine Visuminstanz falls nicht bereits offen ermöglicht simultanes Aufrufen der Datei Visumintern und -\/extern. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em path} & Dateipfad (Path/str) einer Visumversionsdatei \\
+\hline
+{\em version} & Visumversion, default 22 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+: Visuminstanz 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 24 der Datei luftlinientool.py.
+
+\mbox{\Hypertarget{namespaceluftlinientool_aef3d66d7fccff04e85ea2ee0ac8fd890}\label{namespaceluftlinientool_aef3d66d7fccff04e85ea2ee0ac8fd890}} 
+\index{luftlinientool@{luftlinientool}!write\_object\_to\_net@{write\_object\_to\_net}}
+\index{write\_object\_to\_net@{write\_object\_to\_net}!luftlinientool@{luftlinientool}}
+\doxysubsubsection{\texorpdfstring{write\_object\_to\_net()}{write\_object\_to\_net()}}
+{\footnotesize\ttfamily def luftlinientool.write\_object\_to\_net (\begin{DoxyParamCaption}\item[{}]{object,  }\item[{}]{df\_object\_attributes\_to\_write,  }\item[{}]{file }\end{DoxyParamCaption})}
+
+
+
+Exportiert die Daten eines Visumobjekttyps in Netzdateiformat. 
+
+
+\begin{DoxyParams}[1]{Parameter}
+\mbox{\texttt{ in}}  & {\em object} & Visumobjekttyp (Singular), z.B. \textquotesingle{}link\textquotesingle{} \\
+\hline
+\mbox{\texttt{ in}}  & {\em df\_object\_attributes\_to\_write} & Datentabelle des Objekts. Tabelle enthält nur Attribute, die in Visum importiert werden können (insbesondere die notwendigen Attribute) \\
+\hline
+\mbox{\texttt{ in}}  & {\em file} & Zieldatei, im Schreib-\/ oder Erweiterungsmodus (w oder a) \\
+\hline
+\end{DoxyParams}
+
+
+Definiert in Zeile 45 der Datei luftlinientool.py.
+

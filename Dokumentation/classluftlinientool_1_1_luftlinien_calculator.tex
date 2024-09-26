@@ -1,0 +1,433 @@
+%\hypertarget{classluftlinientool_1_1_luftlinien_calculator}{}\doxysection{luftlinientool.\+Luftlinien\+Calculator Klassenreferenz}
+%\label{classluftlinientool_1_1_luftlinien_calculator}\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+
+\doxysubsection*{Öffentliche Methoden}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1bf314f010e4ad91a0c2af4b0a8da40c}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, source, str attr\+\_\+vfs=\char`\"{}Type\+No\char`\"{}, dict dict\+\_\+vfs=\{\char`\"{}V\+FS 0\char`\"{}\+:0, \char`\"{}V\+FS 1\char`\"{}\+:1, \char`\"{}V\+FS 2\char`\"{}\+:2, \char`\"{}V\+FS 3\char`\"{}\+:3, \char`\"{}V\+FS 4\char`\"{}\+:4, \char`\"{}V\+FS 5\char`\"{}\+:5\}, max\+\_\+entfernung=1, anz\+\_\+versorger=0, attr\+\_\+quelle=None, attr\+\_\+ziel=None, bool use\+\_\+filter=False, str formula\+\_\+distance=\char`\"{}euclidean\char`\"{}, path\+\_\+output=None)
+\begin{DoxyCompactList}\small\item\em Konstruktor. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_af5242bd0da325c1d963865810c053abe}{adj\+\_\+matrix\+\_\+to\+\_\+links}} (self, list\+\_\+vfs=None)
+\begin{DoxyCompactList}\small\item\em Übersetzt die Adjazenzmatrizen der gewünschten V\+FS in eine Streckenliste. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ab34c0d64d3d4a6c4e54c19ede04cdc1f}{adj\+\_\+matrix\+\_\+to\+\_\+set\+\_\+of\+\_\+connected\+\_\+zones}} (self, \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}{vfs}}, use\+\_\+zone\+\_\+names=True)
+\begin{DoxyCompactList}\small\item\em Wandelt die Adjazenzmatrix in eine Liste der verbundenen Bezirke je Bezirk um. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a51ecc6b16c6ad8e8e56d819d962165c4}{calculate\+\_\+reachability\+\_\+max\+\_\+steps}} (self, max\+\_\+steps, \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}{vfs}})
+\begin{DoxyCompactList}\small\item\em Berechnet, welche Nachbarn innerhalb von n Schritten erreicht werden können. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ad0269c167c3d5f3361cf092af427e01c}{calculate\+\_\+main}} (self)
+\begin{DoxyCompactList}\small\item\em Berechnet für jede hinterlegte V\+FS der Instanz die Adjazenzmatrix. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a10621c3a62ba5166684e6b769975492e}{calculate\+\_\+vfs}} (self, \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}{vfs}})
+\begin{DoxyCompactList}\small\item\em Berechnet die Verbindungen einer V\+FS. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a602b86929421d7e2df641b2ec80c813e}{delete\+\_\+unused\+\_\+nodes}} (self)
+\begin{DoxyCompactList}\small\item\em Löscht Knoten in Visum, die keine Strecken anbinden. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a7e41fcaf160daf488e3016c2f9b6e56f}{export\+\_\+matrix}} (self, list\+\_\+vfs=None)
+\begin{DoxyCompactList}\small\item\em Exportiert die gewünschten Adjazenzmatrizen entweder direkt nach Visum (falls Visuminstanz verknüpft) oder als .mtx datei. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ae484ccaf33905de92dcc38f3e6f449b7}{extract\+\_\+net}} (self)
+\begin{DoxyCompactList}\small\item\em Erstellt die Infrastrukturobjekte als Vorbereitung für den Export der Infrastruktur in Form von dicts für Knoten, Strecken, Streckentypen. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a859aba6233379faafd878b66d51b280c}{export\+\_\+net}} (self, links\+\_\+additive=True, list\+\_\+vfs=None, create\+\_\+connectors=True)
+\begin{DoxyCompactList}\small\item\em Exportiert eine Netzdatei falls eine Visuminstanz übergeben wird, wird die Netdatei in Visum geladen. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a5be02dd307ea937bcdbd577ac7ec3d89}{export\+\_\+zones\+\_\+uda\+\_\+connections}} (self, \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}{vfs}})
+\begin{DoxyCompactList}\small\item\em Exportiert die Verbindungen sowie die Anzahl der Verbindungen als Bezirk U\+D\+As nach Visum. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_af83178d64a7a0c8a8d468a6e85905fa6}{init\+\_\+results}} (self)
+\begin{DoxyCompactList}\small\item\em Initialisiert die Adjazenzmatrizen. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a7c65415a985be1b77a0302f28a87cf17}{filter\+\_\+links\+\_\+vfs}} (self)
+\begin{DoxyCompactList}\small\item\em Filtert die Strecken der eingefügten Streckentypen in Visum. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ae6defad1f971e1948e55d80c6caeb318}{filter\+\_\+zones\+\_\+source\+\_\+targets}} (self, bool filter\+From\+Zones=True)
+\begin{DoxyCompactList}\small\item\em Filtert die Bezirke, für die das gegebene Attribut größer 0 ist. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ac7edee2e56d6d6759c119aa7f70ba112}{delete\+\_\+added\+\_\+links}} (self)
+\begin{DoxyCompactList}\small\item\em Löscht die Strecken der V\+FS. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Öffentliche Attribute}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a5b375cd5a19d2a468122ab55a82cc2ad}{debug\+\_\+mode}}
+\begin{DoxyCompactList}\small\item\em Flag Debugmodus. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a5bfd8f32a648027449e3b923964a67a5}\label{classluftlinientool_1_1_luftlinien_calculator_a5bfd8f32a648027449e3b923964a67a5}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a5bfd8f32a648027449e3b923964a67a5}{attr\+\_\+zones}}
+\begin{DoxyCompactList}\small\item\em relevante Bezirksattribute \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a735d9913ff375feedf0a17223436606a}\label{classluftlinientool_1_1_luftlinien_calculator_a735d9913ff375feedf0a17223436606a}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a735d9913ff375feedf0a17223436606a}{attr\+\_\+central\+\_\+level}}
+\begin{DoxyCompactList}\small\item\em Attribut Zentralität. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_aa83c63397db924d9b1798f083f073d21}\label{classluftlinientool_1_1_luftlinien_calculator_aa83c63397db924d9b1798f083f073d21}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_aa83c63397db924d9b1798f083f073d21}{path\+\_\+output}}
+\begin{DoxyCompactList}\small\item\em Rückgabeverzeichnis. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}\label{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a1129397c7e2c387d806eec234eb62c7b}{vfs}}
+\begin{DoxyCompactList}\small\item\em Liste der V\+FS, die bearbeitet werden sollen. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_aeec7f74c06bb3bb81422cb6fea604e33}\label{classluftlinientool_1_1_luftlinien_calculator_aeec7f74c06bb3bb81422cb6fea604e33}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_aeec7f74c06bb3bb81422cb6fea604e33}{formula\+\_\+dist}}
+\begin{DoxyCompactList}\small\item\em Abstandsberechnung. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a87d8ab7139d78cca26c4c6e43a1b2e4f}\label{classluftlinientool_1_1_luftlinien_calculator_a87d8ab7139d78cca26c4c6e43a1b2e4f}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a87d8ab7139d78cca26c4c6e43a1b2e4f}{nachbarschaftsgrad\+\_\+vfs}}
+\begin{DoxyCompactList}\small\item\em Vorgabe, bis zu welchem Nachbarschaftsgrad gleichrangige Verbindungen verfolgt werden sollen (ehemals Austauschfkt) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a5cf80c7b5d0a130feb490c8759032b62}\label{classluftlinientool_1_1_luftlinien_calculator_a5cf80c7b5d0a130feb490c8759032b62}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a5cf80c7b5d0a130feb490c8759032b62}{anz\+\_\+versorger\+\_\+vfs}}
+\begin{DoxyCompactList}\small\item\em Vorgabe, wie viele (höherrangige) Versorger verbunden werden sollen. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a256dcbda1db37550f3e7d446b84b6e9d}\label{classluftlinientool_1_1_luftlinien_calculator_a256dcbda1db37550f3e7d446b84b6e9d}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a256dcbda1db37550f3e7d446b84b6e9d}{visum}}
+\begin{DoxyCompactList}\small\item\em Visuminstanz. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a29d2ddc521b6f18c979bf02d9f90a884}\label{classluftlinientool_1_1_luftlinien_calculator_a29d2ddc521b6f18c979bf02d9f90a884}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a29d2ddc521b6f18c979bf02d9f90a884}{zones}}
+\begin{DoxyCompactList}\small\item\em Tabelle mit den Bezirksdaten. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a43b4080a8cf3d7967b8e8e561e4034f5}\label{classluftlinientool_1_1_luftlinien_calculator_a43b4080a8cf3d7967b8e8e561e4034f5}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a43b4080a8cf3d7967b8e8e561e4034f5}{attr\+\_\+is\+\_\+from\+\_\+zone}}
+\begin{DoxyCompactList}\small\item\em Attribut Quellfilter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_adc6b0b34fe2368236c9c065ba51032fa}\label{classluftlinientool_1_1_luftlinien_calculator_adc6b0b34fe2368236c9c065ba51032fa}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_adc6b0b34fe2368236c9c065ba51032fa}{attr\+\_\+is\+\_\+to\+\_\+zone}}
+\begin{DoxyCompactList}\small\item\em Attribut Zielfilter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ac23a1349cc5258bac9f6c68712c19afa}\label{classluftlinientool_1_1_luftlinien_calculator_ac23a1349cc5258bac9f6c68712c19afa}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ac23a1349cc5258bac9f6c68712c19afa}{language}}
+\begin{DoxyCompactList}\small\item\em Eingestellte Sprache Visuminstanz. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a0fd7bd78de0a8bbae5a4c12792b56da6}\label{classluftlinientool_1_1_luftlinien_calculator_a0fd7bd78de0a8bbae5a4c12792b56da6}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a0fd7bd78de0a8bbae5a4c12792b56da6}{dict\+\_\+export\+\_\+zone2node}}
+\begin{DoxyCompactList}\small\item\em Lookup\+Table Infrastruktur\+: Dem Bezirk zugeordnete Knotennummer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ad12be6cbf2cb961914be61851c441278}\label{classluftlinientool_1_1_luftlinien_calculator_ad12be6cbf2cb961914be61851c441278}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ad12be6cbf2cb961914be61851c441278}{dict\+\_\+export\+\_\+links\+\_\+vfs}}
+\begin{DoxyCompactList}\small\item\em Look\+Up\+Table Infrastruktur\+: Zuordnung interne Streckennummer zu Streckennummer Visum. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_aa650694b66346504fcbae3fc759b8eb5}\label{classluftlinientool_1_1_luftlinien_calculator_aa650694b66346504fcbae3fc759b8eb5}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_aa650694b66346504fcbae3fc759b8eb5}{dict\+\_\+export\+\_\+linktypes}}
+\begin{DoxyCompactList}\small\item\em Look\+Up\+Table Infrastruktur\+: Zuordnung Verbingungsfunktionsstufe -\/ Streckentyp Visum. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a2685bb12afd40bb41896c246032b9964}\label{classluftlinientool_1_1_luftlinien_calculator_a2685bb12afd40bb41896c246032b9964}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_a2685bb12afd40bb41896c246032b9964}{edges}}
+\begin{DoxyCompactList}\small\item\em Data\+Frame mit den Streckendaten der Luftlinienverbindungen. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ab535f0191a7aa8632e34efdc6a42ca83}\label{classluftlinientool_1_1_luftlinien_calculator_ab535f0191a7aa8632e34efdc6a42ca83}} 
+\mbox{\hyperlink{classluftlinientool_1_1_luftlinien_calculator_ab535f0191a7aa8632e34efdc6a42ca83}{matrizen\+\_\+\+V\+FS}}
+\begin{DoxyCompactList}\small\item\em Dict mit den resultierenden Adjazenzmatrizen der Verbindungsfunktionsstufen. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Ausführliche Beschreibung}
+Die Klasse enthält Attribute und Berechnungsmöglichkeiten um die V\+FS zwischen Bezirken zu ermitteln 
+
+Definiert in Zeile 150 der Datei luftlinientool.\+py.
+
+
+
+\doxysubsection{Beschreibung der Konstruktoren und Destruktoren}
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a1bf314f010e4ad91a0c2af4b0a8da40c}\label{classluftlinientool_1_1_luftlinien_calculator_a1bf314f010e4ad91a0c2af4b0a8da40c}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{source,  }\item[{str }]{attr\+\_\+vfs = {\ttfamily \char`\"{}TypeNo\char`\"{}},  }\item[{dict }]{dict\+\_\+vfs = {\ttfamily \{\char`\"{}VFS~0\char`\"{}\+:~0,~\char`\"{}VFS~1\char`\"{}\+:~1,~\char`\"{}VFS~2\char`\"{}\+:~2,~\char`\"{}VFS~3\char`\"{}\+:~3,~\char`\"{}VFS~4\char`\"{}\+:~4,~\char`\"{}VFS~5\char`\"{}\+:~5\}},  }\item[{}]{max\+\_\+entfernung = {\ttfamily 1},  }\item[{}]{anz\+\_\+versorger = {\ttfamily 0},  }\item[{}]{attr\+\_\+quelle = {\ttfamily None},  }\item[{}]{attr\+\_\+ziel = {\ttfamily None},  }\item[{bool }]{use\+\_\+filter = {\ttfamily False},  }\item[{str }]{formula\+\_\+distance = {\ttfamily \char`\"{}euclidean\char`\"{}},  }\item[{}]{path\+\_\+output = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Konstruktor. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em source} & Dateiname (str) oder Visuminstanz \\
+\hline
+{\em attr\+\_\+vfs} & Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält. Default\+: Type\+Nr \\
+\hline
+{\em dict\+\_\+vfs} & Dictionary, das die Attributwerte für die jeweiligen V\+FS enthält \\
+\hline
+{\em max\+\_\+entfernung} & Angabe, bis zu welcher Entfernung, Nachbar angebunden werden \\
+\hline
+{\em anz\+\_\+versorger} & Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll \\
+\hline
+{\em attr\+\_\+quelle} & Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default\+: None \\
+\hline
+{\em attr\+\_\+ziel} & Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default\+: None \\
+\hline
+{\em use\+\_\+filter} & gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz \\
+\hline
+{\em formula\+\_\+distance} & definiert die Distanzfunktion für die Ermittlung der Versorgungszentren. Anmerkung\+: Für die Triangulation werden die Luftlinienverbindungen anhand der euklidischen Distanz ermittelt. Delaunay-\/\+Triangulation funktioniert nur bei einer Projektion der Lat/\+Lon Koordinaten. \\
+\hline
+{\em path\+\_\+output} & optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default\+: None. Dann wird bei bedarf der aktuelle Ordner verwendet. \\
+\hline
+\end{DoxyParams}
+
+
+Definiert in Zeile 165 der Datei luftlinientool.\+py.
+
+
+
+\doxysubsection{Dokumentation der Elementfunktionen}
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_af5242bd0da325c1d963865810c053abe}\label{classluftlinientool_1_1_luftlinien_calculator_af5242bd0da325c1d963865810c053abe}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!adj\_matrix\_to\_links@{adj\_matrix\_to\_links}}
+\index{adj\_matrix\_to\_links@{adj\_matrix\_to\_links}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{adj\_matrix\_to\_links()}{adj\_matrix\_to\_links()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+adj\+\_\+matrix\+\_\+to\+\_\+links (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{list\+\_\+vfs = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Übersetzt die Adjazenzmatrizen der gewünschten V\+FS in eine Streckenliste. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em list\+\_\+vfs} & Liste der V\+FS. Falls nicht gegeben, werden alle V\+FS der Instanz verwendet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+df\+\_\+edges\+: Data\+Frame mit allen Strecken und ihrer V\+FS. Achtung\+: Duplikate werden nicht entfernt 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 282 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ab34c0d64d3d4a6c4e54c19ede04cdc1f}\label{classluftlinientool_1_1_luftlinien_calculator_ab34c0d64d3d4a6c4e54c19ede04cdc1f}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!adj\_matrix\_to\_set\_of\_connected\_zones@{adj\_matrix\_to\_set\_of\_connected\_zones}}
+\index{adj\_matrix\_to\_set\_of\_connected\_zones@{adj\_matrix\_to\_set\_of\_connected\_zones}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{adj\_matrix\_to\_set\_of\_connected\_zones()}{adj\_matrix\_to\_set\_of\_connected\_zones()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+adj\+\_\+matrix\+\_\+to\+\_\+set\+\_\+of\+\_\+connected\+\_\+zones (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{vfs,  }\item[{}]{use\+\_\+zone\+\_\+names = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Wandelt die Adjazenzmatrix in eine Liste der verbundenen Bezirke je Bezirk um. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em vfs} & str, Name der zu betrachtenden V\+FS \\
+\hline
+{\em use\+\_\+zone\+\_\+names} & bool, falls True werden die hitnerlegten Bezirksnamen verwendet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+df\+\_\+set\+\_\+zones\+: Data\+Frame mit list Objekt je Bezirk und einer Spalte, die die Anzahl enthält 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 319 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ad0269c167c3d5f3361cf092af427e01c}\label{classluftlinientool_1_1_luftlinien_calculator_ad0269c167c3d5f3361cf092af427e01c}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!calculate\_main@{calculate\_main}}
+\index{calculate\_main@{calculate\_main}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{calculate\_main()}{calculate\_main()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+calculate\+\_\+main (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Berechnet für jede hinterlegte V\+FS der Instanz die Adjazenzmatrix. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Ergebnisse werden intern gespeichert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 350 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a51ecc6b16c6ad8e8e56d819d962165c4}\label{classluftlinientool_1_1_luftlinien_calculator_a51ecc6b16c6ad8e8e56d819d962165c4}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!calculate\_reachability\_max\_steps@{calculate\_reachability\_max\_steps}}
+\index{calculate\_reachability\_max\_steps@{calculate\_reachability\_max\_steps}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{calculate\_reachability\_max\_steps()}{calculate\_reachability\_max\_steps()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+calculate\+\_\+reachability\+\_\+max\+\_\+steps (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{max\+\_\+steps,  }\item[{}]{vfs }\end{DoxyParamCaption})}
+
+
+
+Berechnet, welche Nachbarn innerhalb von n Schritten erreicht werden können. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em max\+\_\+steps} & maximale Entfernung (Schritte) \\
+\hline
+{\em vfs} & zu untersuchende V\+FS \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Rückgabe}
+matrix\+: Adjazenzmatrix für die Erreichbare Nachbarn innerhalb der max-\/steps 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 340 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a10621c3a62ba5166684e6b769975492e}\label{classluftlinientool_1_1_luftlinien_calculator_a10621c3a62ba5166684e6b769975492e}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!calculate\_vfs@{calculate\_vfs}}
+\index{calculate\_vfs@{calculate\_vfs}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{calculate\_vfs()}{calculate\_vfs()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+calculate\+\_\+vfs (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{vfs }\end{DoxyParamCaption})}
+
+
+
+Berechnet die Verbindungen einer V\+FS. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em vfs} & die Verbindungsfunktionsstufe, für die Verbindungen ermittel werden \\
+\hline
+\end{DoxyParams}
+
+
+Definiert in Zeile 366 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ac7edee2e56d6d6759c119aa7f70ba112}\label{classluftlinientool_1_1_luftlinien_calculator_ac7edee2e56d6d6759c119aa7f70ba112}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!delete\_added\_links@{delete\_added\_links}}
+\index{delete\_added\_links@{delete\_added\_links}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{delete\_added\_links()}{delete\_added\_links()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+delete\+\_\+added\+\_\+links (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Löscht die Strecken der V\+FS. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Visuminstanz wird verändert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 865 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a602b86929421d7e2df641b2ec80c813e}\label{classluftlinientool_1_1_luftlinien_calculator_a602b86929421d7e2df641b2ec80c813e}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!delete\_unused\_nodes@{delete\_unused\_nodes}}
+\index{delete\_unused\_nodes@{delete\_unused\_nodes}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{delete\_unused\_nodes()}{delete\_unused\_nodes()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+delete\+\_\+unused\+\_\+nodes (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Löscht Knoten in Visum, die keine Strecken anbinden. 
+
+Alle Knoten ohne Strecken werden gefiltert \& die aktiven Knoten werden gelöscht. Anschließend wird der Filter zurückgesetzt. \begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Visuminstanz wird verändert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 513 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a7e41fcaf160daf488e3016c2f9b6e56f}\label{classluftlinientool_1_1_luftlinien_calculator_a7e41fcaf160daf488e3016c2f9b6e56f}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!export\_matrix@{export\_matrix}}
+\index{export\_matrix@{export\_matrix}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{export\_matrix()}{export\_matrix()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+export\+\_\+matrix (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{list\+\_\+vfs = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Exportiert die gewünschten Adjazenzmatrizen entweder direkt nach Visum (falls Visuminstanz verknüpft) oder als .mtx datei. 
+
+Vorhandene Matrizen werden überschrieben. 
+\begin{DoxyParams}{Parameter}
+{\em visum} & optionale Übergabe einer Visuminstanz. Default None \\
+\hline
+{\em list\+\_\+vfs} & optionale Übergabe einer Menge an V\+FS. Default\+: None (alle des Objekts) \\
+\hline
+\end{DoxyParams}
+
+
+Definiert in Zeile 542 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a859aba6233379faafd878b66d51b280c}\label{classluftlinientool_1_1_luftlinien_calculator_a859aba6233379faafd878b66d51b280c}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!export\_net@{export\_net}}
+\index{export\_net@{export\_net}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{export\_net()}{export\_net()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+export\+\_\+net (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{links\+\_\+additive = {\ttfamily True},  }\item[{}]{list\+\_\+vfs = {\ttfamily None},  }\item[{}]{create\+\_\+connectors = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Exportiert eine Netzdatei falls eine Visuminstanz übergeben wird, wird die Netdatei in Visum geladen. 
+
+
+\begin{DoxyParams}{Parameter}
+{\em visum} & optionale Übergabe einer Visuminstanz. Default None \\
+\hline
+{\em links\+\_\+additive} & falls False werden die existierenden Strecken in Visum gelöscht \\
+\hline
+{\em list\+\_\+vfs} & Liste der V\+FS, die berücksichtigt werden sollen. Default\+: Alle des Objekts \\
+\hline
+\end{DoxyParams}
+
+
+Definiert in Zeile 693 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a5be02dd307ea937bcdbd577ac7ec3d89}\label{classluftlinientool_1_1_luftlinien_calculator_a5be02dd307ea937bcdbd577ac7ec3d89}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!export\_zones\_uda\_connections@{export\_zones\_uda\_connections}}
+\index{export\_zones\_uda\_connections@{export\_zones\_uda\_connections}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{export\_zones\_uda\_connections()}{export\_zones\_uda\_connections()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+export\+\_\+zones\+\_\+uda\+\_\+connections (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{vfs }\end{DoxyParamCaption})}
+
+
+
+Exportiert die Verbindungen sowie die Anzahl der Verbindungen als Bezirk U\+D\+As nach Visum. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Visuminstanz wird verändert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 799 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ae484ccaf33905de92dcc38f3e6f449b7}\label{classluftlinientool_1_1_luftlinien_calculator_ae484ccaf33905de92dcc38f3e6f449b7}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!extract\_net@{extract\_net}}
+\index{extract\_net@{extract\_net}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{extract\_net()}{extract\_net()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+extract\+\_\+net (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Erstellt die Infrastrukturobjekte als Vorbereitung für den Export der Infrastruktur in Form von dicts für Knoten, Strecken, Streckentypen. 
+
+Wird aufgerufen, falls beim Export ein Objekt nicht in den dicts vorhanden ist. Verhindert die Mehrfachanlegung von Strecken und Knoten. \begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Ergebnisse werden intern gespeichert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 628 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a7c65415a985be1b77a0302f28a87cf17}\label{classluftlinientool_1_1_luftlinien_calculator_a7c65415a985be1b77a0302f28a87cf17}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!filter\_links\_vfs@{filter\_links\_vfs}}
+\index{filter\_links\_vfs@{filter\_links\_vfs}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{filter\_links\_vfs()}{filter\_links\_vfs()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+filter\+\_\+links\+\_\+vfs (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Filtert die Strecken der eingefügten Streckentypen in Visum. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Visuminstanz wird verändert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 843 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_ae6defad1f971e1948e55d80c6caeb318}\label{classluftlinientool_1_1_luftlinien_calculator_ae6defad1f971e1948e55d80c6caeb318}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!filter\_zones\_source\_targets@{filter\_zones\_source\_targets}}
+\index{filter\_zones\_source\_targets@{filter\_zones\_source\_targets}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{filter\_zones\_source\_targets()}{filter\_zones\_source\_targets()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+filter\+\_\+zones\+\_\+source\+\_\+targets (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{bool }]{filter\+From\+Zones = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Filtert die Bezirke, für die das gegebene Attribut größer 0 ist. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Visuminstanz wird verändert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 851 der Datei luftlinientool.\+py.
+
+\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_af83178d64a7a0c8a8d468a6e85905fa6}\label{classluftlinientool_1_1_luftlinien_calculator_af83178d64a7a0c8a8d468a6e85905fa6}} 
+\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!init\_results@{init\_results}}
+\index{init\_results@{init\_results}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+\doxysubsubsection{\texorpdfstring{init\_results()}{init\_results()}}
+{\footnotesize\ttfamily def luftlinientool.\+Luftlinien\+Calculator.\+init\+\_\+results (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Initialisiert die Adjazenzmatrizen. 
+
+\begin{DoxyReturn}{Rückgabe}
+Keine Rückgabe. Die Ergebnisse werden intern gespeichert. 
+\end{DoxyReturn}
+
+
+Definiert in Zeile 832 der Datei luftlinientool.\+py.
+
+
+
+%\doxysubsection{Dokumentation der Datenelemente}
+%\mbox{\Hypertarget{classluftlinientool_1_1_luftlinien_calculator_a5b375cd5a19d2a468122ab55a82cc2ad}\label{classluftlinientool_1_1_luftlinien_calculator_a5b375cd5a19d2a468122ab55a82cc2ad}} 
+%\index{luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}!debug\_mode@{debug\_mode}}
+%\index{debug\_mode@{debug\_mode}!luftlinientool.LuftlinienCalculator@{luftlinientool.LuftlinienCalculator}}
+%\doxysubsubsection{\texorpdfstring{debug\_mode}{debug\_mode}}
+%{\footnotesize\ttfamily luftlinientool.\+Luftlinien\+Calculator.\+debug\+\_\+mode}
+%
+%
+%
+%Flag Debugmodus. 
+%
+%Ermöglicht die Durchführung von Zwischenanalysen, die im normalen Programmablauf nicht berücksichtigt werden 
+%
+%Definiert in Zeile 168 der Datei luftlinientool.\+py.
+%
+%
+%
+%Die Dokumentation für diese Klasse wurde erzeugt aufgrund der Datei\+:\begin{DoxyCompactItemize}
+%\item 
+%C\+:/\+Users/ac128405/\+Desktop/\+Software/\+Luftlinientool/\+Luftlinientool2022/luftlinientool.\+py\end{DoxyCompactItemize}

@@ -1,0 +1,64 @@
+\chapter{Anwendung}
+\section{Anwendung via Dialog}
+Zwei Möglichkeiten
+\begin{DoxyItemize}
+\item Visumversion ist noch geschlossen:
+GUI extern starten ({\itshape \mbox{\hyperlink{llt___g_u_i_8py_source}{llt\_GUI.py}}} ausführen)
+\item Visumversion ist bereits geöffnet:
+\begin{DoxyItemize}
+\item Das Ausführen der GUI ({\itshape \mbox{\hyperlink{llt___g_u_i_8py_source}{llt\_GUI.py}}}) in das Skriptmenü integrieren
+\item Skript via Skriptmenü starten
+Hinweis: Wenn die GUI mehrmals gestarten \& beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben.
+\end{DoxyItemize}
+\end{DoxyItemize}
+\section{Aufruf via Code}
+Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse LuftlinienCalculator erstellt werden. Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden Ein Beispiel ist unter {\itshape \mbox{\hyperlink{_bsp___aufruf__ohne___g_u_i_8py_source}{Bsp\_Aufruf\_ohne\_GUI.py}}} zu sehen.
+
+\textbf{auszuführende Schritte}
+\begin{DoxyEnumerate}
+\item Parameter setzen (welche VFS, Attributswerte etc.)
+\item Luftlinienkalkulatorobjekt initialisieren
+
+Code: Aufruf Konstruktor mit Parameterübergabe
+
+GUI: \char`\"{}Daten einlesen\char`\"{} in Toolbar ausführen
+\item Luftlinienverbindungen berechnen/erzeugen
+
+Code: Aufruf calculate\_main Methode
+
+GUI: \char`\"{}Berechnung Luftlinien-\/Netz\char`\"{} in Toolbar ausführen
+\item Ergebnisse in gewünschter Form nach Visum exportieren
+
+Code: Aufruf der export\_matrix/export\_net Methode
+
+GUI: Die entsprechenden Buttons (Mtx/Net) in der Spalte \char`\"{}anlegen in Visum als\char`\"{} verwenden. Alternativ überträgt der Button \char`\"{}Import nach Visum alle VFS Strecken + Mtx\char`\"{} die kombinierten Ergebnisse aller VFS.
+\end{DoxyEnumerate}
+
+Anmerkungen:
+
+
+\begin{DoxyItemize}
+\item Bei der GUI werden aktuelle Berchnungen zurückgesetzt, wenn die Auswahl eines der Bezirksattribtue geändert wird. Dabei wird eine neue Instanz des LLT Kalkulators erstellt.
+\item Werden Bezirkswerte in Visum geändert, werden diese nicht automatisch im LLT Kalkulator geändert. Deshalb muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.
+\item Die initialen Parameterwerte können in der GUI über das Tool \char`\"{}Defaultwerte\char`\"{} wieder aufgerufen werden
+\item \char`\"{}Ergebnisse initialisieren\char`\"{} ermöglicht das Löschen bereits vorhandener Ergebnisse
+\item Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse (\char`\"{}Ergebnisse initialisieren\char`\"{}).
+\end{DoxyItemize}\hypertarget{md__c_1__users_ac128405__desktop__software__luftlinientool__luftlinientool2022__r_e_a_d_m_e_autotoc_md5}{}
+\section{Vorraussetzung}
+Netz mit kategorisierten Bezirken:
+\begin{DoxyItemize}
+\item Attribut für die Zentralität (Bezirke): je kleiner die Zahl, desto größer ist die Zentralität des Bezirks
+
+Bsp.: Angabe der Zentralität über die Typnummer
+\begin{DoxyItemize}
+\item 0 ... Metropolregion
+\item 1 ... Oberzentrum
+\item 2 ... Mittelzentrum
+\item 3 ... Grundzentrum
+\item 4 ... Ort ohne zentrale Funktion
+\item 5 ... Teilort
+\end{DoxyItemize}
+\item (optional) aktiver Bezirksfilter
+\item (optional) Angabe eines Attributs, welcher Bezirk als Quelle verwendet werden soll) \{0=Nein, 1=Ja\}
+\item (optional) Angabe eines Attributs, welcher Bezirk als Ziel verwendet werden soll) \{0=Nein, 1=Ja\} 
+\end{DoxyItemize}

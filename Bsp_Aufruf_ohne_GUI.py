@@ -1,3 +1,6 @@
+## @package Bsp_Aufruf_ohne_GUI.py
+# @brief Beispielhafte Anwendung Luftlinientool ohne GUI
+
 # from VisumOverlay import *
 import logging
 
