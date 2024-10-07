@@ -1,0 +1,13 @@
+/venv/
+.idea/vcs.xml
+.idea/Python.iml
+.idea/modules.xml
+.idea/misc.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/workspace.xml
+VFS 0_max_nachbar_1_anz_versorgungszentren_1.mtx
+*.log
+*.pyc
+*.iml
+/.idea
