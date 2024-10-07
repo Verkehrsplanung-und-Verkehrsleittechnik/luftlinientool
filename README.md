@@ -1,4 +1,4 @@
-# Luftlinientool2022
+# Luftlinientool
 Erstellen von Luftlinienverbindungen für gegebene Bezirke anhand der RIN.
 
 ## Anwendung
