@@ -29,11 +29,11 @@ def open_visum(path, version=240):
         name = Visum.UserPreferences.DocumentName
     except NameError:
         # falls nicht - Öffne eine Visuminstanz
-        logging.info('initialize visum instance')
+        logging.info('Initialisiere Visum Instanz')
         Visum = com.Dispatch(f"Visum.Visum.{version}")
-        logging.info('open visum file: {}'.format(path))
+        logging.info(f'Öffnen von Versionsdatei: {path}')
         Visum.LoadVersion(path)
-        logging.info('erfolgreich geladen')
+        logging.info('Versionsdatei erfolgreich geladen')
     return Visum
 
 
@@ -504,7 +504,7 @@ class LuftlinienCalculator:
 
             df_zones_info = self.adj_matrix_to_set_of_connected_zones(vfs)
             df_zones_info["set zones"] = df_zones_info["set zones"].str.join(",")
-            logging.info('\t' + df_zones_info.to_string().replace('\n', '\n\t'))
+            #logging.info('\t' + df_zones_info.to_string().replace('\n', '\n\t'))
 
     ## Löscht Knoten in Visum, die keine Strecken anbinden.
     # Alle Knoten ohne Strecken werden gefiltert & die aktiven Knoten werden gelöscht.
@@ -540,60 +540,43 @@ class LuftlinienCalculator:
     # @param visum: optionale Übergabe einer Visuminstanz. Default None
     # @param list_vfs: optionale Übergabe einer Menge an VFS. Default: None (alle des Objekts)
     def export_matrix(self, list_vfs=None):
-
-        # Falls Visuminstanz erkannt: erstelle & exportiere Daten in Visum
+        # Falls Visuminstanz erkannt: erstelle & exportiere Daten direkt in Visum (Für Netze mit <1500 Bezirken über SetValues sonst mithilfe einer mtx-Datei im O-Fromat)
         # Sonst: Speichere .mtx Datei
 
         if list_vfs is None:
             list_vfs = self.vfs.keys()
 
+        logging.info(f"Beginne mit Export von {len(list_vfs)} Matrizen")
+
         for vfs in list_vfs:
-            matrix = self.matrizen_VFS[vfs]
-            if self.visum is not None:
-                # Benennung
-                if self.anz_versorger_vfs[vfs] < 1:
-                    # Term mit Versorgungsfkt wird weggelassen
-                    name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
-                else:
-                    # Term mit Versorgungsfkt wird hinzugefügt
-                    name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
-
-                if self.visum.Net.Matrices.Count < 1:
-                    # Erstelle Matrix
-                    matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
-                    matrix_instance.SetAttValue("CODE", name_matrix)
-                    matrix_instance.SetAttValue("NAME", name_matrix)
-                else:
-                    # Suche existierende Matrizen mit der Benennung
-                    matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
-
-                    if matrix_instances.Count < 1:
-                        # Erstelle Matrix
-                        matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
-                        matrix_instance.SetAttValue("CODE", name_matrix)
-                        matrix_instance.SetAttValue("NAME", name_matrix)
-                    elif matrix_instances.Count > 1:
-                        logging.warning("Matrixcode ist mehrfach vorhanden")
-                        matrix_instance = matrix_instances.Iterator.Item
-                    else:
-                        matrix_instance = matrix_instances.Iterator.Item
-
-                matrix_instance.SetValues(matrix)
-
+            matrix_vfs = self.matrizen_VFS[vfs]
+            # Benennung in der Matrix in Visum bzw. Datei
+            if self.anz_versorger_vfs[vfs] < 1:
+                # Term mit Versorgungsfkt wird weggelassen
+                name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
             else:
-                if self.path_output is None:
-                    path_mat = Path.cwd()
-                else:
-                    path_mat = self.path_output
+                # Term mit Versorgungsfkt wird hinzugefügt
+                name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
 
-                path_mat = path_mat / f"{vfs}_max_nachbar_{self.nachbarschaftsgrad_vfs[vfs]}_anz_versorgungszentren_{self.anz_versorger_vfs[vfs]}.mtx"
-                df_mat = pd.DataFrame(self.matrizen_VFS[vfs],
+            # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
+            path_mat = self.path_output or Path.cwd() / 'mtx'
+            path_mat.mkdir(parents=True, exist_ok=True)
+            path_mat_file = path_mat / f"{name_matrix}.mtx"
+
+            # Prüfe ob mtx-Datei geschrieben werden muss
+            if (self.visum is None) or (self.visum.Net.Zones.Count > 1500):
+                df_mat = pd.DataFrame(matrix_vfs,
                                       columns=self.zones["No"].values.astype(int),
                                       index=self.zones["No"].values.astype(int)
                                       , dtype=int
                                       ).stack().reset_index()
 
-                with open(path_mat, "w", newline='\n') as f:
+                df_mat.columns = ['Quelle', 'Ziel', 'Matrixwert']
+
+                # Das O-Format kommt ohne 0 Werte aus, bereite einen entsprechenden DataFrame vor
+                df_mat_light = df_mat.loc[df_mat['Matrixwert'] != 0]
+
+                with open(path_mat_file, "w", newline='\n') as f:
                     str_header = '''$O
 * Universität Stuttgart
 *
@@ -616,9 +599,40 @@ class LuftlinienCalculator:
 '''
 
                     f.write(str_header)
-                    df_mat.to_csv(f, header=False, sep=" ", index=False)
+                    df_mat_light.to_csv(f, header=False, sep=" ", index=False)
+                    logging.info(f'Matrix {name_matrix} in Datei gespeichert: {path_mat_file}')
 
-        logging.info(f"{len(list_vfs)} Matrizen wurden exportiert")
+            # Falls eine Instanz existiert, Inhalte in Visum direkt anlegen
+            if self.visum is not None:
+                if self.visum.Net.Matrices.Count < 1:
+                    # Erstelle Matrix
+                    matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
+                    matrix_instance.SetAttValue("CODE", name_matrix)
+                    matrix_instance.SetAttValue("NAME", name_matrix)
+                else:
+                    # Suche existierende Matrizen mit der Benennung
+                    matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
+
+                    if matrix_instances.Count < 1:
+                        # Erstelle Matrix
+                        matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
+                        matrix_instance.SetAttValue("CODE", name_matrix)
+                        matrix_instance.SetAttValue("NAME", name_matrix)
+                    elif matrix_instances.Count > 1:
+                        logging.warning("Matrixcode ist mehrfach vorhanden")
+                        matrix_instance = matrix_instances.Iterator.Item
+                    else:
+                        matrix_instance = matrix_instances.Iterator.Item
+
+                # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden
+                if self.visum.Net.Zones.Count < 1500:
+                    matrix_instance.SetValues(matrix_vfs)
+                    logging.info(f"{name_matrix} wurde in Visum eingelesen.")
+                else:
+                    logging.info(f"{name_matrix}.mtx wurde in Visum eingelesen.")
+
+            else:
+                logging.info(f"Visum ist nicht geöffnet. Matrizen wurden als Dateien exportiert nach: {path_mat}")
 
 
     ## Erstellt die Infrastrukturobjekte als Vorbereitung für den Export der Infrastruktur in Form von dicts für Knoten, Strecken, Streckentypen.
