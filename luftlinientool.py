@@ -61,7 +61,7 @@ def write_object_to_net(object, df_object_attributes_to_write, file):
 def is_symmetric(matrix, tol=1e-8):
     # Anwendung der Maximums-Norm für die Diff zwischen der Matrix und der Transponierten
     # Norm > 0 -> keine Symmetrie
-    return np.linalg.norm(matrix.astype(int) - matrix.T.astype(int), np.Inf) < tol
+    return np.linalg.norm(matrix.astype(int) - matrix.T.astype(int), np.inf) < tol
 
 
 ## Berechnung der Distanz zwischen Koordinaten (Lat, Lon)
@@ -612,7 +612,6 @@ class LuftlinienCalculator:
                 else:
                     # Suche existierende Matrizen mit der Benennung
                     matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
-
                     if matrix_instances.Count < 1:
                         # Erstelle Matrix
                         matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
@@ -622,6 +621,7 @@ class LuftlinienCalculator:
                         logging.warning("Matrixcode ist mehrfach vorhanden")
                         matrix_instance = matrix_instances.Iterator.Item
                     else:
+                        matrix_instance.Open(path_mat_file)
                         matrix_instance = matrix_instances.Iterator.Item
 
                 # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden

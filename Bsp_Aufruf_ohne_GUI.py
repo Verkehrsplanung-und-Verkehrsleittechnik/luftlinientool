@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
-    logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %I:%M:%S %p")
+    logger_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
     # Output in Konsole & Logfile
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(logger_format)
