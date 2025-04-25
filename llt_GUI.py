@@ -377,7 +377,7 @@ class MainTab(wx.Panel):
         self.cb_ziel.Label= 'attr_ziel'
         self.TopLevelParent.cb_ziel = self.cb_ziel
 
-        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n VFS"), 0, wx.ALL|wx.EXPAND,5)
+        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n Zentralität"), 0, wx.ALL|wx.EXPAND,5)
         hbox1.Add(self.cb_vfs, 0, wx.ALL|wx.EXPAND,15)
         hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n 'ist Quelle'"), 0, wx.ALL|wx.EXPAND,5)
         hbox1.Add(self.cb_quelle, 0, wx.ALL|wx.EXPAND,15)

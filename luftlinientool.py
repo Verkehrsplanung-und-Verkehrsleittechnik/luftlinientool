@@ -626,6 +626,7 @@ class LuftlinienCalculator:
                         logging.warning("Matrixcode ist mehrfach vorhanden, erste Matrix wird überschrieben")
                         matrix_instance = matrix_instances.Iterator.Item
                     else:
+                        matrix_instance = matrix_instances.Iterator.Item
                         logging.info("Matrixcode ist vorhanden, Inhalt wird überschrieben")
 
 
