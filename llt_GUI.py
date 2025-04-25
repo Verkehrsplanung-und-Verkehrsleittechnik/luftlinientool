@@ -56,7 +56,7 @@ class LLTFrame(wx.Frame):
                 source =  Path(file_dlg.Path)
 
             if source.suffix == ".ver":
-                version = 240
+                version = 250
                 Visum = com.Dispatch(f"Visum.Visum.{version}")
                 logging.info('open visum file: {}'.format(source))
                 Visum.LoadVersion(source)
