@@ -563,6 +563,9 @@ class LuftlinienCalculator:
             path_mat.mkdir(parents=True, exist_ok=True)
             path_mat_file = path_mat / f"{name_matrix}.mtx"
 
+            # Erstellen der Matrix in Visum, falls notwendig
+
+
             # Prüfe ob mtx-Datei geschrieben werden muss
             if (self.visum is None) or (self.visum.Net.Zones.Count > 1500):
                 df_mat = pd.DataFrame(matrix_vfs,
@@ -602,8 +605,10 @@ class LuftlinienCalculator:
                     df_mat_light.to_csv(f, header=False, sep=" ", index=False)
                     logging.info(f'Matrix {name_matrix} in Datei gespeichert: {path_mat_file}')
 
-            # Falls eine Instanz existiert, Inhalte in Visum direkt anlegen
+            # Falls eine Instanz existiert, Inhalte in Visum importieren
             if self.visum is not None:
+
+                # Anlegen der Matrizen
                 if self.visum.Net.Matrices.Count < 1:
                     # Erstelle Matrix
                     matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
@@ -618,17 +623,19 @@ class LuftlinienCalculator:
                         matrix_instance.SetAttValue("CODE", name_matrix)
                         matrix_instance.SetAttValue("NAME", name_matrix)
                     elif matrix_instances.Count > 1:
-                        logging.warning("Matrixcode ist mehrfach vorhanden")
+                        logging.warning("Matrixcode ist mehrfach vorhanden, erste Matrix wird überschrieben")
                         matrix_instance = matrix_instances.Iterator.Item
                     else:
-                        matrix_instance.Open(path_mat_file)
-                        matrix_instance = matrix_instances.Iterator.Item
+                        logging.info("Matrixcode ist vorhanden, Inhalt wird überschrieben")
 
+
+                # Import der Werte
                 # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden
                 if self.visum.Net.Zones.Count < 1500:
                     matrix_instance.SetValues(matrix_vfs)
                     logging.info(f"{name_matrix} wurde in Visum eingelesen.")
                 else:
+                    matrix_instance.Open(path_mat_file, ReadAdditive=False)
                     logging.info(f"{name_matrix}.mtx wurde in Visum eingelesen.")
 
             else:
