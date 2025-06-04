@@ -5,15 +5,69 @@ import wx
 import luftlinientool as llt
 from pathlib import Path
 import logging
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk
+
+# pop up for langauge selection before
+def launch_main_gui():
+    lang_selector.destroy()  # close the language selection window
+    app = wx.App(False)
+    frame = LLTFrame(None, title="Luftlinientool")
+    frame.Show()
+    app.MainLoop()
+    create_main_window()  # your function to launch the main GUI
+
+
+def choose_language():
+    global selected_language
+    selected_language = language_var.get()
+    launch_main_gui()
+
+
+# Initial language selection window
+lang_selector = tk.Tk()
+lang_selector.title("Luftlinientool")
+
+label = tk.Label(lang_selector, text="Select your preferred language:")
+label.pack(padx=40)
+label.pack(pady=20)
+
+language_var = tk.StringVar()
+language_dropdown = ttk.Combobox(lang_selector, textvariable=language_var, state="readonly")
+language_dropdown['values'] = ('en', 'de')  # Add more if needed
+language_dropdown.current(0)
+language_dropdown.pack(pady=5)
+
+submit_button = tk.Button(lang_selector, text="OK", command=choose_language)
+submit_button.pack(pady=10)
+
+lang_selector.mainloop()
+
+# Load translations from Excel
+df = pd.read_excel("Translations.xlsx")  # Update with actual path
+
+# Create the translations dictionary
+translations = {'en': {}, 'de': {}}
+
+for _, row in df.iterrows():
+    key = row[0]  # the first column is the key (identifier)
+    for lang in ['en', 'de']:
+        translations[lang][key] = row[lang]
+
+
+def translate(key):
+    return translations[selected_language].get(key, key)
+
 
 # ===== Hilfsfkt =====
-
 ## lädt alle Visumattribute
 def get_attr_zones(Visum):
     list_attr = Visum.Net.Zones.Attributes.GetAll
     list_attr_id = [attr.ID for attr in list_attr]
 
     return list_attr_id
+
 
 # ======= Klassen ======
 
@@ -47,13 +101,13 @@ class LLTFrame(wx.Frame):
             import win32com.client as com
             defDir = Path.cwd()
             with wx.FileDialog(self,
-                                'Wähle ein Visumnetz',
-                                str(defDir),
-                                wildcard='Versiondateien (*.ver)|*.ver',
-                                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dlg:
+                               translate('Wähle ein Visumnetz'),
+                               str(defDir),
+                               wildcard=(translate('Versiondateien')+ " (*.ver)|*.ver"),
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dlg:
                 if file_dlg.ShowModal() == wx.ID_CANCEL:
                     return  # the user changed their mind
-                source =  Path(file_dlg.Path)
+                source = Path(file_dlg.Path)
 
             if source.suffix == ".ver":
                 version = 250
@@ -76,8 +130,8 @@ class LLTFrame(wx.Frame):
         self.Show()
 
     def __set_properties__(self):
-        self.SetTitle("Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen")
-        self.SetMinSize((1200,500))
+        self.SetTitle(translate('Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen'))
+        self.SetMinSize((1200, 500))
 
         self.__set_values_vfs_buttons__()
 
@@ -104,31 +158,29 @@ class LLTFrame(wx.Frame):
 
         # create a menu ...
         self.menu = wx.Menu()
-        self.menu.Append(11, "&Daten einlesen")
-        self.menu.Append(12, "&Berechnung Luftlinien-Netz")
+        self.menu.Append(11, translate('Daten einlesen'))
+        self.menu.Append(12, translate('Berechnung durchführen'))
         self.menu.AppendSeparator()
-        self.menu.Append(13, "&Ergebnisse initialisieren")
-        self.menu.Append(14, "&Defaultwerte übernehmen")
+        self.menu.Append(13, translate('Berechnungen zurücksetzen'))
+        self.menu.Append(14, translate('Defaultwerte übernehmen'))
         self.menu.AppendSeparator()
         self.menu.Append(15, "&Info")
 
         self.menu.AppendSeparator()
         # put the menu on the menubar
-        self.menu_bar.Append(self.menu, "&Auswahl")
+        self.menu_bar.Append(self.menu, translate('Auswahl'))
         self.SetMenuBar(self.menu_bar)
-
         self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
 
         # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
-        self.toolbar.AddTool(101, 'Daten einlesen', wx.Bitmap())
-        self.toolbar.AddTool(102, 'Berechnung Luftlinien-Netz', wx.Bitmap())
-        self.toolbar.AddTool(103, 'Ergebnisse initialisieren', wx.Bitmap())
-        self.toolbar.AddTool(104, 'Defaultwerte', wx.Bitmap())
+        self.toolbar.AddTool(101, translate('Daten einlesen'), wx.Bitmap())
+        self.toolbar.AddTool(102, translate('Berechnung durchführen'), wx.Bitmap())
+        self.toolbar.AddTool(103, translate('Berechnungen zurücksetzen'), wx.Bitmap())
+        self.toolbar.AddTool(104, translate('Defaultwerte'), wx.Bitmap())
         self.toolbar.AddTool(105, 'Info', wx.Bitmap())
-        self.toolbar.AddTool(106, 'Filter: eingefügte Strecken', wx.Bitmap())
-        self.toolbar.AddTool(107, 'Löschen: eingefügte Strecken', wx.Bitmap())
+        self.toolbar.AddTool(106, translate('Filter: eingefügte Strecken'), wx.Bitmap())
+        self.toolbar.AddTool(107, translate('Löschen: eingefügte Strecken'), wx.Bitmap())
         self.toolbar.Realize()
-
 
         # # # create toolbar
         # # toolbar = self.CreateToolBar()
@@ -169,45 +221,44 @@ class LLTFrame(wx.Frame):
             btn.SetValue(idx)
             idx += 1
 
-
     def event_set_default(self, event=None):
         # funktionsfähig, ggf Default Attributwerte VFS ergänzen
 
-        self.buttons_value_k_nachbar_vfs["VFS 0"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS 1"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS 2"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS 3"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS 4"].SetValue(self.default_k_nachbar)
-        self.buttons_value_k_nachbar_vfs["VFS 5"].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 0'].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 1'].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 2'].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 3'].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 4'].SetValue(self.default_k_nachbar)
+        self.buttons_value_k_nachbar_vfs['VFS 5'].SetValue(self.default_k_nachbar)
 
-        self.buttons_value_n_versorger["VFS 0"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS 1"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS 2"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS 3"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS 4"].SetValue(self.default_anz_vf)
-        self.buttons_value_n_versorger["VFS 5"].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 0'].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 1'].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 2'].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 3'].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 4'].SetValue(self.default_anz_vf)
+        self.buttons_value_n_versorger['VFS 5'].SetValue(self.default_anz_vf)
 
         self.cb_vfs.SetValue("TypeNo")
         self.cb_quelle.SetValue("None")
         self.cb_ziel.SetValue("None")
         self.cb_dist_fcn.SetValue("euclidean")
 
-        self.SetStatusText('Default-Werte hergestellt')
+        self.SetStatusText(translate('Default-Werte hergestellt'))
 
     def event_choose_attr(self, event):
         attr = event.GetEventObject().GetStringSelection()
 
-        if event.GetEventObject().Label == 'attr_vfs':
+        if event.GetEventObject().Label == translate('attr_vfs'):
             self.attr_vfs = attr
             # Anpassen Buttons Attributwerte
             self.__set_values_vfs_buttons__()
 
-        elif event.GetEventObject().Label == 'attr_quelle':
+        elif event.GetEventObject().Label == translate('attr_quelle'):
             if attr == 'None':
                 self.attr_quelle = None
             else:
                 self.attr_quelle = attr
-        elif event.GetEventObject().Label == 'attr_ziel':
+        elif event.GetEventObject().Label == translate('attr_ziel'):
             if attr == 'None':
                 self.attr_ziel = None
             else:
@@ -215,7 +266,7 @@ class LLTFrame(wx.Frame):
         elif event.GetEventObject().Label == 'attr_dist_fcn':
             self.attr_dist_fcn = attr
         else:
-            logging.warning("sollte nie passieren")
+            logging.warning(translate('sollte nie passieren'))
 
         # Erstellen einer neuen Calculator Instanz
         if self.visum is not None:
@@ -230,9 +281,9 @@ class LLTFrame(wx.Frame):
             # Übergebe aktuelle Parameter
             self.update_param_vfs()
         else:
-            logging.warning("Umgang mit Nichtvisum Dateien ist nicht implementiert")
+            logging.warning(translate('Umgang mit Nichtvisum Dateien ist nicht implementiert'))
 
-        self.SetStatusText("Attribut übernommen, Bezirke neu importiert, Rechnungen zurückgesetzt")
+        self.SetStatusText(translate('Attribut übernommen, Bezirke neu importiert, Rechnungen zurückgesetzt'))
 
     def event_calculate(self, event):
         # Vorgehen
@@ -243,15 +294,14 @@ class LLTFrame(wx.Frame):
         self.llt_calculator.calculate_main()
 
         # Statusleiste
-        self.SetStatusText('Berechnung durchgeführt')
+        self.SetStatusText(translate('Berechnung durchgeführt'))
 
     def event_quit_button(self, event):
         # del self.visum
-        #self.stop = True
+        # self.stop = True
         self.panel.Destroy()
         self.Destroy()
         wx.GetApp().ExitMainLoop()
-
 
     def event_import_data(self, event):
         # funktioniert soweit,
@@ -260,7 +310,7 @@ class LLTFrame(wx.Frame):
         if self.visum is not None:
             # Init Calculator Instanz
             self.llt_calculator = llt.LuftlinienCalculator(self.visum,
-                                                           attr_vfs= self.attr_vfs,
+                                                           attr_vfs=self.attr_vfs,
                                                            attr_quelle=self.attr_quelle,
                                                            attr_ziel=self.attr_ziel,
                                                            anz_versorger=1,
@@ -269,11 +319,11 @@ class LLTFrame(wx.Frame):
             # Übergebe aktuelle Parameter
             self.update_param_vfs()
         else:
-            logging.warning("Umgang mit Nichtvisum Dateien ist nicht implementiert")
-        self.SetStatusText('Daten importiert')
+            logging.warning(translate('Umgang mit Nichtvisum Dateien ist nicht implementiert'))
+        self.SetStatusText(translate('Daten importiert'))
 
     def event_info(self, event):
-        path_scripts = Path.cwd() #Path(self.visum.GetPath(37))
+        path_scripts = Path.cwd()  # Path(self.visum.GetPath(37))
         logging.info(path_scripts)
         llt.show_info(path_scripts)
 
@@ -283,12 +333,12 @@ class LLTFrame(wx.Frame):
         else:
             self.llt_calculator.init_results()
 
-        self.SetStatusText('Ergebnisse gelöscht, ggf Ergebnisse neu nach Visum importieren')
+        self.SetStatusText(translate('Ergebnisse gelöscht, ggf Ergebnisse neu nach Visum importieren'))
 
     def event_export_results(self, event):
         if self.llt_calculator is not None:
             self.llt_calculator.export_net(
-                                           links_additive=True)
+                links_additive=True)
             self.llt_calculator.export_matrix()
 
     def event_export_net(self, event):
@@ -299,8 +349,7 @@ class LLTFrame(wx.Frame):
                                            links_additive=True)
             self.llt_calculator.delete_unused_nodes()
 
-        self.SetStatusText(f'{vfs}: Net-Datei exportiert und in Visum importiert')
-
+        self.SetStatusText(f'{vfs}'+translate(': Net-Datei exportiert und in Visum importiert'))
 
     def event_export_mtx(self, event):
         vfs = event.GetEventObject().vfs
@@ -308,14 +357,14 @@ class LLTFrame(wx.Frame):
         if self.llt_calculator is not None:
             self.llt_calculator.export_matrix(list_vfs=[vfs])
 
-        self.SetStatusText(f'{vfs}: Matrix in Visum geladen')
+        self.SetStatusText(f'{vfs}'+translate(': Matrix in Visum geladen'))
 
     def event_export_master(self, event):
         self.llt_calculator.export_matrix()
         self.llt_calculator.export_net(links_additive=True)
         self.llt_calculator.delete_unused_nodes()
 
-        self.SetStatusText(f'die kombinierten Ergebnisse wurden in Visum importiert')
+        self.SetStatusText(translate(f'die kombinierten Ergebnisse wurden in Visum importiert'))
 
     def event_filter(self, event):
         if self.llt_calculator is not None:
@@ -339,12 +388,13 @@ class LLTFrame(wx.Frame):
             self.llt_calculator.formula_dist = self.attr_dist_fcn
 
             logging.info(
-f'''aktuelle Settings:
+                f'''aktuelle Settings:
 Bezirke: Attr. Zentralität-{self.llt_calculator.attr_central_level} Attr istQuelle-{self.llt_calculator.attr_is_from_zone} Attr istZiel-{self.llt_calculator.attr_is_to_zone} 
 Distanzberechnung: {self.llt_calculator.formula_dist} 
 VFS {self.llt_calculator.vfs} 
 Nachbarschaftsgrad je VFS {self.llt_calculator.nachbarschaftsgrad_vfs} 
 Anzahl Versorger je VFS {self.llt_calculator.anz_versorger_vfs}''')
+
 
 ## Spezifiziert & verwaltet den Tab mit den Eingabe- und Aktionsmöglichkeiten
 class MainTab(wx.Panel):
@@ -352,7 +402,6 @@ class MainTab(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.__set_layout__()
         self.__bind_events__()
-
 
     def __set_layout__(self):
         # Zeilen mit einzelnen Elementen (vbox_outer)
@@ -365,34 +414,37 @@ class MainTab(wx.Panel):
         gridbagsizer1 = wx.GridBagSizer(vgap=10, hgap=50)
 
         # Auswahl Bezirksattribute
-        self.cb_vfs = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_vfs.Label= 'attr_vfs'
+        self.cb_vfs = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
+                                  style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_vfs.Label = translate('attr_vfs')
         self.TopLevelParent.cb_vfs = self.cb_vfs
 
-        self.cb_quelle = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_quelle.Label= 'attr_quelle'
+        self.cb_quelle = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
+                                     style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_quelle.Label = translate('attr_quelle')
         self.TopLevelParent.cb_quelle = self.cb_quelle
 
-        self.cb_ziel = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_ziel.Label= 'attr_ziel'
+        self.cb_ziel = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
+                                   style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_ziel.Label = translate('attr_ziel')
         self.TopLevelParent.cb_ziel = self.cb_ziel
 
-        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n Zentralität"), 0, wx.ALL|wx.EXPAND,5)
-        hbox1.Add(self.cb_vfs, 0, wx.ALL|wx.EXPAND,15)
-        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n 'ist Quelle'"), 0, wx.ALL|wx.EXPAND,5)
-        hbox1.Add(self.cb_quelle, 0, wx.ALL|wx.EXPAND,15)
-        hbox1.Add(wx.StaticText(self, -1, "Bezirksattribut \n 'ist Ziel'"), 0, wx.ALL|wx.EXPAND,5)
-        hbox1.Add(self.cb_ziel, 0, wx.ALL|wx.EXPAND,15 )
+        hbox1.Add(wx.StaticText(self, -1, (translate('Bezirksattribut')+ "\n"+translate('Zentralität'))), 0, wx.ALL | wx.EXPAND, 5)
+        hbox1.Add(self.cb_vfs, 0, wx.ALL | wx.EXPAND, 15)
+        hbox1.Add(wx.StaticText(self, -1, (translate('Bezirksattribut')+ "\n"+translate('ist Quelle'))), 0, wx.ALL | wx.EXPAND, 5)
+        hbox1.Add(self.cb_quelle, 0, wx.ALL | wx.EXPAND, 15)
+        hbox1.Add(wx.StaticText(self, -1, (translate('Bezirksattribut')+ "\n"+translate('ist Ziel'))), 0, wx.ALL | wx.EXPAND, 5)
+        hbox1.Add(self.cb_ziel, 0, wx.ALL | wx.EXPAND, 15)
 
         # Überschrift Spalte 1
-        gridbagsizer1.Add(wx.StaticText(self, -1, "Verbindungsfunktionsstufe"),
-                          pos=(0,0), flag=wx.TOP|wx.LEFT|wx.BOTTOM, border=5)
-        self.button_vfs_active = {"VFS 0": wx.CheckBox(self, -1, "VFS 0"),
-                                  "VFS 1": wx.CheckBox(self, -1, "VFS 1"),
-                                  "VFS 2": wx.CheckBox(self, -1, "VFS 2"),
-                                  "VFS 3": wx.CheckBox(self, -1, "VFS 3"),
-                                  "VFS 4": wx.CheckBox(self, -1, "VFS 4"),
-                                  "VFS 5": wx.CheckBox(self, -1, "VFS 5")}
+        gridbagsizer1.Add(wx.StaticText(self, -1, translate('Verbindungsfunktionsstufe')),
+                          pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
+        self.button_vfs_active = {"VFS 0": wx.CheckBox(self, -1, translate('VFS 0')),
+                                  "VFS 1": wx.CheckBox(self, -1, translate('VFS 1')),
+                                  "VFS 2": wx.CheckBox(self, -1, translate('VFS 2')),
+                                  "VFS 3": wx.CheckBox(self, -1, translate('VFS 3')),
+                                  "VFS 4": wx.CheckBox(self, -1, translate('VFS 4')),
+                                  "VFS 5": wx.CheckBox(self, -1, translate('VFS 5'))}
 
         tmp_iterator = 1
         for btn in self.button_vfs_active.values():
@@ -402,14 +454,14 @@ class MainTab(wx.Panel):
         self.TopLevelParent.button_vfs_active = self.button_vfs_active
 
         # Spalte 2 Angabe Wert je VFS
-        gridbagsizer1.Add(wx.StaticText(self, -1, "Attributwert VFS"),
+        gridbagsizer1.Add(wx.StaticText(self, -1, translate('Attributwert VFS')),
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_vfs_value = {"VFS 0": wx.SpinCtrl(self, -1, ""),
-                                 "VFS 1": wx.SpinCtrl(self, -1, ""),
-                                 "VFS 2": wx.SpinCtrl(self, -1, ""),
-                                 "VFS 3": wx.SpinCtrl(self, -1, ""),
-                                 "VFS 4": wx.SpinCtrl(self, -1, ""),
-                                 "VFS 5": wx.SpinCtrl(self, -1, "")}
+                                  "VFS 1": wx.SpinCtrl(self, -1, ""),
+                                  "VFS 2": wx.SpinCtrl(self, -1, ""),
+                                  "VFS 3": wx.SpinCtrl(self, -1, ""),
+                                  "VFS 4": wx.SpinCtrl(self, -1, ""),
+                                  "VFS 5": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_vfs_value.values():
             gridbagsizer1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
@@ -418,7 +470,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_vfs_value = self.buttons_vfs_value
 
         # Spalte 2 Auswahl Austauschfunktion je VFS
-        gridbagsizer1.Add(wx.StaticText(self, -1, "Austauschfunktion \n n-naechste Nachbarn"),
+        gridbagsizer1.Add(wx.StaticText(self, -1, (translate('Austauschfunktion')+ "\n"  + translate('n-naechste Nachbarn'))),
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
         self.buttons_value_k_nachbar_vfs = {"VFS 0": wx.SpinCtrl(self, -1, ""),
@@ -436,7 +488,7 @@ class MainTab(wx.Panel):
 
         # Spalte 3 Versorgungsfunktion
         gridbagsizer1.Add(
-            wx.StaticText(self, -1, "Versorgungsfunktion \n n Versorgungszentren"),
+            wx.StaticText(self, -1, (translate('Versorgungsfunktion')+"\n"+translate('n Versorgungszentren'))),
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_value_n_versorger = {"VFS 0": wx.SpinCtrl(self, -1, ""),
                                           "VFS 1": wx.SpinCtrl(self, -1, ""),
@@ -454,8 +506,8 @@ class MainTab(wx.Panel):
 
         # Buttons Export Matrix
         gridbagsizer1.Add(
-            wx.StaticText(self, -1, "anlegen in Visum als"),
-            pos=(0, 4), span=(1,2), flag=wx.ALIGN_CENTER | wx.ALL)
+            wx.StaticText(self, -1, translate('anlegen in Visum als')),
+            pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"),
                                    "VFS 1": wx.Button(self, -1, "MTX"),
                                    "VFS 2": wx.Button(self, -1, "MTX"),
@@ -483,27 +535,30 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons export all
-        self.btn_export_master = wx.Button(self, -1, "Import nach Visum alle VFS \n Strecken + Mtx ")
+        self.btn_export_master = wx.Button(self, -1, (translate('Import nach Visum alle VFS') +"\n"+translate('Strecken + Mtx')))
         self.btn_export_master.vfs = 'alle'
         gridbagsizer1.Add(self.btn_export_master,
-                          pos=(7,4), span=(3,2), flag= wx.EXPAND)
+                          pos=(7, 4), span=(3, 2), flag=wx.EXPAND)
 
         # Button Liste Distanzfkt
         self.cb_dist_fcn = wx.ComboBox(self, size=(200, -1),
-                                             choices=["euclidean", "haversine"], style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+                                       choices=["euclidean", "haversine"],
+                                       style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
 
-        self.cb_dist_fcn.Label= 'attr_dist_fcn'
+        self.cb_dist_fcn.Label = 'attr_dist_fcn'
         self.TopLevelParent.cb_dist_fcn = self.cb_dist_fcn
 
-        gridbagsizer1.Add(wx.StaticText(self, -1, "Funktion Distanzberechnung"), pos=(8, 0), span=(1, 1), flag=wx.EXPAND)
-        gridbagsizer1.Add(self.cb_dist_fcn, pos=(8,1), span=(1,1), flag=wx.EXPAND)
+        gridbagsizer1.Add(wx.StaticText(self, -1, translate('Funktion Distanzberechnung')), pos=(8, 0), span=(1, 1),
+                          flag=wx.EXPAND)
+        gridbagsizer1.Add(self.cb_dist_fcn, pos=(8, 1), span=(1, 1), flag=wx.EXPAND)
 
         # Aufbau Layout
-        vbox_outer.Add(hbox1, 0 , wx.ALL | wx.EXPAND, 1)
-        vbox_outer.Add(gridbagsizer1,  1, wx.ALL | wx.EXPAND, 6)
+        vbox_outer.Add(hbox1, 0, wx.ALL | wx.EXPAND, 1)
+        vbox_outer.Add(gridbagsizer1, 1, wx.ALL | wx.EXPAND, 6)
         self.SetSizer(vbox_outer)
 
         # ==== Event binding
+
     def __bind_events__(self):
 
         for vfs, btn in self.buttons_export_net.items():
@@ -519,12 +574,13 @@ class MainTab(wx.Panel):
         self.cb_ziel.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
+
 ## Spezifiziert den Tab, der die Lognachrichten ausgibt
 class LogTab(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         vbox = wx.BoxSizer(wx.VERTICAL)
-        vbox.Add(wx.StaticText(self, -1, "Message-Log"), 0, wx.ALL|wx.CENTER, 5)
+        vbox.Add(wx.StaticText(self, -1, "Message-Log"), 0, wx.ALL | wx.CENTER, 5)
         # self.multiText = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE)
         # self.multiText.SetInsertionPoint(0)
         #
@@ -547,8 +603,8 @@ class LogTab(wx.Panel):
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
 
-        self.log = wx.TextCtrl(self, wx.ID_ANY, size=(700,200),
-                          style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL |wx.EXPAND)
+        self.log = wx.TextCtrl(self, wx.ID_ANY, size=(700, 200),
+                               style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL | wx.EXPAND)
         self.handler = WxTextCtrlHandler(self.log)
         self.handler.setFormatter(logger_format)
         self.logger.addHandler(self.handler)
@@ -578,6 +634,7 @@ class LogTab(wx.Panel):
         """ Destructor, ensure the logger handler is removed """
         self.logger.removeHandler(self.handler)
 
+
 ## Handler der Logbefehle
 class WxTextCtrlHandler(logging.Handler):
     def __init__(self, ctrl):
@@ -587,6 +644,7 @@ class WxTextCtrlHandler(logging.Handler):
     def emit(self, record):
         s = self.format(record) + '\n'
         wx.CallAfter(self.ctrl.WriteText, s)
+
 
 if __name__ == '__main__':
     app = wx.App()
