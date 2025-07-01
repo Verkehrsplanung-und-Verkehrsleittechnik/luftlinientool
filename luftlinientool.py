@@ -151,11 +151,11 @@ class LuftlinienCalculator:
 
     ## Konstruktor
     # @param source: Dateiname (str) oder Visuminstanz
-    # @param attr_vfs: Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält. Default: TypeNr
+    # @param attr_cfl: Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält. Default: TypeNr
     # @param dict_vfs: Dictionary, das die Attributwerte für die jeweiligen VFS enthält
     # @param max_entfernung: Angabe, bis zu welcher Entfernung, Nachbar angebunden werden
     # @param anz_versorger: Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll
-    # @param attr_quelle: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
+    # @param attr_origin: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
     # @param attr_ziel: Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default: None
     # @param use_filter: gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz
     # @param formula_distance: definiert die Distanzfunktion für die Ermittlung der Versorgungszentren.
@@ -163,12 +163,12 @@ class LuftlinienCalculator:
     # Delaunay-Triangulation funktioniert nur bei einer Projektion der Lat/Lon Koordinaten.
     # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
     def __init__(self, source,
-                 attr_vfs: str = "TypeNo",
-                 dict_vfs: dict = {"VFS 0": 0, "VFS 1": 1, "VFS 2": 2, "VFS 3": 3, "VFS 4": 4, "VFS 5": 5},
-                 max_entfernung=1,
-                 anz_versorger=0,
-                 attr_quelle=None,
-                 attr_ziel=None,
+                 attr_cfl: str = "TypeNo",
+                 dict_cfl: dict = {"VFS 0": 0, "VFS 1": 1, "VFS 2": 2, "VFS 3": 3, "VFS 4": 4, "VFS 5": 5},
+                 max_distance=1,
+                 no_suppliers=0,
+                 attr_orig=None,
+                 attr_dest=None,
                  use_filter: bool = False,
                  formula_distance: str = "euclidean",
                  path_output=None):
@@ -182,18 +182,18 @@ class LuftlinienCalculator:
         ## relevante Bezirksattribute
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
         ## Attribut Zentralität
-        self.attr_central_level = attr_vfs
+        self.attr_central_level = attr_cfl
         self.attr_zones.append(self.attr_central_level)
-        if attr_quelle is not None:
-            self.attr_zones.append(attr_quelle)
-        if attr_ziel is not None:
-            self.attr_zones.append(attr_ziel)
+        if attr_orig is not None:
+            self.attr_zones.append(attr_orig)
+        if attr_dest is not None:
+            self.attr_zones.append(attr_dest)
 
         ## Rückgabeverzeichnis
         self.path_output = path_output
 
         ## Liste der VFS, die bearbeitet werden sollen
-        self.vfs = dict_vfs
+        self.cfl = dict_cfl
 
         ## Abstandsberechnung
         self.formula_dist = formula_distance
@@ -205,21 +205,21 @@ class LuftlinienCalculator:
         self.anz_versorger_vfs = dict()
 
         # Ziel: dict mit VFS: Wert
-        if isinstance(max_entfernung, int):
+        if isinstance(max_distance, int):
             # Umwandlung in dict mit Skalar je VFS
-            self.nachbarschaftsgrad_vfs = dict(zip(dict_vfs.keys(), max_entfernung * np.ones(len(dict_vfs), dtype=int)))
-        elif isinstance(max_entfernung, dict):
-            self.nachbarschaftsgrad_vfs = max_entfernung
+            self.nachbarschaftsgrad_vfs = dict(zip(dict_cfl.keys(), max_distance * np.ones(len(dict_cfl), dtype=int)))
+        elif isinstance(max_distance, dict):
+            self.nachbarschaftsgrad_vfs = max_distance
         else:
             raise TypeError("Type Übergabeparameter nicht implementiert")
 
         # Ziel: dict mit VFS: Wert
-        if isinstance(anz_versorger, int):
+        if isinstance(no_suppliers, int):
             # Umwandlung in dict mit Skalar je VFS
             self.anz_versorger_vfs = dict(
-                zip(dict_vfs.keys(), anz_versorger * np.ones(len(dict_vfs), dtype=int)))
-        elif isinstance(anz_versorger, dict):
-            self.anz_versorger_vfs = anz_versorger
+                zip(dict_cfl.keys(), no_suppliers * np.ones(len(dict_cfl), dtype=int)))
+        elif isinstance(no_suppliers, dict):
+            self.anz_versorger_vfs = no_suppliers
         else:
             raise TypeError("Type Übergabeparameter nicht implementiert")
 
@@ -240,22 +240,22 @@ class LuftlinienCalculator:
             self.visum = None
             logging.warning("Einlesen der Bezirksdaten ist fehlgeschlagen, Inputformat ist nicht implementiert")
 
-        if attr_quelle is None:
-            attr_quelle = 'quelle'
-            self.zones[attr_quelle] = 1
+        if attr_orig is None:
+            attr_orig = 'quelle'
+            self.zones[attr_orig] = 1
 
-        if attr_ziel is None:
-            attr_ziel = 'ziel'
-            self.zones[attr_ziel] = 1
+        if attr_dest is None:
+            attr_dest = 'ziel'
+            self.zones[attr_dest] = 1
 
-        # Abfangen attr_ziel=attr_quelle: Lösche Spaltenduplikat
-        if attr_ziel == attr_quelle:
+        # Abfangen attr_ziel=attr_origin: Lösche Spaltenduplikat
+        if attr_dest == attr_orig:
             self.zones = self.zones.loc[:, ~self.zones.columns.duplicated()]
 
         ## Attribut Quellfilter
-        self.attr_is_from_zone = attr_quelle
+        self.attr_is_from_zone = attr_orig
         ## Attribut Zielfilter
-        self.attr_is_to_zone = attr_ziel
+        self.attr_is_to_zone = attr_dest
 
         # Init VFS Matrizen
         # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
@@ -282,7 +282,7 @@ class LuftlinienCalculator:
     def adj_matrix_to_links(self, list_vfs=None):
 
         if list_vfs is None:
-            list_vfs = self.vfs.keys()
+            list_vfs = self.cfl.keys()
 
         list_df_edges = []
         for vfs in list_vfs:
@@ -313,7 +313,7 @@ class LuftlinienCalculator:
 
 
     ## Wandelt die Adjazenzmatrix in eine Liste der verbundenen Bezirke je Bezirk um.
-    # @param vfs: str, Name der zu betrachtenden VFS
+    # @param cfl: str, Name der zu betrachtenden VFS
     # @param use_zone_names: bool, falls True werden die hitnerlegten Bezirksnamen verwendet
     # @return df_set_zones: DataFrame mit list Objekt je Bezirk und einer Spalte, die die Anzahl enthält
     def adj_matrix_to_set_of_connected_zones(self, vfs, use_zone_names=True):
@@ -335,7 +335,7 @@ class LuftlinienCalculator:
 
     ## Berechnet, welche Nachbarn innerhalb von n Schritten erreicht werden können.
     # @param max_steps: maximale Entfernung (Schritte)
-    # @param vfs: zu untersuchende VFS
+    # @param cfl: zu untersuchende VFS
     # @return matrix: Adjazenzmatrix für die Erreichbare Nachbarn innerhalb der max-steps
     def calculate_reachability_max_steps(self, max_steps, vfs):
 
@@ -353,8 +353,8 @@ class LuftlinienCalculator:
         self.init_results()
         logging.info(f"Adjazenzmatrizen wurden initialisiert")
 
-        # Schleife über alle vfs
-        for vfs in self.vfs:
+        # Schleife über alle cfl
+        for vfs in self.cfl:
             # Berechne die Werte für die VFS
             self.calculate_vfs(vfs)
 
@@ -362,11 +362,11 @@ class LuftlinienCalculator:
 
 
     ## Berechnet die Verbindungen einer VFS.
-    # @param vfs: die Verbindungsfunktionsstufe, für die Verbindungen ermittel werden
+    # @param cfl: die Verbindungsfunktionsstufe, für die Verbindungen ermittel werden
     def calculate_vfs(self, vfs):
 
         # Attributswert der Bezirke für die gewählte VFS
-        value_vfs = self.vfs[vfs]
+        value_vfs = self.cfl[vfs]
 
         # Attribute der VFS
         k_nachbar = self.nachbarschaftsgrad_vfs[vfs]
@@ -422,7 +422,7 @@ class LuftlinienCalculator:
                 df_list_zones = self.adj_matrix_to_set_of_connected_zones(vfs, use_zone_names=False)
 
                 # Tabelle der möglichen Versorgungszentren
-                provider = self.zones.loc[(self.zones[self.attr_central_level] < self.vfs[vfs])
+                provider = self.zones.loc[(self.zones[self.attr_central_level] < self.cfl[vfs])
                                           & (self.zones[self.attr_is_from_zone] > 0), :]
                 # Menge der möglichen Versorgungszentren
                 set_names_provider = set(provider.index)
@@ -544,7 +544,7 @@ class LuftlinienCalculator:
         # Sonst: Speichere .mtx Datei
 
         if list_vfs is None:
-            list_vfs = self.vfs.keys()
+            list_vfs = self.cfl.keys()
 
         logging.info(f"Beginne mit Export von {len(list_vfs)} Matrizen")
 
@@ -676,7 +676,7 @@ class LuftlinienCalculator:
 
         # Füge Streckentyp in dict hinzu dict[Name]=Nummer
         self.dict_export_linktypes = dict(
-            zip(self.vfs.keys(), range(no_linktype_start, no_linktype_start + len(self.vfs.keys()) + 1)))
+            zip(self.cfl.keys(), range(no_linktype_start, no_linktype_start + len(self.cfl.keys()) + 1)))
 
         # Erstelle Streckenliste
         df_edges = self.adj_matrix_to_links()
@@ -724,7 +724,7 @@ class LuftlinienCalculator:
             path_net = self.path_output
 
         if list_vfs is None:
-            list_vfs = self.vfs.keys()
+            list_vfs = self.cfl.keys()
 
         path_net = path_net / f"{'_'.join(list_vfs)}.net"
 
@@ -853,7 +853,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
     #  @return Keine Rückgabe. Die Ergebnisse werden intern gespeichert.
     def init_results(self):
         dict_vfs = {}
-        for vfs in self.vfs:
+        for vfs in self.cfl:
             dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
         ## Dict mit den resultierenden Adjazenzmatrizen der Verbindungsfunktionsstufen

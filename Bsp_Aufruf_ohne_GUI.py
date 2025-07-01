@@ -32,11 +32,9 @@ if __name__ == '__main__':
 
     if source.suffix == ".ver":
         Visum = llt.open_visum(source)
-        # ltt1 = llt.LuftlinienCalculator(Visum, attr_quelle="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
-        llt1 = llt.LuftlinienCalculator(Visum, anz_versorger=0, max_entfernung=1,
-                                        dict_vfs={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2},
-                                        attr_quelle="IstUntersuchungsgebiet",
-                                        attr_ziel="AddVal1")
+        # ltt1 = llt.LuftlinienCalculator(Visum, attr_origin="Quelle", attr_ziel="Ziel", anz_versorger=1, max_entfernung=1)
+        llt1 = llt.LuftlinienCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=1,
+                                        no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
     else:
         print("nicht implementiert")
 

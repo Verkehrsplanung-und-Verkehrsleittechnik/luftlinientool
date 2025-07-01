@@ -88,20 +88,20 @@ if __name__ == '__main__':
     # Definition der Testszenarien
     dict_scenarios = {
         "n=1, k=0,":
-            {"k": 0, "n": 1, "attr_vfs": "TypeNo", "attr_quelle": None, "attr_ziel": None},
+            {"k": 0, "n": 1, "attr_cfl": "TypeNo", "attr_origin": None, "attr_ziel": None},
         "n=1, k=0, VFS = AddVal2":
-            {"k": 0, "n": 1, "attr_vfs": "AddVal2", "attr_quelle": None, "attr_ziel": None},
+            {"k": 0, "n": 1, "attr_cfl": "AddVal2", "attr_origin": None, "attr_ziel": None},
         "n=1, k=0, istQuelle = istZiel = IstUntersuchungsgebiet":
-            {"k": 0, "n": 1, "attr_vfs": "TypeNo",
-             "attr_quelle": "IstUntersuchungsgebiet", "attr_ziel": "IstUntersuchungsgebiet"},
+            {"k": 0, "n": 1, "attr_cfl": "TypeNo",
+             "attr_origin": "IstUntersuchungsgebiet", "attr_ziel": "IstUntersuchungsgebiet"},
         "n=1, k=0, istQuelle = IstUntersuchungsgebiet, istZiel = None": {
-            "k": 0, "n": 1, "attr_vfs": "TypeNo", "attr_quelle": "IstUntersuchungsgebiet", "attr_ziel": None},
+            "k": 0, "n": 1, "attr_cfl": "TypeNo", "attr_origin": "IstUntersuchungsgebiet", "attr_ziel": None},
         "n=1, k=0, istQuelle = IstUntersuchungsgebiet, istZiel = AddVal1 (1)":
-            {"k": 0, "n": 1, "attr_vfs": "TypeNo", "attr_quelle": "IstUntersuchungsgebiet", "attr_ziel": "AddVal1"},
+            {"k": 0, "n": 1, "attr_cfl": "TypeNo", "attr_origin": "IstUntersuchungsgebiet", "attr_ziel": "AddVal1"},
         "n=1, k=1, istQuelle = IstUntersuchungsgebiet, istZiel = None":
-            {"k": 1, "n": 1, "attr_vfs": "TypeNo", "attr_quelle": "IstUntersuchungsgebiet", "attr_ziel": None},
+            {"k": 1, "n": 1, "attr_cfl": "TypeNo", "attr_origin": "IstUntersuchungsgebiet", "attr_ziel": None},
         "n=2, k=0, istQuelle = IstUntersuchungsgebiet, istZiel = None":
-            {"k": 0, "n": 2, "attr_vfs": "TypeNo", "attr_quelle": "IstUntersuchungsgebiet", "attr_ziel": None},
+            {"k": 0, "n": 2, "attr_cfl": "TypeNo", "attr_origin": "IstUntersuchungsgebiet", "attr_ziel": None},
     }
 
     # Definition der Verbindungsfunktionsstufen (VFS)
@@ -120,20 +120,16 @@ if __name__ == '__main__':
     for scenario, param in dict_scenarios.items():
         try:
             # Luftlinien-Tool initialisieren und Berechnungen durchführen
-            llt1 = llt.LuftlinienCalculator(Visum, dict_vfs=dict_vfs,
-                                            attr_vfs=param["attr_vfs"],
-                                            attr_quelle=param["attr_quelle"],
-                                            attr_ziel=param["attr_ziel"],
-                                            anz_versorger=param["k"],
-                                            max_entfernung=param["n"],
-                                            )
+            llt1 = llt.LuftlinienCalculator(Visum, attr_cfl=param["attr_cfl"], dict_cfl=dict_vfs,
+                                            max_distance=param["n"], no_suppliers=param["k"],
+                                            attr_orig=param["attr_origin"], attr_dest=param["attr_ziel"])
             llt1.calculate_main()
 
             # Schleife über die definierten VFS und Ergebnisse exportieren
             for vfs in dict_vfs.keys():
                 # Exportieren des Netzes und Erstellung von Screenshots
                 llt1.export_net(list_vfs=[vfs], links_additive=True)
-                filter_zones_source(param["attr_quelle"])  # Filtere Zonen basierend auf Quelle
+                filter_zones_source(param["attr_origin"])  # Filtere Zonen basierend auf Quelle
                 filter_links_vfs(list(llt1.dict_export_linktypes.values()))  # Filtere Strecken basierend auf Typ
 
                 # Screenshot erstellen und in PowerPoint einfügen
