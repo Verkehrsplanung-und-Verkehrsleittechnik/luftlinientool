@@ -549,6 +549,10 @@ class LuftlinienCalculator:
         logging.info(f"Beginne mit Export von {len(list_vfs)} Matrizen")
 
         for vfs in list_vfs:
+            if vfs not in self.matrizen_VFS.keys():
+                logging.warning(f"Fehler: {vfs} ist nicht in der Liste der berechneten VFS")
+                continue
+
             matrix_vfs = self.matrizen_VFS[vfs]
             # Benennung in der Matrix in Visum bzw. Datei
             if self.anz_versorger_vfs[vfs] < 1:
