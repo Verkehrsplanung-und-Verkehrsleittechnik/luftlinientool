@@ -618,6 +618,7 @@ class LuftlinienCalculator:
                     # Suche existierende Matrizen mit der Benennung
                     matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
                     if matrix_instances.Count < 1:
+                        del matrix_instances
                         # Erstelle Matrix
                         matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                         matrix_instance.SetAttValue("CODE", name_matrix)
