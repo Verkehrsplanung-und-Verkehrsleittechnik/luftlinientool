@@ -50,9 +50,9 @@ class LLTFrame(wx.Frame):
             import win32com.client as com
             defDir = Path.cwd()
             with wx.FileDialog(self,
-                               self.translator.translate('Wähle ein Visumnetz'),
+                               self.translator.translate('file_selection'),
                                str(defDir),
-                               wildcard=(self.translator.translate('Versiondateien')+ " (*.ver)|*.ver"), # Use self.translator
+                               wildcard=(self.translator.translate('ver_files')+ " (*.ver)|*.ver"), # Use self.translator
                                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dlg:
                 if file_dlg.ShowModal() == wx.ID_CANCEL:
                     return  # the user changed their mind
@@ -186,8 +186,8 @@ class LLTFrame(wx.Frame):
         # Erstelle den wx.SingleChoiceDialog
         dlg = wx.SingleChoiceDialog(
             self,
-            self.translator.translate("dialog_language_select_message"),
-            self.translator.translate("dialog_language_select_title"),
+            self.translator.translate('dialog_language_select_message'),
+            self.translator.translate('dialog_language_select_title'),
             choices=languages,
         )
 
@@ -725,7 +725,7 @@ class WxTextCtrlHandler(logging.Handler):
 
 if __name__ == '__main__':
     # Initialize translator outside the app
-    translator = Translator("Translations.xlsx", language="de")
+    translator = Translator("Translations.xlsx", language="en")
     app = wx.App()
     frame = LLTFrame(translator)
     app.MainLoop()
