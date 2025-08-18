@@ -111,29 +111,29 @@ class LLTFrame(wx.Frame):
         self.menu = wx.Menu()
         self.menu.Append(10, self.translator.translate("language_choice"))
         self.menu.AppendSeparator()
-        self.menu.Append(11, self.translator.translate('Daten einlesen'))
-        self.menu.Append(12, self.translator.translate('Berechnung durchführen'))
+        self.menu.Append(11, self.translator.translate('menu_import_data'))
+        self.menu.Append(12, self.translator.translate('menu_calculate'))
         self.menu.AppendSeparator()
-        self.menu.Append(13, self.translator.translate('Berechnungen zurücksetzen'))
-        self.menu.Append(14, self.translator.translate('Defaultwerte übernehmen'))
+        self.menu.Append(13, self.translator.translate('menu_reset_calculations'))
+        self.menu.Append(14, self.translator.translate('menu_set_defaults'))
         self.menu.AppendSeparator()
         self.menu.Append(15, "&Info")
 
         self.menu.AppendSeparator()
         # put the menu on the menubar
-        self.menu_bar.Append(self.menu, self.translator.translate('Auswahl'))
+        self.menu_bar.Append(self.menu, self.translator.translate('options_tab'))
         self.SetMenuBar(self.menu_bar)
         self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
 
         # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
         self.toolbar.AddTool(100, self.translator.translate('language_choice'), wx.Bitmap())
-        self.toolbar.AddTool(101, self.translator.translate('Daten einlesen'), wx.Bitmap())
-        self.toolbar.AddTool(102, self.translator.translate('Berechnung durchführen'), wx.Bitmap())
-        self.toolbar.AddTool(103, self.translator.translate('Berechnungen zurücksetzen'), wx.Bitmap())
-        self.toolbar.AddTool(104, self.translator.translate('Defaultwerte'), wx.Bitmap())
+        self.toolbar.AddTool(101, self.translator.translate('menu_import_data'), wx.Bitmap())
+        self.toolbar.AddTool(102, self.translator.translate('menu_calculate'), wx.Bitmap())
+        self.toolbar.AddTool(103, self.translator.translate('menu_reset_calculations'), wx.Bitmap())
+        self.toolbar.AddTool(104, self.translator.translate('default_Values_tab'), wx.Bitmap())
         self.toolbar.AddTool(105, 'Info', wx.Bitmap())
-        self.toolbar.AddTool(106, self.translator.translate('Filter: eingefügte Strecken'), wx.Bitmap())
-        self.toolbar.AddTool(107, self.translator.translate('Löschen: eingefügte Strecken'), wx.Bitmap())
+        self.toolbar.AddTool(106, self.translator.translate('toolbar_filter_inserted_links'), wx.Bitmap())
+        self.toolbar.AddTool(107, self.translator.translate('toolbar_delete_inserted_links'), wx.Bitmap())
         self.toolbar.Realize()
 
         # # # create toolbar
@@ -226,7 +226,7 @@ class LLTFrame(wx.Frame):
         self.cb_destination.SetValue("None")
         self.cb_dist_fcn.SetValue("euclidean")
 
-        self.SetStatusText(self.translator.translate('Default-Werte hergestellt'))
+        self.SetStatusText(self.translator.translate('set_defaults'))
 
     def event_choose_attr(self, event):
         attr = event.GetEventObject().GetStringSelection()
@@ -241,7 +241,7 @@ class LLTFrame(wx.Frame):
                 self.attr_origin = None
             else:
                 self.attr_origin = attr
-        elif event.GetEventObject().Label == self.translator.translate('attr_ziel'): # This label is still German, but the variable it sets is English
+        elif event.GetEventObject().Label == self.translator.translate('attr_Destination'):
             if attr == 'None':
                 self.attr_destination = None
             else:
@@ -249,7 +249,7 @@ class LLTFrame(wx.Frame):
         elif event.GetEventObject().Label == 'attr_dist_fcn':
             self.attr_dist_fcn = attr
         else:
-            logging.warning(self.translator.translate('sollte nie passieren'))
+            logging.warning(self.translator.translate('warning_should_never_happen'))
 
         # Erstellen einer neuen Calculator Instanz
         if self.visum is not None:
@@ -260,8 +260,8 @@ class LLTFrame(wx.Frame):
             # Übergebe aktuelle Parameter
             self.update_param_cfl()
         else:
-            logging.warning(self.translator.translate('Umgang mit Nichtvisum Dateien ist nicht implementiert'))
-        self.SetStatusText(self.translator.translate('Attribut übernommen, Bezirke neu importiert, Rechnungen zurückgesetzt'))
+            logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
+        self.SetStatusText(self.translator.translate('status_attribute_applied_reimport_reset'))
 
     def event_calculate(self, event):
         # Vorgehen
@@ -272,7 +272,7 @@ class LLTFrame(wx.Frame):
         self.llt_calculator.calculate_main()
 
         # Statusleiste
-        self.SetStatusText(self.translator.translate('Berechnung durchgeführt'))
+        self.SetStatusText(self.translator.translate('calculation_Performed'))
 
     def event_quit_button(self, event):
         # del self.visum
@@ -293,8 +293,8 @@ class LLTFrame(wx.Frame):
             # Übergebe aktuelle Parameter
             self.update_param_cfl()
         else:
-            logging.warning(self.translator.translate('Umgang mit Nichtvisum Dateien ist nicht implementiert'))
-        self.SetStatusText(self.translator.translate('Daten importiert'))
+            logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
+        self.SetStatusText(self.translator.translate('data_Imported'))
 
     def event_info(self, event):
         path_scripts = Path.cwd()  # Path(self.visum.GetPath(37))
@@ -307,7 +307,7 @@ class LLTFrame(wx.Frame):
         else:
             self.llt_calculator.init_results()
 
-        self.SetStatusText(self.translator.translate('Ergebnisse gelöscht, ggf Ergebnisse neu nach Visum importieren'))
+        self.SetStatusText(self.translator.translate('status_results_deleted_may_reimport'))
 
     def event_export_results(self, event):
         if self.llt_calculator is not None:
@@ -323,7 +323,7 @@ class LLTFrame(wx.Frame):
                                            links_additive=True)
             self.llt_calculator.delete_unused_nodes()
 
-        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': Net-Datei exportiert und in Visum importiert'))
+        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_net_exported_imported'))
 
     def event_export_mtx(self, event):
         cfl_level = event.GetEventObject().cfl
@@ -331,14 +331,14 @@ class LLTFrame(wx.Frame):
         if self.llt_calculator is not None:
             self.llt_calculator.export_matrix(list_vfs=[cfl_level]) # list_vfs parameter name remains as per llt.py
 
-        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': Matrix in Visum geladen'))
+        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_matrix_loaded_into_visum'))
 
     def event_export_master(self, event):
         self.llt_calculator.export_matrix()
         self.llt_calculator.export_net(links_additive=True)
         self.llt_calculator.delete_unused_nodes()
 
-        self.SetStatusText(self.translator.translate(f'die kombinierten Ergebnisse wurden in Visum importiert'))
+        self.SetStatusText(self.translator.translate(f'status_combined_results_imported'))
 
     def event_filter(self, event):
         if self.llt_calculator is not None:
@@ -380,31 +380,31 @@ Anzahl Versorger je CFL {self.llt_calculator.num_suppliers_cfl}''')
 
         # 3. Menüleiste aktualisieren
         self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice"))
-        self.menu.FindItemById(11).SetItemLabel(self.translator.translate('Daten einlesen'))
-        self.menu.FindItemById(12).SetItemLabel(self.translator.translate('Berechnung durchführen'))
-        self.menu.FindItemById(13).SetItemLabel(self.translator.translate('Berechnungen zurücksetzen'))
-        self.menu.FindItemById(14).SetItemLabel(self.translator.translate('Defaultwerte übernehmen'))
+        self.menu.FindItemById(11).SetItemLabel(self.translator.translate('menu_import_data'))
+        self.menu.FindItemById(12).SetItemLabel(self.translator.translate('menu_calculate'))
+        self.menu.FindItemById(13).SetItemLabel(self.translator.translate('menu_reset_calculations'))
+        self.menu.FindItemById(14).SetItemLabel(self.translator.translate('menu_set_defaults'))
         self.menu.FindItemById(15).SetItemLabel(self.translator.translate('Info'))
         # Update the menu bar's overall menu label using its index (assuming it's the first menu added, index 0)
-        self.menu_bar.SetMenuLabel(0, self.translator.translate('Auswahl'))
+        self.menu_bar.SetMenuLabel(0, self.translator.translate('options_tab'))
 
 
         # 4. Toolbar aktualisieren
         self.toolbar.FindById(100).SetLabel(self.translator.translate('language_choice'))
-        self.toolbar.FindById(101).SetLabel(self.translator.translate('Daten einlesen'))
-        self.toolbar.FindById(102).SetLabel(self.translator.translate('Berechnung durchführen'))
-        self.toolbar.FindById(103).SetLabel(self.translator.translate('Berechnungen zurücksetzen'))
-        self.toolbar.FindById(104).SetLabel(self.translator.translate('Defaultwerte'))
+        self.toolbar.FindById(101).SetLabel(self.translator.translate('menu_import_data'))
+        self.toolbar.FindById(102).SetLabel(self.translator.translate('menu_calculate'))
+        self.toolbar.FindById(103).SetLabel(self.translator.translate('menu_reset_calculations'))
+        self.toolbar.FindById(104).SetLabel(self.translator.translate('default_Values_tab'))
         self.toolbar.FindById(105).SetLabel(self.translator.translate('Info'))
-        self.toolbar.FindById(106).SetLabel(self.translator.translate('Filter: eingefügte Strecken'))
-        self.toolbar.FindById(107).SetLabel(self.translator.translate('Löschen: eingefügte Strecken'))
+        self.toolbar.FindById(106).SetLabel(self.translator.translate('toolbar_filter_inserted_links'))
+        self.toolbar.FindById(107).SetLabel(self.translator.translate('toolbar_delete_inserted_links'))
 
         # 5. Unterkomponenten (Tabs) aktualisieren
         self.tabMain.refresh_gui_text()
         self.tabLog.refresh_gui_text()
 
         # Update the status text
-        self.SetStatusText(self.translator.translate('Default-Werte hergestellt'))
+        self.SetStatusText(self.translator.translate('set_defaults'))
 
         # Wichtig: Layout und Refresh erzwingen nach Textänderungen
         self.Layout()
@@ -461,20 +461,20 @@ class MainTab(wx.Panel):
         self.TopLevelParent.cb_destination = self.cb_destination
 
         # Store StaticText widgets as instance attributes
-        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('Zentralität')))
+        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting')))
         self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_cfl, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_origin = wx.StaticText(self, -1, (self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('ist Quelle')))
+        self.static_text_origin = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option')))
         self.hbox1.Add(self.static_text_origin, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_origin, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_destination = wx.StaticText(self, -1, (self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('ist Ziel')))
+        self.static_text_destination = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option')))
         self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_destination, 0, wx.ALL | wx.EXPAND, 15)
 
         # Überschrift Spalte 1
-        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('Verbindungsfunktionsstufe'))
+        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('connectivity_Function_Level_Parameter'))
         self.gridbagsizer1.Add(self.static_text_cfl_label,
                           pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
 
@@ -493,7 +493,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.button_cfl_active = self.button_cfl_active
 
         # Spalte 2 Angabe Wert je CFL
-        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('Attributwert VFS')) # Reverted to 'Attributwert VFS'
+        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
         self.gridbagsizer1.Add(self.static_text_attr_cfl,
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_cfl_value = {"VFS 0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
@@ -510,7 +510,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_cfl_value = self.buttons_cfl_value
 
         # Spalte 2 Auswahl Austauschfunktion je CFL
-        self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('Austauschfunktion')+ "\n"  + self.translator.translate('n-naechste Nachbarn')))
+        self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('interchangeFunction_Parameter')+ "\n"  + self.translator.translate('n_Nearest_Neighbour_Parameter')))
         self.gridbagsizer1.Add(self.static_text_exchange_fcn,
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
@@ -528,7 +528,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_value_k_neighbor_cfl = self.buttons_value_k_neighbor_cfl
 
         # Spalte 3 Versorgungsfunktion
-        self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('Versorgungsfunktion')+"\n"+self.translator.translate('n Versorgungszentren')))
+        self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('supply_Function_Parameter')+"\n"+self.translator.translate('n_Supply_Centers_Parameter')))
         self.gridbagsizer1.Add(self.static_text_supply_fcn,
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_value_n_supplier = {"VFS 0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
@@ -546,7 +546,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_value_n_supplier = self.buttons_value_n_supplier
 
         # Buttons Export Matrix
-        self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('anlegen in Visum als'))
+        self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('create_In_VisumAs_Option'))
         self.gridbagsizer1.Add(self.static_text_visum_as,
             pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"), # Reverted to 'VFS 0'
@@ -576,7 +576,7 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons export all
-        self.btn_export_master = wx.Button(self, -1, (self.translator.translate('Import nach Visum alle VFS') +"\n"+self.translator.translate('Strecken + Mtx'))) # Reverted to 'Import nach Visum alle VFS'
+        self.btn_export_master = wx.Button(self, -1, (self.translator.translate('import_To_Visum_All_CFL_Option') +"\n"+self.translator.translate('routes_And_Matrix_Option'))) # Reverted to 'Import nach Visum alle VFS'
         self.btn_export_master.cfl_level = 'alle'
         self.gridbagsizer1.Add(self.btn_export_master,
                           pos=(7, 4), span=(3, 2), flag=wx.EXPAND)
@@ -589,7 +589,7 @@ class MainTab(wx.Panel):
         self.cb_dist_fcn.Label = 'attr_dist_fcn'
         self.TopLevelParent.cb_dist_fcn = self.cb_dist_fcn
 
-        self.static_text_dist_fcn_label = wx.StaticText(self, -1, self.translator.translate('Funktion Distanzberechnung'))
+        self.static_text_dist_fcn_label = wx.StaticText(self, -1, self.translator.translate('distance_Calculation_Fcn_Option'))
         self.gridbagsizer1.Add(self.static_text_dist_fcn_label, pos=(8, 0), span=(1, 1),
                           flag=wx.EXPAND)
         self.gridbagsizer1.Add(self.cb_dist_fcn, pos=(8, 1), span=(1, 1), flag=wx.EXPAND)
@@ -624,15 +624,15 @@ class MainTab(wx.Panel):
         self.cb_destination.Label = self.translator.translate('attr_destination')
 
         # Update StaticText widgets
-        self.static_text_centrality.SetLabel(self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('Zentralität'))
-        self.static_text_origin.SetLabel(self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('ist Quelle'))
-        self.static_text_destination.SetLabel(self.translator.translate('Bezirksattribut')+ "\n"+self.translator.translate('ist Ziel'))
-        self.static_text_cfl_label.SetLabel(self.translator.translate('Verbindungsfunktionsstufe'))
-        self.static_text_attr_cfl.SetLabel(self.translator.translate('Attributwert VFS')) # Reverted to 'Attributwert VFS'
-        self.static_text_exchange_fcn.SetLabel(self.translator.translate('Austauschfunktion') + "\n" + self.translator.translate('n-naechste Nachbarn'))
-        self.static_text_supply_fcn.SetLabel(self.translator.translate('Versorgungsfunktion') + "\n" + self.translator.translate('n Versorgungszentren'))
-        self.static_text_visum_as.SetLabel(self.translator.translate('anlegen in Visum als'))
-        self.static_text_dist_fcn_label.SetLabel(self.translator.translate('Funktion Distanzberechnung'))
+        self.static_text_centrality.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting'))
+        self.static_text_origin.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option'))
+        self.static_text_destination.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option'))
+        self.static_text_cfl_label.SetLabel(self.translator.translate('connectivity_Function_Level_Parameter'))
+        self.static_text_attr_cfl.SetLabel(self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
+        self.static_text_exchange_fcn.SetLabel(self.translator.translate('interchangeFunction_Parameter') + "\n" + self.translator.translate('n_Nearest_Neighbour_Parameter'))
+        self.static_text_supply_fcn.SetLabel(self.translator.translate('supply_Function_Parameter') + "\n" + self.translator.translate('n_Supply_Centers_Parameter'))
+        self.static_text_visum_as.SetLabel(self.translator.translate('create_In_VisumAs_Option'))
+        self.static_text_dist_fcn_label.SetLabel(self.translator.translate('distance_Calculation_Fcn_Option'))
 
         # Update CheckBox labels (iterate over existing objects)
         for key, checkbox in self.button_cfl_active.items():
@@ -640,7 +640,7 @@ class MainTab(wx.Panel):
             checkbox.SetLabel(self.translator.translate(key))
 
         # Update master export button label
-        self.btn_export_master.SetLabel(self.translator.translate('Import nach Visum alle VFS') +"\n"+self.translator.translate('Strecken + Mtx')) # Reverted to 'Import nach Visum alle VFS'
+        self.btn_export_master.SetLabel(self.translator.translate('import_To_Visum_All_CFL_Option') +"\n"+self.translator.translate('routes_And_Matrix_Option')) # Reverted to 'Import nach Visum alle VFS'
 
         self.Layout()
         self.Refresh()
