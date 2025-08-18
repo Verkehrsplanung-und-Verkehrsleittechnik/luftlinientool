@@ -8,8 +8,8 @@ import pandas as pd
 # from tkinter import ttk
 from language_management import Translator
 
-# ===== Hilfsfkt =====
-## lädt alle Visumattribute
+# ===== Helper Functions =====
+## Loads all Visum attributes
 def get_attr_zones(Visum):
     list_attr = Visum.Net.Zones.Attributes.GetAll
     list_attr_id = [attr.ID for attr in list_attr]
@@ -17,9 +17,9 @@ def get_attr_zones(Visum):
     return list_attr_id
 
 
-# ======= Klassen ======
+# ======= Classes ======
 
-## Definiert das komplette Fenster, erzeugt die einzelnen Bestandteile und verbindet diese mit der Logik
+## Defines the complete window, creates the individual components and connects them with the logic
 class LLTFrame(wx.Frame):
     def __init__(self, translator):
         super().__init__(parent=None)
@@ -41,10 +41,10 @@ class LLTFrame(wx.Frame):
         self.attr_origin = None
         self.attr_destination = None # Renamed from attr_ziel
 
-        # Falls Visum existiert -> nichts
-        # ansonsten Fenster öffnen, mit dem Datei ausgewählt werden kann
+        # If Visum exists -> do nothing
+        # otherwise open a window to select a file
         try:
-            # testet ob die Variable Visum existiert
+            # tests if the variable Visum exists
             global Visum
             Visum
         except NameError:
@@ -91,8 +91,8 @@ class LLTFrame(wx.Frame):
 
     def __set_layout__(self):
         # Layout
-        # oben Menübar/Toolbar
-        # dann
+        # Menu bar/Toolbar at the top
+        # then
 
         # create a panel (between menubar and statusbar) ...
         self.panel = wx.Panel(self)
@@ -196,17 +196,17 @@ class LLTFrame(wx.Frame):
             selected_language = languages[dlg.GetSelection()]
 
             if selected_language != self.translator.get_selected_language():
-                # Ändere die Sprache im Translator
+                # Change the language in the translator
                 self.translator.update_selected_language(selected_language)
-                # Aktualisiere die GUI-Texte (Schritt 3)
+                # Update the GUI texts (Step 3)
                 self.refresh_gui_text()
 
-        dlg.Destroy()  # Wichtig: Zerstöre den Dialog, nachdem er geschlossen wurde.
+        dlg.Destroy()  # Important: Destroy the dialog after it has been closed.
 
 
 
     def event_set_default(self, event=None):
-        # funktionsfähig, ggf Default Attributwerte CFL ergänzen
+        # functional, may need to add default attribute values for CFL
 
         self.buttons_value_k_neighbor_cfl['VFS 0'].SetValue(self.default_k_neighbor) # Reverted to 'VFS 0'
         self.buttons_value_k_neighbor_cfl['VFS 1'].SetValue(self.default_k_neighbor)
@@ -234,7 +234,7 @@ class LLTFrame(wx.Frame):
 
         if event.GetEventObject().Label == self.translator.translate('attr_cfl'):
             self.attr_cfl = attr
-            # Anpassen Buttons Attributwerte
+            # Adjust buttons for attribute values
             self.__set_values_cfl_buttons__()
 
         elif event.GetEventObject().Label == self.translator.translate('attr_origin'):
@@ -252,27 +252,27 @@ class LLTFrame(wx.Frame):
         else:
             logging.warning(self.translator.translate('warning_should_never_happen'))
 
-        # Erstellen einer neuen Calculator Instanz
+        # Creating a new Calculator instance
         if self.visum is not None:
-            # Init Calculator Instanz
+            # Initialize Calculator instance
             self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                            no_suppliers=1, attr_orig=self.attr_origin,
                                                            attr_dest=self.attr_destination)
-            # Übergebe aktuelle Parameter
+            # Pass current parameters
             self.update_param_cfl()
         else:
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
         self.SetStatusText(self.translator.translate('status_attribute_applied_reimport_reset'))
 
     def event_calculate(self, event):
-        # Vorgehen
-        # 1. Update der vorgegebenen parameter, falls was geändert wurde
-        # 2. berechnen
+        # Procedure
+        # 1. Update the specified parameters if something has been changed
+        # 2. Calculate
         self.update_param_cfl()
-        # self.llt_calculator.init_results() # bereits in calculate fcn implementiert
+        # self.llt_calculator.init_results() # already implemented in calculate function
         self.llt_calculator.calculate_main()
 
-        # Statusleiste
+        # Status bar
         self.SetStatusText(self.translator.translate('calculation_Performed'))
 
     def event_quit_button(self, event):
@@ -283,15 +283,15 @@ class LLTFrame(wx.Frame):
         wx.GetApp().ExitMainLoop()
 
     def event_import_data(self, event):
-        # funktioniert soweit,
+        # works so far,
 
-        # Erstellen einer Calculator Instanz
+        # Creating a Calculator instance
         if self.visum is not None:
-            # Init Calculator Instanz
+            # Init Calculator instance
             self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                            no_suppliers=1, attr_orig=self.attr_origin,
                                                            attr_dest=self.attr_destination)
-            # Übergebe aktuelle Parameter
+            # Pass current parameters
             self.update_param_cfl()
         else:
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
@@ -436,16 +436,16 @@ class MainTab(wx.Panel):
         self.__bind_events__()
 
     def __set_layout__(self):
-        # Zeilen mit einzelnen Elementen (vbox_outer)
-        # Zeile 1: Bezirksattributauswahl
-        # Zeile 2: GridbagSizer mit allem auser Log
-        # unten Statusbar
+        # Rows with individual elements (vbox_outer)
+        # Row 1: District attribute selection
+        # Row 2: GridbagSizer with everything except Log
+        # Status bar at the bottom
 
         vbox_outer = wx.BoxSizer(wx.VERTICAL)
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL) # Make hbox1 an instance attribute
         self.gridbagsizer1 = wx.GridBagSizer(vgap=10, hgap=50) # Make gridbagsizer1 an instance attribute
 
-        # Auswahl Bezirksattribute
+        # Selection of district attributes
         self.cb_cfl= wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
                                  style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
         self.cb_cfl.Label = self.translator.translate('attr_cfl')
@@ -474,7 +474,7 @@ class MainTab(wx.Panel):
         self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_destination, 0, wx.ALL | wx.EXPAND, 15)
 
-        # Überschrift Spalte 1
+        # Header Column 1
         self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('connectivity_Function_Level_Parameter'))
         self.gridbagsizer1.Add(self.static_text_cfl_label,
                           pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
@@ -493,7 +493,7 @@ class MainTab(wx.Panel):
 
         self.TopLevelParent.button_cfl_active = self.button_cfl_active
 
-        # Spalte 2 Angabe Wert je CFL
+        # Column 2 Value specification per CFL
         self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
         self.gridbagsizer1.Add(self.static_text_attr_cfl,
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
@@ -510,7 +510,7 @@ class MainTab(wx.Panel):
 
         self.TopLevelParent.buttons_cfl_value = self.buttons_cfl_value
 
-        # Spalte 2 Auswahl Austauschfunktion je CFL
+        # Column 2 Selection of exchange function per CFL
         self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('interchangeFunction_Parameter')+ "\n"  + self.translator.translate('n_Nearest_Neighbour_Parameter')))
         self.gridbagsizer1.Add(self.static_text_exchange_fcn,
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
@@ -528,7 +528,7 @@ class MainTab(wx.Panel):
 
         self.TopLevelParent.buttons_value_k_neighbor_cfl = self.buttons_value_k_neighbor_cfl
 
-        # Spalte 3 Versorgungsfunktion
+        # Column 3 Supply function
         self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('supply_Function_Parameter')+"\n"+self.translator.translate('n_Supply_Centers_Parameter')))
         self.gridbagsizer1.Add(self.static_text_supply_fcn,
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
@@ -546,7 +546,7 @@ class MainTab(wx.Panel):
 
         self.TopLevelParent.buttons_value_n_supplier = self.buttons_value_n_supplier
 
-        # Buttons Export Matrix
+        # Export Matrix Buttons
         self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('create_In_VisumAs_Option'))
         self.gridbagsizer1.Add(self.static_text_visum_as,
             pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
@@ -733,6 +733,7 @@ class WxTextCtrlHandler(logging.Handler):
 class HelpPopUp(wx.Frame):
     ## @brief Initializes the documentation popup.
     #  @param parent The parent wx object.
+    #  @param language The language setting for the documentation.
     #  @param file_dir The directory containing the documentation files.
     def __init__(self, parent, language, file_dir: Path):
         super(HelpPopUp, self).__init__(parent, title="Help", size=(900, 900))
@@ -796,17 +797,17 @@ class HelpPopUp(wx.Frame):
             with open(md_file, "r", encoding="utf-8") as f:
                 md_content = f.read()
 
-            # Setze das Bildverzeichnis korrekt für WebView
+            # Set the image directory correctly for WebView
             image_dir = base_dir / "pictures"
             md_content = md_content.replace("](pictures/", f"](file:///{image_dir.resolve().as_posix()}/")
 
             # Convert Markdown to HTML with extra features enabled
             html_content = markdown.markdown(md_content, extensions=[
-                "extra",  # Fügt Unterstützung für Listen, Tabellen und mehr hinzu
-                "admonition",  # Ermöglicht erweiterte Blöcke wie Notizen oder Warnungen
-                "tables",  # Unterstützt Markdown-Tabellen
-                "fenced_code",  # Erlaubt ```python``` Codeblöcke
-                "toc"  # Erzeugt ein automatisches Inhaltsverzeichnis
+                "extra",  # Adds support for lists, tables, and more
+                "admonition",  # Enables advanced blocks like notes or warnings
+                "tables",  # Supports Markdown tables
+                "fenced_code",  # Allows ```python``` code blocks
+                "toc"  # Generates an automatic table of contents
             ])
 
             # Inject MathJax for LaTeX support

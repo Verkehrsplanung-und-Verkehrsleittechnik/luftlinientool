@@ -1,6 +1,6 @@
 ## @package luftlinientool.py
-# @brief Enthält allgemeine Methoden und die Klasse LuftlinienCalculator zur Berechnung von Luftlinienverbindungen unter
-# Berücksichtigung der Zentralitäten von Bezirken
+# @brief Contains general methods and the LuftlinienCalculator class for calculating air-line connections
+# considering the centrality of districts
 
 import pandas as pd
 import logging
@@ -12,65 +12,65 @@ import win32com.client as com
 import webbrowser
 
 
-# todo update nach Änderung sofort in GUI Event, hier nicht nochmaliges Update
+# todo update immediately in GUI event after change, no repeated update here
 
-# ====== allgemeine, nützliche FUnktionen =====
+# ====== general, useful functions =====
 
-## Öffnet eine Visuminstanz falls nicht bereits offen
-# ermöglicht simultanes Aufrufen der Datei Visumintern und -extern
-# @param path: Dateipfad (Path/str) einer Visumversionsdatei
-# @param version: Visumversion, default 22
-# @return: Visuminstanz
+## Opens a Visum instance if not already open
+# Enables simultaneous calling of the file internally and externally in Visum
+# @param path Path (Path/str) to a Visum version file
+# @param version Visum version, default 240
+# @return Visum instance
 def open_visum(path, version=240):
     try:
-        # testet ob die Variable Visum existiert
+        # tests if the variable Visum exists
         global Visum
         Visum
         name = Visum.UserPreferences.DocumentName
     except NameError:
-        # falls nicht - Öffne eine Visuminstanz
-        logging.info('Initialisiere Visum Instanz')
+        # if not - open a Visum instance
+        logging.info('Initializing Visum instance')
         Visum = com.Dispatch(f"Visum.Visum.{version}")
-        logging.info(f'Öffnen von Versionsdatei: {path}')
+        logging.info(f'Opening version file: {path}')
         Visum.LoadVersion(path)
-        logging.info('Versionsdatei erfolgreich geladen')
+        logging.info('Version file successfully loaded')
     return Visum
 
 
-## Exportiert die Daten eines Visumobjekttyps in Netzdateiformat
-# @param[in] object: Visumobjekttyp (Singular), z.B. 'link'
-# @param[in] df_object_attributes_to_write: Datentabelle des Objekts. Tabelle enthält nur Attribute, die in Visum
-# importiert werden können (insbesondere die notwendigen Attribute)
-# @param[in] file: Zieldatei, im Schreib- oder Erweiterungsmodus (w oder a)
+## Exports the data of a Visum object type in network file format
+# @param[in] object Visum object type (singular), e.g. 'link'
+# @param[in] df_object_attributes_to_write Data table of the object. Table contains only attributes that can be
+# imported into Visum (especially the necessary attributes)
+# @param[in] file Target file, in write or append mode (w or a)
 def write_object_to_net(object, df_object_attributes_to_write, file):
     header = ["*", "*"]
     header.insert(1, "* Table: " + object + "s")
     header.append(
         ("$" + object.upper().replace(" ", "") + ":" + ";".join(df_object_attributes_to_write.columns)).upper() + "\n")
 
-    # Header wird geschrieben
+    # Header is written
     file.write("\n".join(header))
-    # Tabelle wird geschrieben
+    # Table is written
     df_object_attributes_to_write.to_csv(file, header=False, sep=";", index=False)
 
 
-## Überprüft eine Matrif auf Symmetrie
-# @param[in] matrix: Matrix, die auf Symmetrie getestet werden soll
-# @param[in] tol: Toleranz für erlaubte Abweichung, default 1e-8
-# @return: True oder False
+## Checks a matrix for symmetry
+# @param[in] matrix Matrix to be tested for symmetry
+# @param[in] tol Tolerance for allowed deviation, default 1e-8
+# @return True or False
 def is_symmetric(matrix, tol=1e-8):
-    # Anwendung der Maximums-Norm für die Diff zwischen der Matrix und der Transponierten
-    # Norm > 0 -> keine Symmetrie
+    # Application of the maximum norm for the difference between the matrix and its transpose
+    # Norm > 0 -> no symmetry
     return np.linalg.norm(matrix.astype(int) - matrix.T.astype(int), np.inf) < tol
 
 
-## Berechnung der Distanz zwischen Koordinaten (Lat, Lon)
-# Implementation der Haversine Formel
-# @param[in] x1: x-Koordinate Punkt 1
-# @param[in] y1: y-Koordinate Punkt 1
-# @param[in] vec_x2: x-Koordinate Punktevektor
-# @param[in] vec_y2: y-Koordinate Punktevektor
-# @return Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1
+## Calculation of the distance between coordinates (Lat, Lon)
+# Implementation of the Haversine formula
+# @param[in] x1 x-coordinate of point 1
+# @param[in] y1 y-coordinate of point 1
+# @param[in] vec_x2 x-coordinate vector of points
+# @param[in] vec_y2 y-coordinate vector of points
+# @return Vector with distances of all points in the point vector to point 1
 def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
     # approximate radius of earth in km
     R = 6373.0
@@ -80,7 +80,7 @@ def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
     vec_lat2 = np.radians(vec_y2)
     vec_lon2 = np.radians(vec_x2)
 
-    # todo Fallunterscheidung für negative Koordinaten
+    # todo Case distinction for negative coordinates
     diff_lon = vec_lon2 - lon1
     diff_lat = vec_lat2 - lat1
 
@@ -91,39 +91,40 @@ def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
     return distances_km
 
 
-## Berechnung der Distanz zwischen Koordinaten (x, y)
-# Euklidische Distanzberechnung!
-# @param[in] x1: x-Koordinate Punkt 1
-# @param[in] y1: y-Koordinate Punkt 1
-# @param[in] vec_x2: x-Koordinate Punktevektor
-# @param[in] vec_y2: y-Koordinate Punktevektor
-# @return Vektor mit den Distanzen aller Punkte des Punktevektors zu Punkt 1
+## Calculation of the distance between coordinates (x, y)
+# Euclidean distance calculation!
+# @param[in] x1 x-coordinate of point 1
+# @param[in] y1 y-coordinate of point 1
+# @param[in] vec_x2 x-coordinate vector of points
+# @param[in] vec_y2 y-coordinate vector of points
+# @return Vector with distances of all points in the point vector to point 1
 def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
     diff_x = vec_x2 - x1
     diff_y = vec_y2 - y1
 
-    # todo Fallunterscheidung für negative Koordinaten
+    # todo Case distinction for negative coordinates
 
     distances = np.sqrt(np.square(diff_x) + np.square(diff_y))
 
     return distances
 
 
-## Identifiziert die nächsten n Punkte aus einer gegebenen Punktemenge zu einem einzelnen Punkt.
-# Zuerst werden die Distanzen aller Punkte zu dem einzelnen Punkt berechnet.
-# Anschließend werden die n am kürzesten entfernten Punkte gefiltert und deren Indizes zurückgegeben
-# @param[in] x_point: x-Koordinate des Referenzpunktes
-# @param[in] y_point: y-Koordinate des Referenzpunktes
-# @param[in] array_points: Array mit den x- & y-Koordinaten der Punkte
-# @param[in] n: gewünschte Punkteanzahl
-# @return list_indizes: Liste der Indizes der nächstgelegenen n Punkte
+## Identifies the nearest n points from a given set of points to a single point.
+# First, the distances of all points to the single point are calculated.
+# Then, the n closest points are filtered and their indices are returned
+# @param[in] x_point x-coordinate of the reference point
+# @param[in] y_point y-coordinate of the reference point
+# @param[in] array_points Array with the x & y coordinates of the points
+# @param[in] formula Distance formula to use ("haversine" or "euclidean")
+# @param[in] n Desired number of points
+# @return list_indizes List of indices of the n nearest points
 def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None):
-    # Falls keine Auswahl existiert
+    # If no selection exists
     if (n is not None) and (n >= len(array_points)):
-        # es werden alle möglichen Punkte zurückgegeben
+        # all possible points are returned
         return list(range(0, len(array_points)))
 
-    # Berechne Entfernungen
+    # Calculate distances
     if formula == "haversine":
         distances = calculate_distance_coordinates_haversine(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
                                                              vec_y2=array_points[:, 1])
@@ -131,37 +132,38 @@ def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None)
         distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
                                                         vec_y2=array_points[:, 1])
     else:
-        logging.warning("Fall Abstandsberechnung ist nicht implementiert")
+        logging.warning("Distance calculation case is not implemented")
 
-    # Index der n niedrigsten Werte
+    # Index of the n lowest values
     list_indizes = np.argpartition(distances, n)[:n]
 
     return list_indizes
 
 
-## Öffnet die Readme Datei
+## Opens the Readme file
+# @param path_scripts The directory path where the README.md file is located. Default: Current working directory.
 def show_info(path_scripts: Path = Path.cwd()):
     webbrowser.open(str(path_scripts / "README.md"), new=2)
 
 
-# ===== Klassendefinition ======
+# ===== Class definition ======
 ## @class LuftlinienCalculator
-# Die Klasse enthält Attribute und Berechnungsmöglichkeiten um die VFS zwischen Bezirken zu ermitteln
+# The class contains attributes and calculation methods to determine the VFS between districts
 class LuftlinienCalculator:
 
-    ## Konstruktor
-    # @param source: Dateiname (str) oder Visuminstanz
-    # @param attr_cfl: Name des Bezirkattributs, das die Kategorisierung in OZ,MZ,UZ ... enthält. Default: TypeNr
-    # @param dict_vfs: Dictionary, das die Attributwerte für die jeweiligen VFS enthält
-    # @param max_entfernung: Angabe, bis zu welcher Entfernung, Nachbar angebunden werden
-    # @param anz_versorger: Angabe, an wie viele höherrangige Zentren ein Bezirk angebunden werden soll
-    # @param attr_origin: Name des Attributs, das angibt, ob der Bezirk als Quelle berücksichtigt wird. Default: None
-    # @param attr_ziel: Name des Attributs, das angibt, ob der Bezirk als Ziel berücksichtigt wird. Default: None
-    # @param use_filter: gibt an, ob nur aktive Bezirke berücksichtigt werden. Kann nur verwendet werden, wenn source = Visuminstanz
-    # @param formula_distance: definiert die Distanzfunktion für die Ermittlung der Versorgungszentren.
-    # Anmerkung: Für die Triangulation werden die Luftlinienverbindungen anhand der euklidischen Distanz ermittelt.
-    # Delaunay-Triangulation funktioniert nur bei einer Projektion der Lat/Lon Koordinaten.
-    # @param path_output: optionale Möglichkeit einen Pfad für den Dateiexport anzugeben. Default: None. Dann wird bei bedarf der aktuelle Ordner verwendet.
+    ## Constructor
+    # @param source Filename (str) or Visum instance
+    # @param attr_cfl Name of the district attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo
+    # @param dict_cfl Dictionary containing the attribute values for the respective VFS
+    # @param max_distance Specification of the distance up to which neighbors will be connected
+    # @param no_suppliers Specification of how many higher-ranking centers a district should be connected to
+    # @param attr_orig Name of the attribute that indicates whether the district is considered as a source. Default: None
+    # @param attr_dest Name of the attribute that indicates whether the district is considered as a destination. Default: None
+    # @param use_filter Indicates whether only active districts are considered. Can only be used if source = Visum instance
+    # @param formula_distance Defines the distance function for determining the supply centers.
+    # Note: For triangulation, the air-line connections are determined using the Euclidean distance.
+    # Delaunay triangulation only works with a projection of Lat/Lon coordinates.
+    # @param path_output Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed.
     def __init__(self, source,
                  attr_cfl: str = "TypeNo",
                  dict_cfl: dict = {"VFS 0": 0, "VFS 1": 1, "VFS 2": 2, "VFS 3": 3, "VFS 4": 4, "VFS 5": 5},
@@ -173,15 +175,15 @@ class LuftlinienCalculator:
                  formula_distance: str = "euclidean",
                  path_output=None):
 
-        ## Flag Debugmodus. Ermöglicht die Durchführung von Zwischenanalysen, die im normalen Programmablauf nicht berücksichtigt werden
+        ## Debug mode flag. Enables the execution of intermediate analyses that are not considered in the normal program flow
         self.debug_mode = False
 
-        # Benötigte Bezirksattribute
-        # verarbeiten der Übergabeparameter
+        # Required district attributes
+        # Processing the input parameters
 
-        ## relevante Bezirksattribute
+        ## Relevant district attributes
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
-        ## Attribut Zentralität
+        ## Centrality attribute
         self.attr_central_level = attr_cfl
         self.attr_zones.append(self.attr_central_level)
         if attr_orig is not None:
@@ -189,56 +191,56 @@ class LuftlinienCalculator:
         if attr_dest is not None:
             self.attr_zones.append(attr_dest)
 
-        ## Rückgabeverzeichnis
+        ## Output directory
         self.path_output = path_output
 
-        ## Liste der VFS, die bearbeitet werden sollen
+        ## List of VFS to be processed
         self.cfl = dict_cfl
 
-        ## Abstandsberechnung
+        ## Distance calculation
         self.formula_dist = formula_distance
 
-        ##  Vorgabe, bis zu welchem Nachbarschaftsgrad gleichrangige Verbindungen verfolgt werden sollen
-        # (ehemals Austauschfkt)
+        ## Specification of the neighborhood degree to which equal-ranking connections should be followed
+        # (formerly exchange function)
         self.nachbarschaftsgrad_vfs = dict()
-        ## Vorgabe, wie viele (höherrangige) Versorger verbunden werden sollen
+        ## Specification of how many (higher-ranking) suppliers should be connected
         self.anz_versorger_vfs = dict()
 
-        # Ziel: dict mit VFS: Wert
+        # Goal: dict with VFS: value
         if isinstance(max_distance, int):
-            # Umwandlung in dict mit Skalar je VFS
+            # Conversion to dict with scalar for each VFS
             self.nachbarschaftsgrad_vfs = dict(zip(dict_cfl.keys(), max_distance * np.ones(len(dict_cfl), dtype=int)))
         elif isinstance(max_distance, dict):
             self.nachbarschaftsgrad_vfs = max_distance
         else:
-            raise TypeError("Type Übergabeparameter nicht implementiert")
+            raise TypeError("Parameter type not implemented")
 
-        # Ziel: dict mit VFS: Wert
+        # Goal: dict with VFS: value
         if isinstance(no_suppliers, int):
-            # Umwandlung in dict mit Skalar je VFS
+            # Conversion to dict with scalar for each VFS
             self.anz_versorger_vfs = dict(
                 zip(dict_cfl.keys(), no_suppliers * np.ones(len(dict_cfl), dtype=int)))
         elif isinstance(no_suppliers, dict):
             self.anz_versorger_vfs = no_suppliers
         else:
-            raise TypeError("Type Übergabeparameter nicht implementiert")
+            raise TypeError("Parameter type not implemented")
 
-        # Einlesen der Bezirksdaten
-        # Wichtig: Index der Tabelle = 0...n
+        # Reading the district data
+        # Important: Index of the table = 0...n
         if not isinstance(source, str):
-            ## Visuminstanz
+            ## Visum instance
             self.visum = source
             attr_zones = self.attr_zones
-            ## Tabelle mit den Bezirksdaten
+            ## Table with district data
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
             set_active_zones = set(np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=use_filter), dtype=int)[:, 1])
             self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
 
-            logging.info("%s Bezirke eingelesen", len(self.zones))
+            logging.info("%s districts loaded", len(self.zones))
         else:
             self.visum = None
-            logging.warning("Einlesen der Bezirksdaten ist fehlgeschlagen, Inputformat ist nicht implementiert")
+            logging.warning("Loading district data failed, input format is not implemented")
 
         if attr_orig is None:
             attr_orig = 'quelle'
@@ -248,31 +250,31 @@ class LuftlinienCalculator:
             attr_dest = 'ziel'
             self.zones[attr_dest] = 1
 
-        # Abfangen attr_ziel=attr_origin: Lösche Spaltenduplikat
+        # Handle attr_dest=attr_origin: Delete column duplicate
         if attr_dest == attr_orig:
             self.zones = self.zones.loc[:, ~self.zones.columns.duplicated()]
 
-        ## Attribut Quellfilter
+        ## Source filter attribute
         self.attr_is_from_zone = attr_orig
-        ## Attribut Zielfilter
+        ## Destination filter attribute
         self.attr_is_to_zone = attr_dest
 
-        # Init VFS Matrizen
-        # Dict mit Matrix je VFS: Anzahl Bezirke x Anzahl Bezirke
+        # Init VFS matrices
+        # Dict with matrix per VFS: Number of districts x Number of districts
         self.init_results()
 
-        ## Eingestellte Sprache Visuminstanz
+        ## Set language of Visum instance
         self.language = self.visum.GetCurrentLanguage()
 
         # Init dict export
-        ## LookupTable Infrastruktur: Dem Bezirk zugeordnete Knotennummer
-        self.dict_export_zone2node = {} # Enthält Nummer der Knoten, die für den Bezirk eingefügt werden, um Strecken einfügen zu können
-        ## LookUpTable Infrastruktur: Zuordnung interne Streckennummer zu Streckennummer Visum
-        self.dict_export_links_vfs = {} # Enthält die Strecken (VonKnoten-ZuKnoten
-        ## LookUpTable Infrastruktur: Zuordnung Verbingungsfunktionsstufe - Streckentyp Visum
+        ## LookupTable Infrastructure: Node number assigned to the district
+        self.dict_export_zone2node = {} # Contains the number of nodes that are inserted for the district to be able to insert links
+        ## LookUpTable Infrastructure: Mapping internal link number to Visum link number
+        self.dict_export_links_vfs = {} # Contains the links (FromNode-ToNode)
+        ## LookUpTable Infrastructure: Mapping connection function level - Visum link type
         self.dict_export_linktypes = {}
 
-        ## DataFrame mit den Streckendaten der Luftlinienverbindungen.
+        ## DataFrame with the link data of the air-line connections.
         self.edges = pd.DataFrame()
 
 
@@ -779,7 +781,7 @@ class LuftlinienCalculator:
             list_ivtsys_net = tsys_net[tsys_net['TYPE'] != 'PUT']["CODE"].to_list()
             df_conn["TSYSSET"] = ",".join(list_ivtsys_net)
 
-        # Schreibe .net Datei
+        # Write .net file
         with open(path_net, mode="w", newline="\n") as f:
             header = '''$VISION
 * Universität Stuttgart Fakultät 2 Bau+Umweltingenieurwissenschaften Stuttgart
@@ -797,12 +799,12 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             write_object_to_net("Link type", df_linktypes, f)
             write_object_to_net("Link", df_edges[["No", "FromNodeNo", "ToNodeNo", "TypeNo", "Name"]], f)
             if create_connectors:
-                # Schreibe Tabelle: Connectors in die Net-Datei
+                # Write table: Connectors to the net file
                 write_object_to_net("Connector", df_conn, f)
 
-        # Falls Visuminstanz übergeben: lade die .net Datei
+        # If Visum instance is provided: load the .net file
         if self.visum is not None:
-            # Konfliktmanagement
+            # Conflict management
             controller = self.visum.IO.CreateAddNetReadController()
 
             if links_additive is not True:
@@ -811,15 +813,16 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
             self.visum.IO.LoadNet(path_net, ReadAdditive=True)
 
             if self.visum.Net.Links.Count < len(df_edges):
-                logging.warning("Fehler beim Import der Netzdatei")
+                logging.warning("Error importing the network file")
 
-        logging.info(f"die Netzdatei von {len(list_vfs)} VFS wurde nach Visum exportiert")
+        logging.info(f"The network file of {len(list_vfs)} VFS has been exported to Visum")
 
 
-    ## Exportiert die Verbindungen sowie die Anzahl der Verbindungen als Bezirk UDAs nach Visum
-    #  @return Keine Rückgabe. Die Visuminstanz wird verändert.
+    ## Exports the connections and the number of connections as district UDAs to Visum
+    #  @param vfs The VFS (connection function level) for which the connections should be exported
+    #  @return No return value. The Visum instance is modified.
     def export_zones_uda_connections(self, vfs):
-        # Erstelle UDA wenn nicht vorhanden
+        # Create UDA if not exists
 
         str_no_conn = f"RIN_Anz_Verbindungen_{vfs}".replace(" ", "")
         str_conn = f"RIN_Verbindungen_{vfs}".replace(" ", "")
@@ -834,12 +837,12 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
         except:
             pass
 
-        # Lade Verbindungen
+        # Load connections
         df_zones = self.adj_matrix_to_set_of_connected_zones(vfs).reset_index()
         df_zones["No"] = df_zones.Name.replace(self.zones.set_index("Name")["No"].astype(int).to_dict())
         df_zones.set_index("No", inplace=True)
 
-        # Schreibe das Ergebnis nach Visum
+        # Write the result to Visum
         df_format = pd.DataFrame(self.visum.Net.Zones.GetMultiAttValues("No"), columns=["Idx", "No"]).set_index("No")
 
         df_format = df_format.join(df_zones)
@@ -849,27 +852,28 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
         self.visum.Net.Zones.SetMultiAttValues(str_conn, df_format.loc[:, ["Idx", str_conn]].values)
 
 
-    ## Initialisiert die Adjazenzmatrizen
-    #  @return Keine Rückgabe. Die Ergebnisse werden intern gespeichert.
+    ## Initializes the adjacency matrices
+    #  @return No return value. The results are stored internally.
     def init_results(self):
         dict_vfs = {}
         for vfs in self.cfl:
             dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
-        ## Dict mit den resultierenden Adjazenzmatrizen der Verbindungsfunktionsstufen
+        ## Dictionary with the resulting adjacency matrices of the connection function levels
         self.matrizen_VFS = dict_vfs
 
 
-    ## Filtert die Strecken der eingefügten Streckentypen in Visum.
-    #  @return Keine Rückgabe. Die Visuminstanz wird verändert.
+    ## Filters the links of the inserted link types in Visum.
+    #  @return No return value. The Visum instance is modified.
     def filter_links_vfs(self):
         filter = self.visum.Filters.LinkFilter()
         filter.Init()
         filter.AddCondition("OP_NONE", False, "TypeNo", "ContainedIn", ",".join(str(x) for x in self.dict_export_linktypes.values()))
         filter.UseFilter = True
 
-    ## Filtert die Bezirke, für die das gegebene Attribut größer 0 ist.
-    #  @return Keine Rückgabe. Die Visuminstanz wird verändert.
+    ## Filters the districts for which the given attribute is greater than 0.
+    #  @param filterFromZones Boolean flag to determine whether to filter source zones (True) or destination zones (False). Default: True
+    #  @return No return value. The Visum instance is modified.
     def filter_zones_source_targets(self, filterFromZones: bool = True):
         filter = self.visum.Filters.ZoneFilter()
         filter.Init()
@@ -882,12 +886,10 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
         filter.UseFilter = True
 
-    ## Löscht die Strecken der VFS.
-    #  @return Keine Rückgabe. Die Visuminstanz wird verändert.
+    ## Deletes the links of the VFS.
+    #  @return No return value. The Visum instance is modified.
     def delete_added_links(self):
-        # Achtung: Löscht Streckentypen NICHT
+        # Attention: Does NOT delete link types
         self.filter_links_vfs()
         self.visum.Net.Links.RemoveAll(OnlyActive=True)
         self.visum.Filters.LinkFilter().Init()
-
-
