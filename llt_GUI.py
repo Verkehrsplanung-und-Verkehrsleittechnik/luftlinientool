@@ -1,3 +1,4 @@
+import markdown
 import wx
 import luftlinientool as llt
 from pathlib import Path
@@ -721,6 +722,149 @@ class WxTextCtrlHandler(logging.Handler):
     def emit(self, record):
         s = self.format(record) + '\n'
         wx.CallAfter(self.ctrl.WriteText, s)
+
+
+## @class HelpPopUp
+#  @brief A popup window for displaying documentation pages.
+#
+#  The `HelpPopUp` class creates a wxPython-based window that embeds multiple documentation
+#  pages in a tabbed interface using `wx.Notebook` and `wx.html2.WebView`. It supports Markdown (`.md`) files
+#  by converting them to HTML before rendering.
+class HelpPopUp(wx.Frame):
+    ## @brief Initializes the documentation popup.
+    #  @param parent The parent wx object.
+    #  @param file_dir The directory containing the documentation files.
+    def __init__(self, parent, language, file_dir: Path):
+        super(HelpPopUp, self).__init__(parent, title="Help", size=(900, 900))
+
+        ## @var notebook
+        #  A wx.Notebook widget containing different documentation tabs.
+        notebook = wx.Notebook(self)
+
+        ## @var dict_docu
+        #  A dictionary mapping tab names to documentation file paths.
+        dict_docu = {
+            "Anwendung Clustertool GUI ": file_dir / "Anwendung_GUI.md",
+            "Grundlagen Clusteranalyse": file_dir / "Grundlagen_Clusteranalyse.html",
+            "documentation Code": file_dir / "doxygen" / "html" / "index.html"
+        }
+
+        # Create tabs with embedded WebView for each documentation page
+        for page_name, file_path in dict_docu.items():
+            panel = wx.Panel(notebook)
+            sizer = wx.BoxSizer(wx.VERTICAL)
+
+            ## @var html_view
+            #  A WebView widget to render the documentation content.
+            html_view = wx.html2.WebView.New(panel, backend=wx.html2.WebViewBackendEdge)
+
+            # Convert Markdown to HTML dynamically (no file is saved)
+            if file_path.suffix == ".md":
+                html_content = self._convert_md_to_html(file_path, file_dir)
+                html_view.SetPage(html_content, "")
+            elif file_path.suffix == ".html":
+                if file_path.exists():
+                    wx.CallAfter(html_view.LoadURL, str(file_path.resolve()))
+                else:
+                    html_view.SetPage(f"<h3>Error: File {file_path.name} not found!</h3>", "")
+            else:
+                html_view.SetPage("<h3>Error: Unsupported file format.</h3>", "")
+
+            sizer.Add(html_view, 1, wx.EXPAND | wx.ALL, 5)
+            panel.SetSizer(sizer)
+
+            # Add the panel as a new tab
+            notebook.AddPage(panel, page_name)
+
+        ## @var main_sizer
+        #  The main layout container for the popup window.
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        main_sizer.Add(notebook, 1, wx.EXPAND)
+        self.SetSizer(main_sizer)
+        self.Show()
+
+    ## @brief Converts a Markdown file to an HTML string and updates image paths.
+    #  @param md_file The path to the Markdown file.
+    #  @param base_dir The base directory where the images are stored.
+    #  @return An HTML string with proper formatting.
+    def _convert_md_to_html(self, md_file: Path, base_dir: Path) -> str:
+        """Converts a Markdown file to an HTML string for rendering in WebView."""
+        if not md_file.exists():
+            return "<h3>Error: Markdown file not found.</h3>"
+
+        try:
+            with open(md_file, "r", encoding="utf-8") as f:
+                md_content = f.read()
+
+            # Setze das Bildverzeichnis korrekt für WebView
+            image_dir = base_dir / "pictures"
+            md_content = md_content.replace("](pictures/", f"](file:///{image_dir.resolve().as_posix()}/")
+
+            # Convert Markdown to HTML with extra features enabled
+            html_content = markdown.markdown(md_content, extensions=[
+                "extra",  # Fügt Unterstützung für Listen, Tabellen und mehr hinzu
+                "admonition",  # Ermöglicht erweiterte Blöcke wie Notizen oder Warnungen
+                "tables",  # Unterstützt Markdown-Tabellen
+                "fenced_code",  # Erlaubt ```python``` Codeblöcke
+                "toc"  # Erzeugt ein automatisches Inhaltsverzeichnis
+            ])
+
+            # Inject MathJax for LaTeX support
+            html_output = f"""
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>{md_file.stem}</title>
+                <script type="text/javascript" async
+                  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+                </script>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                        padding: 20px;
+                        line-height: 1.6;
+                    }}
+                    h1, h2, h3 {{
+                        color: #333;
+                    }}
+                    pre {{
+                        background: #f4f4f4;
+                        padding: 10px;
+                        border-radius: 5px;
+                        overflow-x: auto;
+                    }}
+                    img {{
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        margin: 10px 0;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 10px 0;
+                    }}
+                    th, td {{
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }}
+                    th {{
+                        background-color: #f4f4f4;
+                    }}
+                </style>
+            </head>
+            <body>
+                {html_content}
+            </body>
+            </html>
+            """
+
+            return html_output
+        except Exception as e:
+            print(f"Error converting Markdown to HTML: {e}")
+            return "<h3>Error: Markdown processing failed.</h3>"
 
 
 if __name__ == '__main__':
