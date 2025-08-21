@@ -551,6 +551,10 @@ class LuftlinienCalculator:
         logging.info(f"Beginne mit Export von {len(list_vfs)} Matrizen")
 
         for vfs in list_vfs:
+            if vfs not in self.matrizen_VFS.keys():
+                logging.warning(f"Fehler: {vfs} ist nicht in der Liste der berechneten VFS")
+                continue
+
             matrix_vfs = self.matrizen_VFS[vfs]
             # Benennung in der Matrix in Visum bzw. Datei
             if self.anz_versorger_vfs[vfs] < 1:
@@ -620,6 +624,7 @@ class LuftlinienCalculator:
                     # Suche existierende Matrizen mit der Benennung
                     matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
                     if matrix_instances.Count < 1:
+                        del matrix_instances
                         # Erstelle Matrix
                         matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                         matrix_instance.SetAttValue("CODE", name_matrix)
