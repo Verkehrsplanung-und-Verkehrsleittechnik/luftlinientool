@@ -1,5 +1,6 @@
 import markdown
 import wx
+import wx.html2
 import luftlinientool as llt
 from pathlib import Path
 import logging
@@ -297,10 +298,13 @@ class LLTFrame(wx.Frame):
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
         self.SetStatusText(self.translator.translate('data_Imported'))
 
+    ## @brief Event handler for the Info button.
+    #  @param event The event object.
     def event_info(self, event):
-        path_scripts = Path.cwd()  # Path(self.visum.GetPath(37))
+        path_scripts = Path.cwd() # Path(self.visum.GetPath(37))
         logging.info(path_scripts)
-        llt.show_info(path_scripts)
+        # Update this line to instantiate HelpPopUp directly and pass the translator.
+        HelpPopUp(self, self.translator, path_scripts)
 
     def event_reset(self, event):
         if self.llt_calculator is None:
@@ -733,21 +737,27 @@ class WxTextCtrlHandler(logging.Handler):
 class HelpPopUp(wx.Frame):
     ## @brief Initializes the documentation popup.
     #  @param parent The parent wx object.
-    #  @param language The language setting for the documentation.
+    #  @param translator The translator object to determine the language.
     #  @param file_dir The directory containing the documentation files.
-    def __init__(self, parent, language, file_dir: Path):
+    def __init__(self, parent, translator, file_dir: Path):
         super(HelpPopUp, self).__init__(parent, title="Help", size=(900, 900))
 
         ## @var notebook
         #  A wx.Notebook widget containing different documentation tabs.
         notebook = wx.Notebook(self)
 
+        # Get the selected language from the translator
+        selected_language = translator.get_selected_language()
+
+        # Determine the correct documentation subdirectory based on the language
+        doc_dir = file_dir / "documentation" / selected_language
+
         ## @var dict_docu
-        #  A dictionary mapping tab names to documentation file paths.
+        #  A dictionary mapping tab names to documentation file paths based on the selected language.
         dict_docu = {
-            "Anwendung Clustertool GUI ": file_dir / "Anwendung_GUI.md",
-            "Grundlagen Clusteranalyse": file_dir / "Grundlagen_Clusteranalyse.html",
-            "documentation Code": file_dir / "doxygen" / "html" / "index.html"
+            translator.translate('application_cluster_tool_gui'): doc_dir / "Anwendung_GUI.md",
+            translator.translate('basics_cluster_analysis'): doc_dir / "Grundlagen_Clusteranalyse.html",
+            translator.translate('documentation_code'): doc_dir / "doxygen" / "html" / "index.html"
         }
 
         # Create tabs with embedded WebView for each documentation page
@@ -757,7 +767,7 @@ class HelpPopUp(wx.Frame):
 
             ## @var html_view
             #  A WebView widget to render the documentation content.
-            html_view = wx.html2.WebView.New(panel, backend=wx.html2.WebViewBackendEdge)
+            html_view =wx.html2.WebView.New(panel)
 
             # Convert Markdown to HTML dynamically (no file is saved)
             if file_path.suffix == ".md":
@@ -765,6 +775,7 @@ class HelpPopUp(wx.Frame):
                 html_view.SetPage(html_content, "")
             elif file_path.suffix == ".html":
                 if file_path.exists():
+                    # Load URL correctly for local files
                     wx.CallAfter(html_view.LoadURL, str(file_path.resolve()))
                 else:
                     html_view.SetPage(f"<h3>Error: File {file_path.name} not found!</h3>", "")
