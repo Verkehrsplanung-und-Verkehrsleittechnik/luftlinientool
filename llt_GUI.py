@@ -258,7 +258,7 @@ class LLTFrame(wx.Frame):
             # Initialize Calculator instance
             self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                            no_suppliers=1, attr_orig=self.attr_origin,
-                                                           attr_dest=self.attr_destination)
+                                                           attr_dest=self.attr_destination,translator=self.translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
@@ -291,7 +291,7 @@ class LLTFrame(wx.Frame):
             # Init Calculator instance
             self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                            no_suppliers=1, attr_orig=self.attr_origin,
-                                                           attr_dest=self.attr_destination)
+                                                           attr_dest=self.attr_destination,translator=self.translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
@@ -366,13 +366,21 @@ class LLTFrame(wx.Frame):
             self.llt_calculator.cfl = dict_cfl_values
             self.llt_calculator.formula_dist = self.attr_dist_fcn
 
-            logging.info(
-                f'''aktuelle Settings:
-Bezirke: Attr. Zentralität-{self.llt_calculator.attr_central_level} Attr istQuelle-{self.llt_calculator.attr_is_from_zone} Attr istZiel-{self.llt_calculator.attr_is_to_zone}
-Distanzberechnung: {self.llt_calculator.formula_dist}
-CFL {self.llt_calculator.cfl}
-Nachbarschaftsgrad je CFL {self.llt_calculator.max_neighbor_cfl}
-Anzahl Versorger je CFL {self.llt_calculator.num_suppliers_cfl}''')
+            logging.info( self.translator.translate('Current settings:') + "\n" +
+                          self.translator.translate('Districts: Attr. Centrality')+f'{self.llt_calculator.attr_central_level}' + "\n"+
+                          self.translator.translate('label_district_is_origin') + f'{self.llt_calculator.attr_is_from_zone}' + "\n" +
+                          self.translator.translate('label_district_is_destination') + f'{self.llt_calculator.attr_is_to_zone}' + "\n" +
+                          self.translator.translate('distance_calculation_Setting') + f'{self.llt_calculator.formula_dist}' + "\n" +
+                          self.translator.translate('CFL') + f'{self.llt_calculator.cfl}' + "\n" +
+                          self.translator.translate('neighbourhood_LevelPerCFL_Setting') + f'{self.llt_calculator.max_neighbor_cfl}' + "\n" +
+                          self.translator.translate('number_of_Suppliers_PerCFL_Setting') + f'{self.llt_calculator.num_suppliers_cfl}')
+            #logging.info(
+              #  f'''aktuelle Settings:
+#Bezirke: Attr. Zentralität-{self.llt_calculator.attr_central_level} Attr istQuelle-{self.llt_calculator.attr_is_from_zone} Attr istZiel-{self.llt_calculator.attr_is_to_zone}
+#Distanzberechnung: {self.llt_calculator.formula_dist}
+#CFL {self.llt_calculator.cfl}
+#Nachbarschaftsgrad je CFL {self.llt_calculator.max_neighbor_cfl}
+#Anzahl Versorger je CFL {self.llt_calculator.num_suppliers_cfl}''')
 
 
     def refresh_gui_text(self):
