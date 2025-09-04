@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>General Procedure and Methodology</title>
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="general-procedure-and-methodology">General Procedure and Methodology</h1>
+
+    <h2 id="determination-cfl">Determination of Connections for a Connection Function Level $\\textrm{CFL}$</h2>
+    <ol>
+        <li>Initialization and filtering of districts</li>
+        <li>Determination of triangle connections between districts via Delaunay triangulation.</li>
+        <li>Consideration of the $n$-nearest neighbors.</li>
+        <li>Ensuring connection to supply centers.</li>
+        <li>Filtering of districts and connections.</li>
+        <li>Creation of a symmetric adjacency matrix that correctly represents all connections.</li>
+    </ol>
+
+    <p>Implemented in the function <code>calculate_cfl(self, cfl)</code> of the class <code>directdistanceCalculator</code>.</p>
+
+    <h3 id="init-filter">Initialization and Filtering of Districts</h3>
+    <ul>
+        <li>First, districts with level $\\geq \\text{CFL}$ are filtered to include only those relevant for the current connection function level $\\textrm{CFL}$. Districts that are inactive or do not meet connection requirements are excluded.</li>
+        <li>A check is performed to ensure that no two districts share identical coordinates, as this could cause issues during Delaunay triangulation.</li>
+    </ul>
+
+    <h3 id="delaunay">Delaunay Triangulation</h3>
+    <ul>
+        <li>If there are enough active districts, a Delaunay triangulation is performed to connect districts into triangles. These triangles represent neighborhood relationships between districts.</li>
+        <li>The resulting neighborhood connections are stored in a (symmetric) adjacency matrix.</li>
+        <li>It can also identify connections to higher function levels (districts of connection level $>\\textrm{CFL}$).</li>
+    </ul>
+
+    <h3 id="n-nearest">Consideration of n-Nearest Neighbors</h3>
+    <ul>
+        <li>Compute the reachability matrix of adjacency matrix $A$ in $n$ steps:
+        $$E_n = A^n$$</li>
+        <li>Update the adjacency matrix to be the reachability matrix.</li>
+    </ul>
+
+    <h3 id="supply-centers">Connections to Supply Centers</h3>
+    <ul>
+        <li>Check whether each district is connected to a sufficient number of supply centers.</li>
+        <li>If not, determine the nearest supply centers and establish connections.</li>
+    </ul>
+
+    <h3 id="active-inactive">Active and Inactive Connections</h3>
+    <ul>
+        <li>Only active districts are considered as sources and targets of connections.</li>
+        <li>The “isSource” filter defines which district is used as a source; “isTarget” defines the target districts. For symmetry reasons, the relations $od = do$ hold. Nevertheless, “isTarget” districts are not part of the triangles but are reached by the “isSource” districts.</li>
+        <li>Implementation: A filter mask is applied to the adjacency matrices. This mask is the result of the dyadic product of “isSource” and “isTarget” followed by symmetrization.</li>
+    </ul>
+
+    <p><strong>Example:</strong></p>
+    <p>Let “isOrigin” $o = \\left[ 1 \\; 1 \\; 0 \\; 0 \\; 1 \\right]^T$ and “isDestination” $d = \\left[ 1 \\; 1 \\; 1 \\; 1 \\; 0 \\right]^T$. Then:</p>
+
+    $$M_{o \\lor d } = o \\cdot d^T =
+    \\begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 \\\\
+    1 & 1 & 1 & 1 & 0 \\\\
+    0 & 0 & 0 & 0 & 0 \\\\
+    0 & 0 & 0 & 0 & 0 \\\\
+    1 & 1 & 1 & 1 & 0
+    \\end{bmatrix}$$
+
+    $$M_{symmetrisch} = M_{o \\lor d } + M_{o \\lor d }^T =
+    \\begin{bmatrix}
+    1 & 1 & 1 & 1 & 1 \\\\
+    1 & 1 & 1 & 1 & 1 \\\\
+    1 & 1 & 0 & 0 & 1 \\\\
+    1 & 1 & 0 & 0 & 1 \\\\
+    1 & 1 & 1 & 1 & 0
+    \\end{bmatrix}$$
+
+    <h2 id="export-cfl">Export of the Direct Distance Infrastructure for CFL</h2>
+    <p>Exporting the computed Direct Distance links for the specified connection function levels as a standalone infrastructure (nodes, link types, links, connectors) allows visualization of the results or use of the resulting triangulation network.</p>
+
+    <p>When converting the adjacency matrices, two challenges must be addressed:</p>
+    <ul>
+        <li>Compatibility with the existing infrastructure of a Visum model.</li>
+        <li>Avoidance of overlaps when combining multiple connection function levels and correct assignment of VFS to links considered by multiple levels.</li>
+    </ul>
+
+    <p>Therefore, the export of the Direct Distance infrastructure is performed in two steps:</p>
+    <ol>
+        <li>If needed, update the required infrastructure objects (nodes, link types, links, connectors) taking into account all calculated adjacency matrices, and store them as attributes of the instance of the Direct Distance Tool calculator. This is implemented in the function <code>extract_net</code> of the class <code>directdistanceCalculator</code>. The numbering of objects relevant for Visum considers existing objects in the active Visum instance.</li>
+        <li>The function <code>export_net</code> creates a .net file containing the infrastructure of the chosen connection function levels and opens it in the current Visum instance.</li>
+    </ol>
+</body>
+</html>

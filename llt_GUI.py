@@ -1,16 +1,14 @@
-import markdown
 import wx
 import wx.html2
 import luftlinientool as llt
 from pathlib import Path
 import logging
-import pandas as pd
-# import tkinter as tk      # already wxPython as GUI library chosen
-# from tkinter import ttk
 from language_management import Translator
 
 # ===== Helper Functions =====
-## Loads all Visum attributes
+## Loads all Visum zone attributes.
+#  @param Visum The Visum instance to get attributes from.
+#  @return A list of all zone attribute IDs.
 def get_attr_zones(Visum):
     list_attr = Visum.Net.Zones.Attributes.GetAll
     list_attr_id = [attr.ID for attr in list_attr]
@@ -20,8 +18,14 @@ def get_attr_zones(Visum):
 
 # ======= Classes ======
 
-## Defines the complete window, creates the individual components and connects them with the logic
+## @class LLTFrame
+#  @brief Defines the complete window, creates the individual components and connects them with the logic.
+#
+#  The `LLTFrame` class is the main window of the application. It creates and manages all UI components,
+#  handles user interactions, and connects the UI with the underlying logic.
 class LLTFrame(wx.Frame):
+    ## Initializes the main application window.
+    #  @param translator The translator object to handle language localization.
     def __init__(self, translator):
         super().__init__(parent=None)
 
@@ -80,6 +84,8 @@ class LLTFrame(wx.Frame):
 
         self.Show()
 
+    ## Sets the properties of the main window.
+    #  Configures window title, size, and initializes default values.
     def __set_properties__(self):
         self.SetTitle(self.translator.translate('app_title')) # Use self.translator
         self.SetMinSize((1200, 500))
@@ -90,6 +96,8 @@ class LLTFrame(wx.Frame):
 
         self.event_set_default()
 
+    ## Sets up the layout of the main window.
+    #  Creates and arranges all UI components including panels, notebook, menu bar, and status bar.
     def __set_layout__(self):
         # Layout
         # Menu bar/Toolbar at the top
@@ -151,6 +159,8 @@ class LLTFrame(wx.Frame):
         sizer.Add(self.notebook, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
 
+    ## Binds event handlers to UI elements.
+    # Sets up all event bindings for menu items, toolbar buttons, and other UI elements.
     def __bind_events__(self):
         # Event Handler
         # bind the menu event to an event handler, share QuitBtn event
@@ -171,6 +181,8 @@ class LLTFrame(wx.Frame):
         self.toolbar.Bind(wx.EVT_TOOL, self.event_filter, id=106)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_delete_links, id=107)
 
+    ## Sets the values and ranges for the CFL buttons.
+    #  Configures the range and initial values for the CFL value buttons based on the maximum value of the selected attribute.
     def __set_values_cfl_buttons__(self):
         max_value_cfl = int(self.visum.Net.AttValue(f"Max:Zones\{self.attr_cfl}"))
         idx = 0
@@ -179,6 +191,10 @@ class LLTFrame(wx.Frame):
             btn.SetValue(idx)
             idx += 1
 
+    ## Event handler for language selection.
+    #  Opens a dialog for the user to select a language, updates the translator with the selected language,
+    #  and refreshes the GUI text to reflect the new language.
+    #  @param event The event object.
     def on_choose_language(self, event):
 
         languages = sorted(list(self.translator.translations.keys()))
@@ -204,8 +220,10 @@ class LLTFrame(wx.Frame):
 
         dlg.Destroy()  # Important: Destroy the dialog after it has been closed.
 
-
-
+    ## Event handler for setting default values.
+    #  Resets all input fields to their default values, including neighbor counts,
+    #  supplier counts, and attribute selections.
+    #  @param event The event object (optional).
     def event_set_default(self, event=None):
         # functional, may need to add default attribute values for CFL
 
@@ -230,6 +248,10 @@ class LLTFrame(wx.Frame):
 
         self.SetStatusText(self.translator.translate('set_defaults'))
 
+    ## Event handler for attribute selection changes.
+    #  Updates the appropriate attribute based on which combo box triggered the event,
+    #  reinitializes the calculator with the new attributes, and updates the status bar.
+    #  @param event The event object.
     def event_choose_attr(self, event):
         attr = event.GetEventObject().GetStringSelection()
 
@@ -265,6 +287,10 @@ class LLTFrame(wx.Frame):
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
         self.SetStatusText(self.translator.translate('status_attribute_applied_reimport_reset'))
 
+    ## Event handler for the calculate button.
+    #  Updates the parameters from the UI, performs the main calculation,
+    #  and updates the status bar to indicate completion.
+    #  @param event The event object.
     def event_calculate(self, event):
         # Procedure
         # 1. Update the specified parameters if something has been changed
@@ -276,6 +302,9 @@ class LLTFrame(wx.Frame):
         # Status bar
         self.SetStatusText(self.translator.translate('calculation_Performed'))
 
+    ## Event handler for the quit button or window close event.
+    #  Destroys the panel and frame, and exits the application's main loop.
+    #  @param event The event object.
     def event_quit_button(self, event):
         # del self.visum
         # self.stop = True
@@ -283,6 +312,10 @@ class LLTFrame(wx.Frame):
         self.Destroy()
         wx.GetApp().ExitMainLoop()
 
+    ## Event handler for importing data.
+    #  Creates a new LuftlinienCalculator instance with the current attributes,
+    #  updates parameters, and updates the status bar.
+    #  @param event The event object.
     def event_import_data(self, event):
         # works so far,
 
@@ -298,7 +331,7 @@ class LLTFrame(wx.Frame):
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
         self.SetStatusText(self.translator.translate('data_Imported'))
 
-    ## @brief Event handler for the Info button.
+    ## Event handler for the Info button.
     #  @param event The event object.
     def event_info(self, event):
         path_scripts = Path.cwd() # Path(self.visum.GetPath(37))
@@ -306,6 +339,10 @@ class LLTFrame(wx.Frame):
         # Update this line to instantiate HelpPopUp directly and pass the translator.
         HelpPopUp(self, self.translator, path_scripts)
 
+    ## Event handler for resetting calculations.
+    #  Initializes the results in the calculator, effectively clearing any previous calculations,
+    #  and updates the status bar.
+    #  @param event The event object.
     def event_reset(self, event):
         if self.llt_calculator is None:
             a = 1  # todo
@@ -314,12 +351,19 @@ class LLTFrame(wx.Frame):
 
         self.SetStatusText(self.translator.translate('status_results_deleted_may_reimport'))
 
+    ## Event handler for exporting all results.
+    #  Exports both the network and matrix results from the calculator if it exists.
+    #  @param event The event object.
     def event_export_results(self, event):
         if self.llt_calculator is not None:
             self.llt_calculator.export_net(
                 links_additive=True)
             self.llt_calculator.export_matrix()
 
+    ## Event handler for exporting network results for a specific CFL level.
+    #  Exports the network results for the specified CFL level, deletes unused nodes,
+    #  and updates the status bar with the CFL level that was exported.
+    #  @param event The event object containing the CFL level to export.
     def event_export_net(self, event):
         cfl_level = event.GetEventObject().cfl
 
@@ -330,6 +374,10 @@ class LLTFrame(wx.Frame):
 
         self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_net_exported_imported'))
 
+    ## Event handler for exporting matrix results for a specific CFL level.
+    #  Exports the matrix results for the specified CFL level and updates the status bar
+    #  with the CFL level that was exported.
+    #  @param event The event object containing the CFL level to export.
     def event_export_mtx(self, event):
         cfl_level = event.GetEventObject().cfl
 
@@ -338,6 +386,10 @@ class LLTFrame(wx.Frame):
 
         self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_matrix_loaded_into_visum'))
 
+    ## Event handler for exporting all results at once.
+    #  Exports both matrix and network results for all CFL levels, deletes unused nodes,
+    #  and updates the status bar.
+    #  @param event The event object.
     def event_export_master(self, event):
         self.llt_calculator.export_matrix()
         self.llt_calculator.export_net(links_additive=True)
@@ -345,15 +397,24 @@ class LLTFrame(wx.Frame):
 
         self.SetStatusText(self.translator.translate(f'status_combined_results_imported'))
 
+    ## Event handler for filtering links.
+    #  Applies a filter to show only the links created by the calculator.
+    #  @param event The event object.
     def event_filter(self, event):
         if self.llt_calculator is not None:
             self.llt_calculator.filter_links_cfl()
 
+    ## Event handler for deleting links.
+    #  Deletes all links created by the calculator and removes any unused nodes.
+    #  @param event The event object.
     def event_delete_links(self, event):
         if self.llt_calculator is not None:
             self.llt_calculator.delete_added_links()
             self.llt_calculator.delete_unused_nodes()
 
+    ## Updates the calculator parameters from the UI.
+    #  Collects the current values from the UI controls and updates the calculator's parameters,
+    #  including CFL levels, supplier counts, neighbor counts, and distance formula. Also logs the current settings.
     def update_param_cfl(self):
         if self.llt_calculator is not None:
             list_cfl_levels = [cfl_level[0] for cfl_level in self.button_cfl_active.items() if cfl_level[1].Value > 0]
@@ -374,15 +435,10 @@ class LLTFrame(wx.Frame):
                           self.translator.translate('CFL') + f'{self.llt_calculator.cfl}' + "\n" +
                           self.translator.translate('neighbourhood_LevelPerCFL_Setting') + f'{self.llt_calculator.max_neighbor_cfl}' + "\n" +
                           self.translator.translate('number_of_Suppliers_PerCFL_Setting') + f'{self.llt_calculator.num_suppliers_cfl}')
-            #logging.info(
-              #  f'''aktuelle Settings:
-#Bezirke: Attr. Zentralität-{self.llt_calculator.attr_central_level} Attr istQuelle-{self.llt_calculator.attr_is_from_zone} Attr istZiel-{self.llt_calculator.attr_is_to_zone}
-#Distanzberechnung: {self.llt_calculator.formula_dist}
-#CFL {self.llt_calculator.cfl}
-#Nachbarschaftsgrad je CFL {self.llt_calculator.max_neighbor_cfl}
-#Anzahl Versorger je CFL {self.llt_calculator.num_suppliers_cfl}''')
 
 
+    ## Updates all text elements in the GUI to the current language.
+    #  Also triggers refresh_gui_text on child components.
     def refresh_gui_text(self):
         # 1. Hauptfenstertitel aktualisieren
         self.SetTitle(self.translator.translate('app_title'))
@@ -424,8 +480,16 @@ class LLTFrame(wx.Frame):
         self.Refresh()
 
 
-## Spezifiziert & verwaltet den Tab mit den Eingabe- und Aktionsmöglichkeiten
+## @class MainTab
+#  @brief Specifies and manages the tab with input and action options.
+#
+#  The `MainTab` class creates and manages the main tab of the application, which contains
+#  all the input fields, buttons, and other controls for configuring and executing the
+#  air-line calculations.
 class MainTab(wx.Panel):
+    ## Initializes the main tab panel.
+    #  @param parent The parent window that contains this panel.
+    #  @param translator The translator object to handle language localization.
     def __init__(self, parent, translator):
         wx.Panel.__init__(self, parent)
 
@@ -447,6 +511,9 @@ class MainTab(wx.Panel):
         self.__set_layout__()
         self.__bind_events__()
 
+    ## Sets up the layout of the main tab panel.
+    #  Creates and arranges all UI components including district attribute selection,
+    #  connectivity function level parameters, and action buttons.
     def __set_layout__(self):
         # Rows with individual elements (vbox_outer)
         # Row 1: District attribute selection
@@ -614,6 +681,9 @@ class MainTab(wx.Panel):
 
         # ==== Event binding
 
+    ## Binds event handlers to UI elements in the main tab.
+    #  Sets up all event bindings for buttons and combo boxes in the main tab,
+    #  connecting them to the appropriate event handlers in the parent frame.
     def __bind_events__(self):
 
         for cfl_level, btn in self.buttons_export_net.items():
@@ -630,6 +700,7 @@ class MainTab(wx.Panel):
         self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
 
+    ## Updates all text elements in the main tab to the current language.
     def refresh_gui_text(self):
         # Update ComboBox labels
         self.cb_cfl.Label = self.translator.translate('attr_cfl')
@@ -659,8 +730,15 @@ class MainTab(wx.Panel):
         self.Refresh()
 
 
-## Spezifiziert den Tab, der die Lognachrichten ausgibt
+## @class LogTab
+#  @brief Specifies the tab that displays log messages.
+#
+#  The `LogTab` class creates and manages the log tab of the application, which displays
+#  log messages from the application. It sets up logging handlers to capture and display
+#  messages in a text control.
 class LogTab(wx.Panel):
+    ## Initializes the log tab panel.
+    #  @param parent The parent window that contains this panel.
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -699,6 +777,9 @@ class LogTab(wx.Panel):
         # Bind the panel destruction event to ensure cleanup
         self.Bind(wx.EVT_WINDOW_DESTROY, self.on_close)
 
+    ## Handles the window destruction event.
+    #  Performs cleanup actions when the panel is destroyed, removing and closing log handlers.
+    #  @param event The window destruction event.
     def on_close(self, event):
         """ Perform any cleanup actions here """
 
@@ -714,23 +795,36 @@ class LogTab(wx.Panel):
 
         event.Skip()  # Ensure the event propagates to the parent if needed
 
+    ## Destructor for the LogTab class.
+    #  Ensures the logger handler is removed when the object is destroyed.
     def __del__(self):
         """ Destructor, ensure the logger handler is removed """
         self.logger.removeHandler(self.handler)
 
 
+    ## Updates the layout of the log tab.
+    #  @details This tab only needs to layout and refresh as it doesn't have dynamic text.
     def refresh_gui_text(self):
         # This tab only needs to layout and refresh as it doesn't have dynamic text.
         self.Layout()
         self.Refresh()
 
 
-## Handler der Logbefehle
+## @class WxTextCtrlHandler
+#  @brief Handler for log commands that redirects log messages to a wxPython text control.
+#
+#  The `WxTextCtrlHandler` class is a custom logging handler that redirects log messages
+#  to a wxPython text control, allowing log messages to be displayed in the GUI.
 class WxTextCtrlHandler(logging.Handler):
+    ## Initializes the log handler.
+    #  @param ctrl The wxPython text control to which log messages will be redirected.
     def __init__(self, ctrl):
         logging.Handler.__init__(self)
         self.ctrl = ctrl
 
+    ## Emits a log record to the text control.
+    #  @param record The log record to be emitted.
+    #  @details Formats the log record and writes it to the text control using CallAfter to ensure thread safety.
     def emit(self, record):
         s = self.format(record) + '\n'
         wx.CallAfter(self.ctrl.WriteText, s)
@@ -743,7 +837,7 @@ class WxTextCtrlHandler(logging.Handler):
 #  pages in a tabbed interface using `wx.Notebook` and `wx.html2.WebView`. It supports Markdown (`.md`) files
 #  by converting them to HTML before rendering.
 class HelpPopUp(wx.Frame):
-    ## @brief Initializes the documentation popup.
+    ## Initializes the documentation popup.
     #  @param parent The parent wx object.
     #  @param translator The translator object to determine the language.
     #  @param file_dir The directory containing the documentation files.
@@ -763,9 +857,9 @@ class HelpPopUp(wx.Frame):
         ## @var dict_docu
         #  A dictionary mapping tab names to documentation file paths based on the selected language.
         dict_docu = {
-            translator.translate('application_cluster_tool_gui'): doc_dir / "Anwendung_GUI.md",
-            translator.translate('basics_cluster_analysis'): doc_dir / "Grundlagen_Clusteranalyse.html",
-            translator.translate('documentation_code'): doc_dir / "doxygen" / "html" / "index.html"
+            translator.translate('application_cluster_tool_gui'): doc_dir / "application.html",
+            translator.translate('basics_cluster_analysis'): doc_dir / "foundation_clustering.html",
+            translator.translate('documentation_code'): doc_dir.parent / "code" / "index.html"
         }
 
         # Create tabs with embedded WebView for each documentation page
@@ -777,11 +871,7 @@ class HelpPopUp(wx.Frame):
             #  A WebView widget to render the documentation content.
             html_view =wx.html2.WebView.New(panel)
 
-            # Convert Markdown to HTML dynamically (no file is saved)
-            if file_path.suffix == ".md":
-                html_content = self._convert_md_to_html(file_path, file_dir)
-                html_view.SetPage(html_content, "")
-            elif file_path.suffix == ".html":
+            if file_path.suffix == ".html":
                 if file_path.exists():
                     # Load URL correctly for local files
                     wx.CallAfter(html_view.LoadURL, str(file_path.resolve()))
@@ -803,93 +893,11 @@ class HelpPopUp(wx.Frame):
         self.SetSizer(main_sizer)
         self.Show()
 
-    ## @brief Converts a Markdown file to an HTML string and updates image paths.
-    #  @param md_file The path to the Markdown file.
-    #  @param base_dir The base directory where the images are stored.
-    #  @return An HTML string with proper formatting.
-    def _convert_md_to_html(self, md_file: Path, base_dir: Path) -> str:
-        """Converts a Markdown file to an HTML string for rendering in WebView."""
-        if not md_file.exists():
-            return "<h3>Error: Markdown file not found.</h3>"
-
-        try:
-            with open(md_file, "r", encoding="utf-8") as f:
-                md_content = f.read()
-
-            # Set the image directory correctly for WebView
-            image_dir = base_dir / "pictures"
-            md_content = md_content.replace("](pictures/", f"](file:///{image_dir.resolve().as_posix()}/")
-
-            # Convert Markdown to HTML with extra features enabled
-            html_content = markdown.markdown(md_content, extensions=[
-                "extra",  # Adds support for lists, tables, and more
-                "admonition",  # Enables advanced blocks like notes or warnings
-                "tables",  # Supports Markdown tables
-                "fenced_code",  # Allows ```python``` code blocks
-                "toc"  # Generates an automatic table of contents
-            ])
-
-            # Inject MathJax for LaTeX support
-            html_output = f"""
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>{md_file.stem}</title>
-                <script type="text/javascript" async
-                  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
-                </script>
-                <style>
-                    body {{
-                        font-family: Arial, sans-serif;
-                        margin: 20px;
-                        padding: 20px;
-                        line-height: 1.6;
-                    }}
-                    h1, h2, h3 {{
-                        color: #333;
-                    }}
-                    pre {{
-                        background: #f4f4f4;
-                        padding: 10px;
-                        border-radius: 5px;
-                        overflow-x: auto;
-                    }}
-                    img {{
-                        max-width: 100%;
-                        height: auto;
-                        display: block;
-                        margin: 10px 0;
-                    }}
-                    table {{
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 10px 0;
-                    }}
-                    th, td {{
-                        border: 1px solid #ddd;
-                        padding: 8px;
-                        text-align: left;
-                    }}
-                    th {{
-                        background-color: #f4f4f4;
-                    }}
-                </style>
-            </head>
-            <body>
-                {html_content}
-            </body>
-            </html>
-            """
-
-            return html_output
-        except Exception as e:
-            print(f"Error converting Markdown to HTML: {e}")
-            return "<h3>Error: Markdown processing failed.</h3>"
 
 
 if __name__ == '__main__':
     # Initialize translator outside the app
-    translator = Translator("Translations.xlsx", language="en")
+    translator = Translator(Path(__file__).parent / "Translations.xlsx", language="en")
     app = wx.App()
     frame = LLTFrame(translator)
     app.MainLoop()
