@@ -19,7 +19,7 @@ from language_management import Translator  # Added import
 
 ## Opens a Visum instance if not already open
 # Enables simultaneous calling of the file internally and externally in Visum
-# @param path Path (Path/str) to a Visum version file
+# @param path (Path/str) to a Visum version file
 # @param version Visum version, default 240
 # @return Visum instance
 def open_visum(path, version=240, translator: Translator = None):  # Added translator
@@ -29,7 +29,6 @@ def open_visum(path, version=240, translator: Translator = None):  # Added trans
         # tests if the variable Visum exists
         global Visum
         Visum
-        name = Visum.UserPreferences.DocumentName
     except NameError:
         # if not - open a Visum instance
         logging.info(trans.translate('log_init_visum_instance'))
@@ -114,7 +113,7 @@ def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
 
 ## Identifies the nearest n points from a given set of points to a single point.
 # First, the distances of all points to the single point are calculated.
-# Then, the n closest points are filtered and their indices are returned
+# Then, the n closest points are filtered, and their indices are returned
 # @param[in] x_point x-coordinate of the reference point
 # @param[in] y_point y-coordinate of the reference point
 # @param[in] array_points Array with the x & y coordinates of the points
@@ -216,26 +215,26 @@ class LuftlinienCalculator:
 
         ## Specification of the neighborhood degree to which equal-ranking connections should be followed
         # (formerly exchange function)
-        self.nachbarschaftsgrad_vfs = dict()
+        self.deg_neighbourhood_cfl = dict()
         ## Specification of how many (higher-ranking) suppliers should be connected
-        self.anz_versorger_vfs = dict()
+        self.n_suppliers_cfl = dict()
 
         # Goal: dict with VFS: value
         if isinstance(max_distance, int):
             # Conversion to dict with scalar for each VFS
-            self.nachbarschaftsgrad_vfs = dict(zip(dict_cfl.keys(), max_distance * np.ones(len(dict_cfl), dtype=int)))
+            self.deg_neighbourhood_cfl = dict(zip(dict_cfl.keys(), max_distance * np.ones(len(dict_cfl), dtype=int)))
         elif isinstance(max_distance, dict):
-            self.nachbarschaftsgrad_vfs = max_distance
+            self.deg_neighbourhood_cfl = max_distance
         else:
             raise TypeError(self.translator.translate("error_param_type_not_implemented"))
 
         # Goal: dict with VFS: value
         if isinstance(no_suppliers, int):
             # Conversion to dict with scalar for each VFS
-            self.anz_versorger_vfs = dict(
+            self.n_suppliers_cfl = dict(
                 zip(dict_cfl.keys(), no_suppliers * np.ones(len(dict_cfl), dtype=int)))
         elif isinstance(no_suppliers, dict):
-            self.anz_versorger_vfs = no_suppliers
+            self.n_suppliers_cfl = no_suppliers
         else:
             raise TypeError(self.translator.translate("error_param_type_not_implemented"))
 
@@ -292,27 +291,27 @@ class LuftlinienCalculator:
         ## DataFrame with the link data of the air-line connections.
         self.edges = pd.DataFrame()
 
-    ## Übersetzt die Adjazenzmatrizen der gewünschten VFS in eine Streckenliste
-    # @param list_vfs: Liste der VFS. Falls nicht gegeben, werden alle VFS der Instanz verwendet
-    # @return df_edges: DataFrame mit allen Strecken und ihrer VFS. Achtung: Duplikate werden nicht entfernt
-    def adj_matrix_to_links(self, list_vfs=None):
+    ## Translates the adjacency matrices of the desired CFL into an edge list
+    # @param list_cfl: List of CFL. If not given, all CFL of the instance are used
+    # @return df_edges: DataFrame with all edges and their CFL. Attention: Duplicates are not removed
+    def adj_matrix_to_links(self, list_cfl=None):
 
-        if list_vfs is None:
-            list_vfs = self.cfl.keys()
+        if list_cfl is None:
+            list_cfl = self.cfl.keys()
 
         list_df_edges = []
-        for vfs in list_vfs:
-            if not is_symmetric(self.matrizen_VFS[vfs]):
-                logging.warning(f'{vfs}: '+ self.translator.translate("warn_adj_matrix_not_symmetric"))
+        for cfl in list_cfl:
+            if not is_symmetric(self.matrices_cfl[cfl]):
+                logging.warning(f'{cfl}: ' + self.translator.translate("warn_adj_matrix_not_symmetric"))
 
-            df_edges = pd.DataFrame(self.matrizen_VFS[vfs]).stack().reset_index()
+            df_edges = pd.DataFrame(self.matrices_cfl[cfl]).stack().reset_index()
             df_edges.columns = ["FromNodeNo", "ToNodeNo", "TypeNo"]
 
             # Filtere Strecken mit True
             df_edges = df_edges.loc[df_edges["TypeNo"] == True, :]
 
             # setze Attribut VFS
-            df_edges.loc[:, "TypeNo"] = vfs
+            df_edges.loc[:, "TypeNo"] = cfl
 
             list_df_edges.append(df_edges)
 
@@ -327,17 +326,17 @@ class LuftlinienCalculator:
 
         return df_edges
 
-    ## Wandelt die Adjazenzmatrix in eine Liste der verbundenen Bezirke je Bezirk um.
-    # @param cfl: str, Name der zu betrachtenden VFS
-    # @param use_zone_names: bool, falls True werden die hitnerlegten Bezirksnamen verwendet
-    # @return df_set_zones: DataFrame mit list Objekt je Bezirk und einer Spalte, die die Anzahl enthält
-    def adj_matrix_to_set_of_connected_zones(self, vfs, use_zone_names=True):
+    ## Converts the adjacency matrix into a list of connected zones per zone.
+    # @param cfl: str, name of the cfl to be considered
+    # @param use_zone_names: bool, if true, the zone names are used
+    # @return df_set_zones: DataFrame with list object per zone and a column containing the number
+    def adj_matrix_to_set_of_connected_zones(self, cfl, use_zone_names=True):
         # Matrix zu DataFrame
         if use_zone_names:
             # Falls Namen verwendet werden sollen, werden die Zeilen & Spalten benannt
-            df = pd.DataFrame(self.matrizen_VFS[vfs], index=self.zones["Name"], columns=self.zones["Name"])
+            df = pd.DataFrame(self.matrices_cfl[cfl], index=self.zones["Name"], columns=self.zones["Name"])
         else:
-            df = pd.DataFrame(self.matrizen_VFS[vfs])
+            df = pd.DataFrame(self.matrices_cfl[cfl])
 
         # Erstellt einen DataFrame, der für jede Zeile der Matrix die Spaltennamen enthält, für die der Eintrag True ist
         df_set_zones = df.mul(df.columns.tolist()).apply(lambda x: set(zone for zone in x if zone), axis=1).to_frame(
@@ -347,19 +346,19 @@ class LuftlinienCalculator:
 
         return df_set_zones
 
-    ## Berechnet, welche Nachbarn innerhalb von n Schritten erreicht werden können.
-    # @param max_steps: maximale Entfernung (Schritte)
-    # @param cfl: zu untersuchende VFS
-    # @return matrix: Adjazenzmatrix für die Erreichbare Nachbarn innerhalb der max-steps
-    def calculate_reachability_max_steps(self, max_steps, vfs):
+    ## Calculates which neighbours can be reached within n steps.
+    # @param max_steps: maximum distance (steps)
+    # @param cfl: cfl to be analysed
+    # @return matrix: Adjacency matrix for the reachable neighbours within the max-steps
+    def calculate_reachability_max_steps(self, max_steps, cfl):
 
-        matrix = np.linalg.matrix_power(self.matrizen_VFS[vfs], max_steps)
+        matrix = np.linalg.matrix_power(self.matrices_cfl[cfl], max_steps)
         np.fill_diagonal(matrix, 0)
 
         return matrix
 
-    ## Berechnet für jede hinterlegte VFS der Instanz die Adjazenzmatrix.
-    #  @return Keine Rückgabe. Die Ergebnisse werden intern gespeichert.
+    ## Calculates the adjacency matrix for each stored cfl of the instance.
+    # @return No return. The results are saved internally.
     def calculate_main(self):
         # Init Ergebnisse
         logging.info(self.translator.translate("log_calc_all_vfs_start"))
@@ -367,22 +366,22 @@ class LuftlinienCalculator:
         logging.info(self.translator.translate("log_adj_matrices_initialized"))
 
         # Schleife über alle cfl
-        for vfs in self.cfl:
+        for cfl in self.cfl:
             # Berechne die Werte für die VFS
-            self.calculate_vfs(vfs)
+            self.calculate_cfl(cfl)
 
         logging.info(self.translator.translate("log_calculation_all_vfs_finished"))
 
-    ## Berechnet die Verbindungen einer VFS.
-    # @param cfl: die Verbindungsfunktionsstufe, für die Verbindungen ermittel werden
-    def calculate_vfs(self, vfs):
+    ## Calculates the connections of a CFL.
+    # @param cfl: the connection function level for which connections are determined
+    def calculate_cfl(self, cfl):
 
         # Attributswert der Bezirke für die gewählte VFS
-        value_vfs = self.cfl[vfs]
+        value_vfs = self.cfl[cfl]
 
         # Attribute der VFS
-        k_nachbar = self.nachbarschaftsgrad_vfs[vfs]
-        anz_versorger = self.anz_versorger_vfs[vfs]
+        k_neighbour = self.deg_neighbourhood_cfl[cfl]
+        n_suppliers_cfl = self.n_suppliers_cfl[cfl]
 
         # Filtere Bezirksdaten, die die Bedingungen erfüllen
         # Sind Aktiv todo Erweiterung Filterung nach attr_filter
@@ -400,16 +399,16 @@ class LuftlinienCalculator:
             error_msg = (self.translator.translate("error_duplicate_coordinates")+f'{duplicate_zones_string}')
             raise ValueError(error_msg)
         elif len(active_zones) < 3:
-            logging.info(f'{vfs}: '+self.translator.translate("log_vfs_too_few_active_zones"))
+            logging.info(f'{cfl}: ' + self.translator.translate("log_vfs_too_few_active_zones"))
         else:
-            logging.info(f'{vfs}: '+self.translator.translate("log_delaunay_for")+ f'{len(active_zones)}'+self.translator.translate("_zones"))
+            logging.info(f'{cfl}: ' + self.translator.translate("log_delaunay_for") + f'{len(active_zones)}' + self.translator.translate("_zones"))
 
-            if k_nachbar > 0:
+            if k_neighbour > 0:
 
                 # Delaunay Triangulation
                 tri = Delaunay(active_zones[["XCoord", "YCoord"]])
                 zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
-                logging.info(f'{vfs}: '+ f'{len(zone_orig_idx_triangles)}'+self.translator.translate("log_triangles_created"))
+                logging.info(f'{cfl}: ' + f'{len(zone_orig_idx_triangles)}' + self.translator.translate("log_triangles_created"))
 
                 # Adjazenzmatrix ausfüllen
                 # Schleife über Dreiecke
@@ -417,26 +416,26 @@ class LuftlinienCalculator:
                     # die drei Punkte des Dreiecks
                     # folgende Abhängigkeiten sind einzufügen:
                     # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
-                    self.matrizen_VFS[vfs][p1, p2] = 1
-                    self.matrizen_VFS[vfs][p1, p3] = 1
-                    self.matrizen_VFS[vfs][p2, p1] = 1
-                    self.matrizen_VFS[vfs][p2, p3] = 1
-                    self.matrizen_VFS[vfs][p3, p1] = 1
-                    self.matrizen_VFS[vfs][p3, p2] = 1
+                    self.matrices_cfl[cfl][p1, p2] = 1
+                    self.matrices_cfl[cfl][p1, p3] = 1
+                    self.matrices_cfl[cfl][p2, p1] = 1
+                    self.matrices_cfl[cfl][p2, p3] = 1
+                    self.matrices_cfl[cfl][p3, p1] = 1
+                    self.matrices_cfl[cfl][p3, p2] = 1
 
             # Nachbarschaften Grad n bestimmen
-            if k_nachbar > 1:
-                logging.info(f'{vfs}'+self.translator.translate("log_calculating_neighborhood_degree"))
-                adj_k_steps = self.calculate_reachability_max_steps(k_nachbar, vfs)
-                self.matrizen_VFS[vfs] = adj_k_steps
+            if k_neighbour > 1:
+                logging.info(f'{cfl}' + self.translator.translate("log_calculating_neighborhood_degree"))
+                adj_k_steps = self.calculate_reachability_max_steps(k_neighbour, cfl)
+                self.matrices_cfl[cfl] = adj_k_steps
 
             # Verbindungen mit Versorgungsfunktion
-            if anz_versorger > 0:
+            if n_suppliers_cfl > 0:
                 # Erstelle für jeden Bezirk eine Liste der verbundenen Bezirke
-                df_list_zones = self.adj_matrix_to_set_of_connected_zones(vfs, use_zone_names=False)
+                df_list_zones = self.adj_matrix_to_set_of_connected_zones(cfl, use_zone_names=False)
 
                 # Tabelle der möglichen Versorgungszentren
-                provider = self.zones.loc[(self.zones[self.attr_central_level] < self.cfl[vfs])
+                provider = self.zones.loc[(self.zones[self.attr_central_level] < self.cfl[cfl])
                                           & (self.zones[self.attr_is_from_zone] > 0), :]
                 # Menge der möglichen Versorgungszentren
                 set_names_provider = set(provider.index)
@@ -447,7 +446,7 @@ class LuftlinienCalculator:
                 df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(
                     len)
                 df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
-                                            | (df_list_zones["no_provider"] >= anz_versorger)
+                                            | (df_list_zones["no_provider"] >= n_suppliers_cfl)
 
                 # Für alle Bezirke, die die Bedingung nich erfüllen: Verbinde die nächsten k Versorgungszentren
                 for zone in df_list_zones.index[df_list_zones["provider"] < True]:
@@ -461,14 +460,14 @@ class LuftlinienCalculator:
                     # Auswahlkriterium: nächstgelegen
                     list_idx_provider = get_nearest_points_from_set(x_point=zone_data.loc["XCoord"],
                                                                     y_point=zone_data.loc["YCoord"],
-                                                                    n=anz_versorger - df_list_zones.loc[
+                                                                    n=n_suppliers_cfl - df_list_zones.loc[
                                                                         zone, "no_provider"],
                                                                     array_points=provider_tmp[
                                                                         ["XCoord", "YCoord"]].values,
                                                                     formula=self.formula_dist,
                                                                     translator=self.translator)  # Pass translator
-                    self.matrizen_VFS[vfs][zone, provider_tmp.index[list_idx_provider]] = 1
-                    self.matrizen_VFS[vfs][provider_tmp.index[list_idx_provider], zone] = 1
+                    self.matrices_cfl[cfl][zone, provider_tmp.index[list_idx_provider]] = 1
+                    self.matrices_cfl[cfl][provider_tmp.index[list_idx_provider], zone] = 1
                     # debugbefehl Entfernungen
                     # distances = calculate_distance_coordinates(x1=zone_data.loc["XCoord"], y1=zone_data.loc["YCoord"],
                     #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
@@ -499,32 +498,32 @@ class LuftlinienCalculator:
             idx_active_symm = idx_active + idx_active.T
 
             # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
-            self.matrizen_VFS[vfs] = self.matrizen_VFS[vfs] * idx_active_symm.astype(int)
+            self.matrices_cfl[cfl] = self.matrices_cfl[cfl] * idx_active_symm.astype(int)
 
             # Symmetrietest
-            if np.sum(self.matrizen_VFS[vfs] - self.matrizen_VFS[vfs].T) > 0:
+            if np.sum(self.matrices_cfl[cfl] - self.matrices_cfl[cfl].T) > 0:
                 raise ValueError(self.translator.translate("error_matrix_not_symmetric"))
 
             # debugzwecke
             if self.debug_mode:
                 # zeigt an, mit welchen Bezirken ein Bezirk verbunden ist (=benachbarte Zentren)
-                list_zones = self.adj_matrix_to_set_of_connected_zones(vfs)
+                list_zones = self.adj_matrix_to_set_of_connected_zones(cfl)
 
                 # Zeigt das Ergebnis in Visum an
-                self.export_net(visum=self.visum, list_vfs=[vfs], links_additive=False)
+                self.export_net(links_additive=False, list_cfl=[cfl])
 
-                logging.info(f'{vfs}'+self.translator.translate("log_debug_results_in_visum"))
+                logging.info(f'{cfl}' + self.translator.translate("log_debug_results_in_visum"))
 
-            logging.info(self.translator.translate("log_vfs_calculation")+f'{vfs}'+self.translator.translate("_finished"))
+            logging.info(self.translator.translate("log_vfs_calculation") +f'{cfl}' + self.translator.translate("_finished"))
 
-            df_zones_info = self.adj_matrix_to_set_of_connected_zones(vfs)
+            df_zones_info = self.adj_matrix_to_set_of_connected_zones(cfl)
             df_zones_info["set zones"] = df_zones_info["set zones"].str.join(",")
             # logging.info('\t' + df_zones_info.to_string().replace('\n', '\n\t'))
 
-    ## Löscht Knoten in Visum, die keine Strecken anbinden.
-    # Alle Knoten ohne Strecken werden gefiltert & die aktiven Knoten werden gelöscht.
-    # Anschließend wird der Filter zurückgesetzt.
-    #  @return Keine Rückgabe. Die Visuminstanz wird verändert.
+    ## Deletes nodes in Visum that do not connect any links.
+    # All nodes without links are filtered & the active nodes are deleted.
+    # The filter is then reset.
+    # @return No return. The visum instance is changed.
     def delete_unused_nodes(self):
         if self.visum is None:
             logging.warning(self.translator.translate("warn_delete_nodes_no_visum"))
@@ -548,33 +547,33 @@ class LuftlinienCalculator:
 
         logging.info(f'{n}'+self.translator.translate("log_isolated_nodes_deleted"))
 
-    ## Exportiert die gewünschten Adjazenzmatrizen  entweder direkt nach Visum (falls Visuminstanz verknüpft)
-    # oder als .mtx datei.
-    # Vorhandene Matrizen werden überschrieben.
-    # @param visum: optionale Übergabe einer Visuminstanz. Default None
-    # @param list_vfs: optionale Übergabe einer Menge an VFS. Default: None (alle des Objekts)
-    def export_matrix(self, list_vfs=None):
+    ## Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked)
+    # or as .mtx file.
+    # Existing matrices are overwritten.
+    # @param visum: optional visum instance. Default None
+    # @param list_vfs: optional set of CFL. Default: None (all of the object)
+    def export_matrix(self, list_cfl=None):
         # Falls Visuminstanz erkannt: erstelle & exportiere Daten direkt in Visum (Für Netze mit <1500 Bezirken über SetValues sonst mithilfe einer mtx-Datei im O-Fromat)
         # Sonst: Speichere .mtx Datei
 
-        if list_vfs is None:
-            list_vfs = self.cfl.keys()
+        if list_cfl is None:
+            list_cfl = self.cfl.keys()
 
-        logging.info(self.translator.translate("log_matrix_export")+f'{len(list_vfs)}'+self.translator.translate("_start"))
+        logging.info(self.translator.translate("log_matrix_export") +f'{len(list_cfl)}' + self.translator.translate("_start"))
 
-        for vfs in list_vfs:
-            if vfs not in self.matrizen_VFS.keys():
-                logging.warning(self.translator.translate("warn_vfs")+f'{vfs}'+self.translator.translate("not_in_calculated_list"))
+        for cfl in list_cfl:
+            if cfl not in self.matrices_cfl.keys():
+                logging.warning(self.translator.translate("warn_vfs") +f'{cfl}' + self.translator.translate("not_in_calculated_list"))
                 continue
 
-            matrix_vfs = self.matrizen_VFS[vfs]
+            matrix_cfl = self.matrices_cfl[cfl]
             # Benennung in der Matrix in Visum bzw. Datei
-            if self.anz_versorger_vfs[vfs] < 1:
+            if self.n_suppliers_cfl[cfl] < 1:
                 # Term mit Versorgungsfkt wird weggelassen
-                name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}"
+                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
                 # Term mit Versorgungsfkt wird hinzugefügt
-                name_matrix = f"RIN_{vfs}_n={self.nachbarschaftsgrad_vfs[vfs]}_v={self.anz_versorger_vfs[vfs]}"
+                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.n_suppliers_cfl[cfl]}"
 
             # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
             path_mat = self.path_output or Path.cwd() / 'mtx'
@@ -585,7 +584,7 @@ class LuftlinienCalculator:
 
             # Prüfe ob mtx-Datei geschrieben werden muss
             if (self.visum is None) or (self.visum.Net.Zones.Count > 1500):
-                df_mat = pd.DataFrame(matrix_vfs,
+                df_mat = pd.DataFrame(matrix_cfl,
                                       columns=self.zones["No"].values.astype(int),
                                       index=self.zones["No"].values.astype(int)
                                       , dtype=int
@@ -650,7 +649,7 @@ class LuftlinienCalculator:
                 # Import der Werte
                 # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden
                 if self.visum.Net.Zones.Count < 1500:
-                    matrix_instance.SetValues(matrix_vfs)
+                    matrix_instance.SetValues(matrix_cfl)
                     logging.info(f'{name_matrix}'+self.translator.translate("log_matrix_read_into_visum"))
                 else:
                     matrix_instance.Open(path_mat_file, ReadAdditive=False)
@@ -660,18 +659,17 @@ class LuftlinienCalculator:
             else:
                 logging.info(self.translator.translate("log_visum_not_open_matrices_exported")+f'{path_mat}')
 
-    ## Erstellt die Infrastrukturobjekte als Vorbereitung für den Export der Infrastruktur in Form von dicts für Knoten, Strecken, Streckentypen.
-    # Wird aufgerufen, falls beim Export ein Objekt nicht in den dicts vorhanden ist.
-    # Verhindert die Mehrfachanlegung von Strecken und Knoten.
-    #  @return Keine Rückgabe. Die Ergebnisse werden intern gespeichert.
+    ## Creates the infrastructure objects in preparation for exporting the infrastructure in the form of dictionaries for nodes, lines, and line types.
+    # Called if an object is not present in the dictionaries during export.
+    # Prevents the multiple creation of lines and nodes.
+    #  @return No return. The results are stored internally.
     def extract_net(self):
 
-        # Erstelle eine Knotenliste
+        # Create a node list
         df_nodes = self.zones.copy()
-        # Überarbeiten
         df_nodes = df_nodes.astype({'No': int, self.attr_central_level: int})
 
-        # Erstelle eine Zuordnung Bezirke -> Knoten
+        # Create an assignment zones -> nodes
         if self.visum is None:
             no_node_start = 1
             no_link_start = 1
@@ -685,37 +683,36 @@ class LuftlinienCalculator:
             no_link_start = no_link_max + 1
             no_linktype_start = no_linktype_max + 1
 
-        # Zuordnung der alten Nummerierung zur neuen
-        # dict_no_nodes kann verwendet werden, um Anbindungen zu überzeugen, da es die alten Nummern (von zones) mit den neuen Nummern (nodes) verknüpft
+        # Assignment of the old numbering to the new
+        # dict_no_nodes can be used to convince connections, as it links the old numbers (of zones) with the new numbers (nodes)
         # dict[]
         self.dict_export_zone2node = dict(
             zip(df_nodes["No"].astype(int).drop_duplicates(), range(no_node_start, no_node_start + len(df_nodes) + 1)))
 
-        # Füge Streckentyp in dict hinzu dict[Name]=Nummer
+        # add link type to dict dict[Name]=Number
         self.dict_export_linktypes = dict(
             zip(self.cfl.keys(), range(no_linktype_start, no_linktype_start + len(self.cfl.keys()) + 1)))
 
-        # Erstelle Streckenliste
+        # adjacency matrix to link table
         df_edges = self.adj_matrix_to_links()
-        # Neue Knotennummern
 
-        # Übersetze VFS in TypeNo
+        # replace cfl with typeno
         df_edges["TypeNo"].replace(self.dict_export_linktypes, inplace=True)
 
-        # Übersetze Id in Bezirksnummer
+        # translate id to zone number
         df_edges["FromNodeNo"].replace(self.dict_export_zone2node, inplace=True)
         df_edges["ToNodeNo"].replace(self.dict_export_zone2node, inplace=True)
 
-        # Hinzufügen einer Nummer
-        # 1. Identifikation der Hin- & Gegenrichtung
+        # Add a number
+        # 1. Identification of the outward & return direction
         df_edges["No"] = df_edges[["FromNodeNo", "ToNodeNo"]].min(axis=1).astype(str) + "_" + df_edges[
             ["FromNodeNo", "ToNodeNo"]].max(axis=1).astype(str)
 
-        # 2. Nummerierung
+        # 2. numbering
         self.dict_export_links_vfs = dict(
             zip(df_edges["No"].drop_duplicates(), range(no_link_start, no_link_start + int(len(df_edges) / 2) + 1)))
 
-        # Test: für jede Strecke existiert eine Nummer
+        # Test: there is a number for each link
         if len(self.dict_export_links_vfs) != len(df_edges["No"].drop_duplicates()):
             logging.error(self.translator.translate("error_link_numbering_mismatch"))
 
@@ -724,15 +721,15 @@ class LuftlinienCalculator:
 
         self.edges = df_edges
 
-    ## Exportiert eine Netzdatei
-    # falls eine Visuminstanz übergeben wird, wird die Netdatei in Visum geladen
-    # @param visum: optionale Übergabe einer Visuminstanz. Default None
-    # @param links_additive: falls False werden die existierenden Strecken in Visum gelöscht
-    # @param list_vfs: Liste der VFS, die berücksichtigt werden sollen. Default: Alle des Objekts
-    def export_net(self, links_additive=True, list_vfs=None, create_connectors=True):
-
+    ## Exports a net file
+    # if a visum instance exists, the net file is loaded in Visum
+    # @param links_additive: if False, the existing routes in Visum are deleted
+    # @param list_cfl: List of CFLs that are to be taken into account. Default: All of the object
+    # @param create_connectors: if True, connectors are created for each CFL. Default: False
+    # @return: None
+    def export_net(self, links_additive=True, list_cfl=None, create_connectors=True):
         if self.path_output is None:
-            # falls kein Dateipfad übergeben ist: Verwende Visumdateipfad, falls eine Visuminstanz existiert, ansonsten verwende den aktuellen Pfad
+            # if no file path is passed: Use visum file path if instance exists, otherwise use the current path
             if self.visum is not None:
                 path_net = Path(self.visum.GetPath(1))
             else:
@@ -740,14 +737,14 @@ class LuftlinienCalculator:
         else:
             path_net = self.path_output
 
-        if list_vfs is None:
-            list_vfs = self.cfl.keys()
+        if list_cfl is None:
+            list_cfl = self.cfl.keys()
 
-        path_net = path_net / f"{'_'.join(list_vfs)}.net"
+        path_net = path_net / f"{'_'.join(list_cfl)}.net"
 
         # Check: Extract_net notwendig?
         # Erstelle Streckenliste
-        df_edges = self.adj_matrix_to_links(list_vfs)
+        df_edges = self.adj_matrix_to_links(list_cfl)
         set_zones = set(df_edges['FromNodeNo']).union(set(df_edges['ToNodeNo']))
 
         if (len(set_zones - set(self.dict_export_zone2node.keys())) > 0) | (len(df_edges) > len(self.edges)):
@@ -769,7 +766,7 @@ class LuftlinienCalculator:
         df_nodes["No"].replace(self.dict_export_zone2node, inplace=True)
         df_nodes = df_nodes[['No', 'Name', 'XCoord', 'YCoord', 'TypeNo', 'CODE']]
 
-        df_edges = self.edges.loc[self.edges["ListTypeNo"].apply(lambda x: bool(set(x).intersection(list_vfs))), :]
+        df_edges = self.edges.loc[self.edges["ListTypeNo"].apply(lambda x: bool(set(x).intersection(list_cfl))), :]
 
         list_tsys_net = pd.DataFrame(self.visum.Net.TSystems.GetMultipleAttributes(["Code"])).squeeze().values.tolist()
         df_linktypes = pd.DataFrame.from_dict(self.dict_export_linktypes, orient="index").reset_index()
@@ -826,16 +823,16 @@ class LuftlinienCalculator:
             if self.visum.Net.Links.Count < len(df_edges):
                 logging.warning(self.translator.translate("warn_net_file_import_error"))
 
-        logging.info(self.translator.translate("log_net")+f'{len(list_vfs)}'+self.translator.translate("file_exported_to_visum"))
+        logging.info(self.translator.translate("log_net") +f'{len(list_cfl)}' + self.translator.translate("file_exported_to_visum"))
 
     ## Exports the connections and the number of connections as district UDAs to Visum
-    #  @param vfs The VFS (connection function level) for which the connections should be exported
+    #  @param cfl The cfl (connection function level) for which the connections should be exported
     #  @return No return value. The Visum instance is modified.
-    def export_zones_uda_connections(self, vfs):
+    def export_zones_uda_connections(self, cfl):
         # Create UDA if not exists
 
-        str_no_conn = f"RIN_Anz_Verbindungen_{vfs}".replace(" ", "")
-        str_conn = f"RIN_Verbindungen_{vfs}".replace(" ", "")
+        str_no_conn = f"RIN_Anz_Verbindungen_{cfl}".replace(" ", "")
+        str_conn = f"RIN_Verbindungen_{cfl}".replace(" ", "")
 
         try:
             self.visum.Net.Zones.AddUserDefinedAttribute(str_no_conn,
@@ -848,7 +845,7 @@ class LuftlinienCalculator:
             pass
 
         # Load connections
-        df_zones = self.adj_matrix_to_set_of_connected_zones(vfs).reset_index()
+        df_zones = self.adj_matrix_to_set_of_connected_zones(cfl).reset_index()
         df_zones["No"] = df_zones.Name.replace(self.zones.set_index("Name")["No"].astype(int).to_dict())
         df_zones.set_index("No", inplace=True)
 
@@ -864,12 +861,12 @@ class LuftlinienCalculator:
     ## Initializes the adjacency matrices
     #  @return No return value. The results are stored internally.
     def init_results(self):
-        dict_vfs = {}
-        for vfs in self.cfl:
-            dict_vfs[vfs] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
+        dict_cfl = {}
+        for cfl in self.cfl:
+            dict_cfl[cfl] = np.zeros([len(self.zones), len(self.zones)], dtype=bool)
 
         ## Dictionary with the resulting adjacency matrices of the connection function levels
-        self.matrizen_VFS = dict_vfs
+        self.matrices_cfl = dict_cfl
 
     ## Filters the links of the inserted link types in Visum.
     #  @return No return value. The Visum instance is modified.

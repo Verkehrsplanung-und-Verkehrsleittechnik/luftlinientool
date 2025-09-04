@@ -128,7 +128,7 @@ if __name__ == '__main__':
             # Loop over the defined VFS and export results
             for vfs in dict_vfs.keys():
                 # Export the network and create screenshots
-                llt1.export_net(list_vfs=[vfs], links_additive=True)
+                llt1.export_net(links_additive=True, list_cfl=[vfs])
                 filter_zones_source(param["attr_origin"])  # Filter zones based on source
                 filter_links_vfs(list(llt1.dict_export_linktypes.values()))  # Filter links based on type
 

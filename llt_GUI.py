@@ -356,8 +356,7 @@ class LLTFrame(wx.Frame):
     #  @param event The event object.
     def event_export_results(self, event):
         if self.llt_calculator is not None:
-            self.llt_calculator.export_net(
-                links_additive=True)
+            self.llt_calculator.export_net(links_additive=True)
             self.llt_calculator.export_matrix()
 
     ## Event handler for exporting network results for a specific CFL level.
@@ -368,8 +367,7 @@ class LLTFrame(wx.Frame):
         cfl_level = event.GetEventObject().cfl
 
         if self.llt_calculator is not None:
-            self.llt_calculator.export_net(list_vfs=[cfl_level], # list_vfs parameter name remains as per llt.py
-                                           links_additive=True)
+            self.llt_calculator.export_net(links_additive=True, list_cfl=[cfl_level])
             self.llt_calculator.delete_unused_nodes()
 
         self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_net_exported_imported'))
@@ -382,7 +380,7 @@ class LLTFrame(wx.Frame):
         cfl_level = event.GetEventObject().cfl
 
         if self.llt_calculator is not None:
-            self.llt_calculator.export_matrix(list_vfs=[cfl_level]) # list_vfs parameter name remains as per llt.py
+            self.llt_calculator.export_matrix(list_cfl=[cfl_level])  # list_vfs parameter name remains as per llt.py
 
         self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_matrix_loaded_into_visum'))
 
