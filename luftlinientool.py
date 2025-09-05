@@ -1,6 +1,6 @@
 ## @package luftlinientool.py
 # @brief Contains general methods and the LuftlinienCalculator class for calculating air-line connections
-# considering the centrality of districts
+# considering the centrality of zones
 
 import pandas as pd
 import logging
@@ -152,18 +152,18 @@ def show_info(path_scripts: Path = Path.cwd()):
 
 # ===== Class definition ======
 ## @class LuftlinienCalculator
-# The class contains attributes and calculation methods to determine the VFS between districts
+# The class contains attributes and calculation methods to determine the VFS between zones
 class LuftlinienCalculator:
 
     ## Constructor
     # @param source Filename (str) or Visum instance
-    # @param attr_cfl Name of the district attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo
+    # @param attr_cfl Name of the zone attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo
     # @param dict_cfl Dictionary containing the attribute values for the respective VFS
     # @param max_distance Specification of the distance up to which neighbors will be connected
-    # @param no_suppliers Specification of how many higher-ranking centers a district should be connected to
-    # @param attr_orig Name of the attribute that indicates whether the district is considered as a source. Default: None
-    # @param attr_dest Name of the attribute that indicates whether the district is considered as a destination. Default: None
-    # @param use_filter Indicates whether only active districts are considered. Can only be used if source = Visum instance
+    # @param no_suppliers Specification of how many higher-ranking centers a zone should be connected to
+    # @param attr_orig Name of the attribute that indicates whether the zone is considered as a source. Default: None
+    # @param attr_dest Name of the attribute that indicates whether the zone is considered as a destination. Default: None
+    # @param use_filter Indicates whether only active zones are considered. Can only be used if source = Visum instance
     # @param formula_distance Defines the distance function for determining the supply centers.
     # Note: For triangulation, the air-line connections are determined using the Euclidean distance.
     # Delaunay triangulation only works with a projection of Lat/Lon coordinates.
@@ -191,10 +191,10 @@ class LuftlinienCalculator:
         ## Debug mode flag. Enables the execution of intermediate analyses that are not considered in the normal program flow
         self.debug_mode = False
 
-        # Required district attributes
+        # Required zone attributes
         # Processing the input parameters
 
-        ## Relevant district attributes
+        ## Relevant zone attributes
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
         ## Centrality attribute
         self.attr_central_level = attr_cfl
@@ -217,7 +217,7 @@ class LuftlinienCalculator:
         # (formerly exchange function)
         self.deg_neighbourhood_cfl = dict()
         ## Specification of how many (higher-ranking) suppliers should be connected
-        self.n_suppliers_cfl = dict()
+        self.num_suppliers_cfl = dict()
 
         # Goal: dict with VFS: value
         if isinstance(max_distance, int):
@@ -231,20 +231,20 @@ class LuftlinienCalculator:
         # Goal: dict with VFS: value
         if isinstance(no_suppliers, int):
             # Conversion to dict with scalar for each VFS
-            self.n_suppliers_cfl = dict(
+            self.num_suppliers_cfl = dict(
                 zip(dict_cfl.keys(), no_suppliers * np.ones(len(dict_cfl), dtype=int)))
         elif isinstance(no_suppliers, dict):
-            self.n_suppliers_cfl = no_suppliers
+            self.num_suppliers_cfl = no_suppliers
         else:
             raise TypeError(self.translator.translate("error_param_type_not_implemented"))
 
-        # Reading the district data
+        # Reading the zone data
         # Important: Index of the table = 0...n
         if not isinstance(source, str):
             ## Visum instance
             self.visum = source
             attr_zones = self.attr_zones
-            ## Table with district data
+            ## Table with zone data
             self.zones = pd.DataFrame(source.Net.Zones.GetMultipleAttributes(attr_zones, OnlyActive=False),
                                       columns=attr_zones)
             set_active_zones = set(
@@ -274,15 +274,15 @@ class LuftlinienCalculator:
         self.attr_is_to_zone = attr_dest
 
         # Init VFS matrices
-        # Dict with matrix per VFS: Number of districts x Number of districts
+        # Dict with matrix per VFS: Number of zones x Number of zones
         self.init_results()
 
         ## Set language of Visum instance
         self.language = self.visum.GetCurrentLanguage()
 
         # Init dict export
-        ## LookupTable Infrastructure: Node number assigned to the district
-        self.dict_export_zone2node = {}  # Contains the number of nodes that are inserted for the district to be able to insert links
+        ## LookupTable Infrastructure: Node number assigned to the zone
+        self.dict_export_zone2node = {}  # Contains the number of nodes that are inserted for the zone to be able to insert links
         ## LookUpTable Infrastructure: Mapping internal link number to Visum link number
         self.dict_export_links_vfs = {}  # Contains the links (FromNode-ToNode)
         ## LookUpTable Infrastructure: Mapping connection function level - Visum link type
@@ -381,7 +381,7 @@ class LuftlinienCalculator:
 
         # Attribute der VFS
         k_neighbour = self.deg_neighbourhood_cfl[cfl]
-        n_suppliers_cfl = self.n_suppliers_cfl[cfl]
+        num_suppliers_cfl = self.num_suppliers_cfl[cfl]
 
         # Filtere Bezirksdaten, die die Bedingungen erfüllen
         # Sind Aktiv todo Erweiterung Filterung nach attr_filter
@@ -430,7 +430,7 @@ class LuftlinienCalculator:
                 self.matrices_cfl[cfl] = adj_k_steps
 
             # Verbindungen mit Versorgungsfunktion
-            if n_suppliers_cfl > 0:
+            if num_suppliers_cfl > 0:
                 # Erstelle für jeden Bezirk eine Liste der verbundenen Bezirke
                 df_list_zones = self.adj_matrix_to_set_of_connected_zones(cfl, use_zone_names=False)
 
@@ -446,7 +446,7 @@ class LuftlinienCalculator:
                 df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(
                     len)
                 df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
-                                            | (df_list_zones["no_provider"] >= n_suppliers_cfl)
+                                            | (df_list_zones["no_provider"] >= num_suppliers_cfl)
 
                 # Für alle Bezirke, die die Bedingung nich erfüllen: Verbinde die nächsten k Versorgungszentren
                 for zone in df_list_zones.index[df_list_zones["provider"] < True]:
@@ -460,7 +460,7 @@ class LuftlinienCalculator:
                     # Auswahlkriterium: nächstgelegen
                     list_idx_provider = get_nearest_points_from_set(x_point=zone_data.loc["XCoord"],
                                                                     y_point=zone_data.loc["YCoord"],
-                                                                    n=n_suppliers_cfl - df_list_zones.loc[
+                                                                    n=num_suppliers_cfl - df_list_zones.loc[
                                                                         zone, "no_provider"],
                                                                     array_points=provider_tmp[
                                                                         ["XCoord", "YCoord"]].values,
@@ -568,12 +568,12 @@ class LuftlinienCalculator:
 
             matrix_cfl = self.matrices_cfl[cfl]
             # Benennung in der Matrix in Visum bzw. Datei
-            if self.n_suppliers_cfl[cfl] < 1:
+            if self.num_suppliers_cfl[cfl] < 1:
                 # Term mit Versorgungsfkt wird weggelassen
                 name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
                 # Term mit Versorgungsfkt wird hinzugefügt
-                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.n_suppliers_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
 
             # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
             path_mat = self.path_output or Path.cwd() / 'mtx'
@@ -825,7 +825,7 @@ class LuftlinienCalculator:
 
         logging.info(self.translator.translate("log_net") +f'{len(list_cfl)}' + self.translator.translate("file_exported_to_visum"))
 
-    ## Exports the connections and the number of connections as district UDAs to Visum
+    ## Exports the connections and the number of connections as zone UDAs to Visum
     #  @param cfl The cfl (connection function level) for which the connections should be exported
     #  @return No return value. The Visum instance is modified.
     def export_zones_uda_connections(self, cfl):
@@ -877,7 +877,7 @@ class LuftlinienCalculator:
                             ",".join(str(x) for x in self.dict_export_linktypes.values()))
         filter.UseFilter = True
 
-    ## Filters the districts for which the given attribute is greater than 0.
+    ## Filters the zones for which the given attribute is greater than 0.
     #  @param filterFromZones Boolean flag to determine whether to filter source zones (True) or destination zones (False). Default: True
     #  @return No return value. The Visum instance is modified.
     def filter_zones_source_targets(self, filterFromZones: bool = True):
