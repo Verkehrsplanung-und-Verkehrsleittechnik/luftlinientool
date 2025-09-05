@@ -227,19 +227,19 @@ class LLTFrame(wx.Frame):
     def event_set_default(self, event=None):
         # functional, may need to add default attribute values for CFL
 
-        self.buttons_value_k_neighbor_cfl['VFS 0'].SetValue(self.default_k_neighbor) # Reverted to 'VFS 0'
-        self.buttons_value_k_neighbor_cfl['VFS 1'].SetValue(self.default_k_neighbor)
-        self.buttons_value_k_neighbor_cfl['VFS 2'].SetValue(self.default_k_neighbor)
-        self.buttons_value_k_neighbor_cfl['VFS 3'].SetValue(self.default_k_neighbor)
-        self.buttons_value_k_neighbor_cfl['VFS 4'].SetValue(self.default_k_neighbor)
-        self.buttons_value_k_neighbor_cfl['VFS 5'].SetValue(self.default_k_neighbor)
+        self.buttons_value_k_neighbor_cfl['cfl_0'].SetValue(self.default_k_neighbor) # Reverted to 'cfl_0'
+        self.buttons_value_k_neighbor_cfl['cfl_1'].SetValue(self.default_k_neighbor)
+        self.buttons_value_k_neighbor_cfl['cfl_2'].SetValue(self.default_k_neighbor)
+        self.buttons_value_k_neighbor_cfl['cfl_3'].SetValue(self.default_k_neighbor)
+        self.buttons_value_k_neighbor_cfl['cfl_4'].SetValue(self.default_k_neighbor)
+        self.buttons_value_k_neighbor_cfl['cfl_5'].SetValue(self.default_k_neighbor)
 
-        self.buttons_value_n_supplier['VFS 0'].SetValue(self.default_no_supplier) # Reverted to 'VFS 0'
-        self.buttons_value_n_supplier['VFS 1'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['VFS 2'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['VFS 3'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['VFS 4'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['VFS 5'].SetValue(self.default_no_supplier)
+        self.buttons_value_n_supplier['cfl_0'].SetValue(self.default_no_supplier) # Reverted to 'cfl_0'
+        self.buttons_value_n_supplier['cfl_1'].SetValue(self.default_no_supplier)
+        self.buttons_value_n_supplier['cfl_2'].SetValue(self.default_no_supplier)
+        self.buttons_value_n_supplier['cfl_3'].SetValue(self.default_no_supplier)
+        self.buttons_value_n_supplier['cfl_4'].SetValue(self.default_no_supplier)
+        self.buttons_value_n_supplier['cfl_5'].SetValue(self.default_no_supplier)
 
         self.cb_cfl.SetValue("TypeNo")
         self.cb_origin.SetValue("None")
@@ -365,12 +365,13 @@ class LLTFrame(wx.Frame):
     #  @param event The event object containing the CFL level to export.
     def event_export_net(self, event):
         cfl_level = event.GetEventObject().cfl
+        cfl_name = self.button_cfl_active[cfl_level].Label
 
         if self.llt_calculator is not None:
-            self.llt_calculator.export_net(links_additive=True, list_cfl=[cfl_level])
+            self.llt_calculator.export_net(links_additive=True, list_cfl=[cfl_name])
             self.llt_calculator.delete_unused_nodes()
 
-        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_net_exported_imported'))
+        self.SetStatusText(f"{cfl_name} {self.translator.translate(': status_net_exported_imported')}")
 
     ## Event handler for exporting matrix results for a specific CFL level.
     #  Exports the matrix results for the specified CFL level and updates the status bar
@@ -378,11 +379,12 @@ class LLTFrame(wx.Frame):
     #  @param event The event object containing the CFL level to export.
     def event_export_mtx(self, event):
         cfl_level = event.GetEventObject().cfl
+        cfl_name = self.button_cfl_active[cfl_level].Label
 
         if self.llt_calculator is not None:
-            self.llt_calculator.export_matrix(list_cfl=[cfl_level])  # list_vfs parameter name remains as per llt.py
+            self.llt_calculator.export_matrix(list_cfl=[cfl_name])  # list_vfs parameter name remains as per llt.py
 
-        self.SetStatusText(f'{cfl_level}'+self.translator.translate(': status_matrix_loaded_into_visum'))
+        self.SetStatusText(f"{cfl_name} {self.translator.translate(': status_matrix_loaded_into_visum')}")
 
     ## Event handler for exporting all results at once.
     #  Exports both matrix and network results for all CFL levels, deletes unused nodes,
@@ -415,24 +417,24 @@ class LLTFrame(wx.Frame):
     #  including CFL levels, supplier counts, neighbor counts, and distance formula. Also logs the current settings.
     def update_param_cfl(self):
         if self.llt_calculator is not None:
-            list_cfl_levels = [cfl_level[0] for cfl_level in self.button_cfl_active.items() if cfl_level[1].Value > 0]
-            dict_num_suppliers = {cfl_level: self.buttons_value_n_supplier[cfl_level].Value for cfl_level in list_cfl_levels}
-            dict_max_neighbor = {cfl_level: self.buttons_value_k_neighbor_cfl[cfl_level].Value for cfl_level in list_cfl_levels}
-            dict_cfl_values = {cfl_level: self.buttons_cfl_value[cfl_level].Value for cfl_level in list_cfl_levels}
+            dict_cfl_names= {cfl_level: item.Label for cfl_level, item in self.button_cfl_active.items() if item.Value > 0}
+            dict_num_suppliers = {dict_cfl_names[cfl_level]: self.buttons_value_n_supplier[cfl_level].Value for cfl_level in dict_cfl_names}
+            dict_max_neighbor = {dict_cfl_names[cfl_level]:  self.buttons_value_k_neighbor_cfl[cfl_level].Value for cfl_level in dict_cfl_names}
+            dict_cfl_values = {dict_cfl_names[cfl_level]:  self.buttons_cfl_value[cfl_level].Value for cfl_level in dict_cfl_names}
 
-            self.llt_calculator.max_neighbor_cfl = dict_max_neighbor
+            self.llt_calculator.deg_neighbourhood_cfl = dict_max_neighbor
             self.llt_calculator.num_suppliers_cfl = dict_num_suppliers
             self.llt_calculator.cfl = dict_cfl_values
             self.llt_calculator.formula_dist = self.attr_dist_fcn
 
             logging.info( self.translator.translate('Current settings:') + "\n" +
-                          self.translator.translate('Districts: Attr. Centrality')+f'{self.llt_calculator.attr_central_level}' + "\n"+
-                          self.translator.translate('label_district_is_origin') + f'{self.llt_calculator.attr_is_from_zone}' + "\n" +
-                          self.translator.translate('label_district_is_destination') + f'{self.llt_calculator.attr_is_to_zone}' + "\n" +
-                          self.translator.translate('distance_calculation_Setting') + f'{self.llt_calculator.formula_dist}' + "\n" +
-                          self.translator.translate('CFL') + f'{self.llt_calculator.cfl}' + "\n" +
-                          self.translator.translate('neighbourhood_LevelPerCFL_Setting') + f'{self.llt_calculator.max_neighbor_cfl}' + "\n" +
-                          self.translator.translate('number_of_Suppliers_PerCFL_Setting') + f'{self.llt_calculator.num_suppliers_cfl}')
+                          self.translator.translate('label_attr_zones_centrality')+f' {self.llt_calculator.attr_central_level}' + "\n"+
+                          self.translator.translate('label_zone_is_origin') + f': {self.llt_calculator.attr_is_from_zone}' + "\n" +
+                          self.translator.translate('label_zone_is_destination') + f': {self.llt_calculator.attr_is_to_zone}' + "\n" +
+                          self.translator.translate('distance_calculation_setting') + f': {self.llt_calculator.formula_dist}' + "\n" +
+                          self.translator.translate('CFL') + f': {self.llt_calculator.cfl}' + "\n" +
+                          self.translator.translate('setting_neighbourhood_LevelPerCFL_Setting') + f': {self.llt_calculator.deg_neighbourhood_cfl}' + "\n" +
+                          self.translator.translate('number_of_Suppliers_PerCFL_Setting') + f': {self.llt_calculator.num_suppliers_cfl}')
 
 
     ## Updates all text elements in the GUI to the current language.
@@ -510,11 +512,11 @@ class MainTab(wx.Panel):
         self.__bind_events__()
 
     ## Sets up the layout of the main tab panel.
-    #  Creates and arranges all UI components including district attribute selection,
+    #  Creates and arranges all UI components including zone attribute selection,
     #  connectivity function level parameters, and action buttons.
     def __set_layout__(self):
         # Rows with individual elements (vbox_outer)
-        # Row 1: District attribute selection
+        # Row 1: zone attribute selection
         # Row 2: GridbagSizer with everything except Log
         # Status bar at the bottom
 
@@ -522,7 +524,7 @@ class MainTab(wx.Panel):
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL) # Make hbox1 an instance attribute
         self.gridbagsizer1 = wx.GridBagSizer(vgap=10, hgap=50) # Make gridbagsizer1 an instance attribute
 
-        # Selection of district attributes
+        # Selection of zone attributes
         self.cb_cfl= wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
                                  style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
         self.cb_cfl.Label = self.translator.translate('attr_cfl')
@@ -539,15 +541,15 @@ class MainTab(wx.Panel):
         self.TopLevelParent.cb_destination = self.cb_destination
 
         # Store StaticText widgets as instance attributes
-        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting')))
+        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting')))
         self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_cfl, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_origin = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option')))
+        self.static_text_origin = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option')))
         self.hbox1.Add(self.static_text_origin, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_origin, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_destination = wx.StaticText(self, -1, (self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option')))
+        self.static_text_destination = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option')))
         self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_destination, 0, wx.ALL | wx.EXPAND, 15)
 
@@ -556,12 +558,14 @@ class MainTab(wx.Panel):
         self.gridbagsizer1.Add(self.static_text_cfl_label,
                           pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
 
-        self.button_cfl_active = {"VFS 0": wx.CheckBox(self, -1, self.translator.translate('VFS 0')), # Reverted to 'VFS 0'
-                                  "VFS 1": wx.CheckBox(self, -1, self.translator.translate('VFS 1')),
-                                  "VFS 2": wx.CheckBox(self, -1, self.translator.translate('VFS 2')),
-                                  "VFS 3": wx.CheckBox(self, -1, self.translator.translate('VFS 3')),
-                                  "VFS 4": wx.CheckBox(self, -1, self.translator.translate('VFS 4')),
-                                  "VFS 5": wx.CheckBox(self, -1, self.translator.translate('VFS 5'))}
+        str_cfl = self.translator.translate('CFL')
+
+        self.button_cfl_active = {"cfl_0": wx.CheckBox(self, -1, f"{str_cfl} 0"), # Reverted to 'VFS 0'
+                                  "cfl_1": wx.CheckBox(self, -1, f"{str_cfl} 1"),
+                                  "cfl_2": wx.CheckBox(self, -1, f"{str_cfl} 2"),
+                                  "cfl_3": wx.CheckBox(self, -1, f"{str_cfl} 3"),
+                                  "cfl_4": wx.CheckBox(self, -1, f"{str_cfl} 4"),
+                                  "cfl_5": wx.CheckBox(self, -1, f"{str_cfl} 5")}
 
         tmp_iterator = 1
         for btn in self.button_cfl_active.values():
@@ -574,12 +578,12 @@ class MainTab(wx.Panel):
         self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
         self.gridbagsizer1.Add(self.static_text_attr_cfl,
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_cfl_value = {"VFS 0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                  "VFS 1": wx.SpinCtrl(self, -1, ""),
-                                  "VFS 2": wx.SpinCtrl(self, -1, ""),
-                                  "VFS 3": wx.SpinCtrl(self, -1, ""),
-                                  "VFS 4": wx.SpinCtrl(self, -1, ""),
-                                  "VFS 5": wx.SpinCtrl(self, -1, "")}
+        self.buttons_cfl_value = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
+                                  "cfl_1": wx.SpinCtrl(self, -1, ""),
+                                  "cfl_2": wx.SpinCtrl(self, -1, ""),
+                                  "cfl_3": wx.SpinCtrl(self, -1, ""),
+                                  "cfl_4": wx.SpinCtrl(self, -1, ""),
+                                  "cfl_5": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_cfl_value.values():
             self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
@@ -592,12 +596,12 @@ class MainTab(wx.Panel):
         self.gridbagsizer1.Add(self.static_text_exchange_fcn,
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
-        self.buttons_value_k_neighbor_cfl = {"VFS 0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                            "VFS 1": wx.SpinCtrl(self, -1, ""),
-                                            "VFS 2": wx.SpinCtrl(self, -1, ""),
-                                            "VFS 3": wx.SpinCtrl(self, -1, ""),
-                                            "VFS 4": wx.SpinCtrl(self, -1, ""),
-                                            "VFS 5": wx.SpinCtrl(self, -1, "")}
+        self.buttons_value_k_neighbor_cfl = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
+                                            "cfl_1": wx.SpinCtrl(self, -1, ""),
+                                            "cfl_2": wx.SpinCtrl(self, -1, ""),
+                                            "cfl_3": wx.SpinCtrl(self, -1, ""),
+                                            "cfl_4": wx.SpinCtrl(self, -1, ""),
+                                            "cfl_5": wx.SpinCtrl(self, -1, "")}
         tmp_iterator = 1
         for btn in self.buttons_value_k_neighbor_cfl.values():
             self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 2), flag=wx.ALIGN_CENTER)
@@ -609,12 +613,12 @@ class MainTab(wx.Panel):
         self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('supply_Function_Parameter')+"\n"+self.translator.translate('n_Supply_Centers_Parameter')))
         self.gridbagsizer1.Add(self.static_text_supply_fcn,
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_value_n_supplier = {"VFS 0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                          "VFS 1": wx.SpinCtrl(self, -1, ""),
-                                          "VFS 2": wx.SpinCtrl(self, -1, ""),
-                                          "VFS 3": wx.SpinCtrl(self, -1, ""),
-                                          "VFS 4": wx.SpinCtrl(self, -1, ""),
-                                          "VFS 5": wx.SpinCtrl(self, -1, "")}
+        self.buttons_value_n_supplier = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
+                                          "cfl_1": wx.SpinCtrl(self, -1, ""),
+                                          "cfl_2": wx.SpinCtrl(self, -1, ""),
+                                          "cfl_3": wx.SpinCtrl(self, -1, ""),
+                                          "cfl_4": wx.SpinCtrl(self, -1, ""),
+                                          "cfl_5": wx.SpinCtrl(self, -1, "")}
 
         tmp_iterator = 1
         for btn in self.buttons_value_n_supplier.values():
@@ -627,12 +631,12 @@ class MainTab(wx.Panel):
         self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('create_In_VisumAs_Option'))
         self.gridbagsizer1.Add(self.static_text_visum_as,
             pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_export_mat = {"VFS 0": wx.Button(self, -1, "MTX"), # Reverted to 'VFS 0'
-                                   "VFS 1": wx.Button(self, -1, "MTX"),
-                                   "VFS 2": wx.Button(self, -1, "MTX"),
-                                   "VFS 3": wx.Button(self, -1, "MTX"),
-                                   "VFS 4": wx.Button(self, -1, "MTX"),
-                                   "VFS 5": wx.Button(self, -1, "MTX")}
+        self.buttons_export_mat = {"cfl_0": wx.Button(self, -1, "MTX"), # Reverted to 'VFS 0'
+                                   "cfl_1": wx.Button(self, -1, "MTX"),
+                                   "cfl_2": wx.Button(self, -1, "MTX"),
+                                   "cfl_3": wx.Button(self, -1, "MTX"),
+                                   "cfl_4": wx.Button(self, -1, "MTX"),
+                                   "cfl_5": wx.Button(self, -1, "MTX")}
 
         tmp_iterator = 1
         for cfl_level, btn in self.buttons_export_mat.items():
@@ -641,12 +645,12 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons Export Net
-        self.buttons_export_net = {"VFS 0": wx.Button(self, -1, "Net"), # Reverted to 'VFS 0'
-                                   "VFS 1": wx.Button(self, -1, "Net"),
-                                   "VFS 2": wx.Button(self, -1, "Net"),
-                                   "VFS 3": wx.Button(self, -1, "Net"),
-                                   "VFS 4": wx.Button(self, -1, "Net"),
-                                   "VFS 5": wx.Button(self, -1, "Net")}
+        self.buttons_export_net = {"cfl_0": wx.Button(self, -1, "Net"), # Reverted to 'VFS 0'
+                                   "cfl_1": wx.Button(self, -1, "Net"),
+                                   "cfl_2": wx.Button(self, -1, "Net"),
+                                   "cfl_3": wx.Button(self, -1, "Net"),
+                                   "cfl_4": wx.Button(self, -1, "Net"),
+                                   "cfl_5": wx.Button(self, -1, "Net")}
         tmp_iterator = 1
         for cfl_level, btn in self.buttons_export_net.items():
             btn.cfl = cfl_level
@@ -706,9 +710,9 @@ class MainTab(wx.Panel):
         self.cb_destination.Label = self.translator.translate('attr_destination')
 
         # Update StaticText widgets
-        self.static_text_centrality.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting'))
-        self.static_text_origin.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option'))
-        self.static_text_destination.SetLabel(self.translator.translate('district_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option'))
+        self.static_text_centrality.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting'))
+        self.static_text_origin.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option'))
+        self.static_text_destination.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option'))
         self.static_text_cfl_label.SetLabel(self.translator.translate('connectivity_Function_Level_Parameter'))
         self.static_text_attr_cfl.SetLabel(self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
         self.static_text_exchange_fcn.SetLabel(self.translator.translate('interchangeFunction_Parameter') + "\n" + self.translator.translate('n_Nearest_Neighbour_Parameter'))
@@ -718,8 +722,10 @@ class MainTab(wx.Panel):
 
         # Update CheckBox labels (iterate over existing objects)
         for key, checkbox in self.button_cfl_active.items():
+            str_cfl = self.translator.translate('CFL')
+            no_cfl = int(key.split('_')[1])
             # The keys are 'VFS 0', 'VFS 1', etc., so we translate these keys directly
-            checkbox.SetLabel(self.translator.translate(key))
+            checkbox.SetLabel(f"{str_cfl} {no_cfl}")
 
         # Update master export button label
         self.btn_export_master.SetLabel(self.translator.translate('import_To_Visum_All_CFL_Option') +"\n"+self.translator.translate('routes_And_Matrix_Option')) # Reverted to 'Import nach Visum alle VFS'
@@ -895,7 +901,7 @@ class HelpPopUp(wx.Frame):
 
 if __name__ == '__main__':
     # Initialize translator outside the app
-    translator = Translator(Path(__file__).parent / "Translations.xlsx", language="en")
+    translator = Translator(Path(__file__).parent / "Translations.json", language="en")
     app = wx.App()
     frame = LLTFrame(translator)
     app.MainLoop()
