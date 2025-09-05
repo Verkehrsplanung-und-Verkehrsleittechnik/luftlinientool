@@ -1,5 +1,5 @@
 import logging
-
+from pathlib import Path
 import pandas as pd
 
 ## @class Translator
@@ -8,7 +8,9 @@ class Translator:
     ## @brief Initializes the translator with the specified language.
     # @param excel_path Path to the Excel file containing translations. Default: "Translations.xlsx"
     # @param language Language code to use for translations. Default: "en"
-    def __init__(self, excel_path="Translations.xlsx", language: str="en"): #edit the translation excel path here
+    def __init__(self, excel_path= Path.cwd() / "Translations.json", language: str="en"): #edit the translation excel path here
+
+        self.translations = dict()
         self.excel_path = excel_path
         self.load_translations()
 
@@ -18,13 +20,16 @@ class Translator:
 
     ## @brief Loads translations from the Excel file.
     def load_translations(self):
-        df = pd.read_excel(self.excel_path, header=0, index_col=0)
-        # languages = df.columns[1:]  # skip key column --> integrated in  import excel file
+        if self.excel_path.suffix == ".json":
+            df = pd.read_json(self.excel_path, orient="index")
+        elif self.excel_path.suffix ==".xlsx":
+            df = pd.read_excel(self.excel_path, header=0, index_col=0) # visum-python can't open excel files
+        else:
+            logging.error(f"Unsupported file format for translations: {self.excel_path}")
+            return
+
         self.translations = df.to_dict()
-        # for _, row in df.iterrows(): # try to not to use iterrows whenever possible (worst pandas solution)
-        #     key = row[0]
-        #     for lang in languages:
-        #         self.translations[lang][key] = row[lang]
+
 
     ## @brief Translates a key to the selected language.
     # @param key The key to translate.
