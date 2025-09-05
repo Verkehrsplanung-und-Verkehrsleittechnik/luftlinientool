@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="utf-8">
-    <title>General Procedure and Methodology</title>
+    <title>Anwendung - Luftlinientool2022</title>
     <script type="text/javascript" async
       src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
     </script>
@@ -44,87 +44,99 @@
     </style>
 </head>
 <body>
-    <h1 id="general-procedure-and-methodology">General Procedure and Methodology</h1>
+    <h1>General Procedure and Methodology</h1>
 
-    <h2 id="determination-cfl">Determination of Connections for a Connection Function Level $\\textrm{CFL}$</h2>
+    <h2>Determination of Connections for a Connection Function Level CFL</h2>
+
     <ol>
-        <li>Initialization and filtering of districts</li>
-        <li>Determination of triangle connections between districts via Delaunay triangulation.</li>
-        <li>Consideration of the $n$-nearest neighbors.</li>
+        <li>Initialization and filtering of zones</li>
+        <li>Determination of triangle connections between zones via Delaunay triangulation.</li>
+        <li>Consideration of the <em>n</em>-nearest neighbors.</li>
         <li>Ensuring connection to supply centers.</li>
-        <li>Filtering of districts and connections.</li>
+        <li>Filtering of zones and connections.</li>
         <li>Creation of a symmetric adjacency matrix that correctly represents all connections.</li>
     </ol>
 
-    <p>Implemented in the function <code>calculate_cfl(self, cfl)</code> of the class <code>directdistanceCalculator</code>.</p>
+    <p>Implemented in the function <span class="code-ref"><a href="#" class="hyperlink">calculate_cfl</a></span> (self, <span class="code-ref"><a href="#" class="hyperlink">cfl</a></span>) of the class <span class="code-ref"><a href="#" class="hyperlink">directdistanceCalculator</a></span>.</p>
 
-    <h3 id="init-filter">Initialization and Filtering of Districts</h3>
+    <h3>Initialization and Filtering of zones</h3>
     <ul>
-        <li>First, districts with level $\\geq \\text{CFL}$ are filtered to include only those relevant for the current connection function level $\\textrm{CFL}$. Districts that are inactive or do not meet connection requirements are excluded.</li>
-        <li>A check is performed to ensure that no two districts share identical coordinates, as this could cause issues during Delaunay triangulation.</li>
+        <li>First, zones with level ≥ CFL are filtered to include only those relevant for the current connection function level CFL. zones that are inactive or do not meet connection requirements are excluded.</li>
+        <li>A check is performed to ensure that no two zones share identical coordinates, as this could cause issues during Delaunay triangulation.</li>
     </ul>
 
-    <h3 id="delaunay">Delaunay Triangulation</h3>
+    <h3>Delaunay Triangulation</h3>
     <ul>
-        <li>If there are enough active districts, a Delaunay triangulation is performed to connect districts into triangles. These triangles represent neighborhood relationships between districts.</li>
+        <li>If there are enough active zones, a Delaunay triangulation is performed to connect zones into triangles. These triangles represent neighborhood relationships between zones.</li>
         <li>The resulting neighborhood connections are stored in a (symmetric) adjacency matrix.</li>
-        <li>It can also identify connections to higher function levels (districts of connection level $>\\textrm{CFL}$).</li>
+        <li>It can also identify connections to higher function levels (zones of connection level > CFL).</li>
     </ul>
 
-    <h3 id="n-nearest">Consideration of n-Nearest Neighbors</h3>
+    <h3>Consideration of n-Nearest Neighbors</h3>
     <ul>
-        <li>Compute the reachability matrix of adjacency matrix $A$ in $n$ steps:
-        $$E_n = A^n$$</li>
+        <li>Compute the reachability matrix of adjacency matrix <em>A</em> in <em>n</em> steps:</li>
+    </ul>
+
+    <div class="equation">
+        <em>E<sub>n</sub> = A<sup>n</sup></em>
+    </div>
+
+    <ul>
         <li>Update the adjacency matrix to be the reachability matrix.</li>
     </ul>
 
-    <h3 id="supply-centers">Connections to Supply Centers</h3>
+    <h3>Connections to Supply Centers</h3>
     <ul>
-        <li>Check whether each district is connected to a sufficient number of supply centers.</li>
+        <li>Check whether each zone is connected to a sufficient number of supply centers.</li>
         <li>If not, determine the nearest supply centers and establish connections.</li>
     </ul>
 
-    <h3 id="active-inactive">Active and Inactive Connections</h3>
+    <h3>Active and Inactive Connections</h3>
     <ul>
-        <li>Only active districts are considered as sources and targets of connections.</li>
-        <li>The “isSource” filter defines which district is used as a source; “isTarget” defines the target districts. For symmetry reasons, the relations $od = do$ hold. Nevertheless, “isTarget” districts are not part of the triangles but are reached by the “isSource” districts.</li>
-        <li>Implementation: A filter mask is applied to the adjacency matrices. This mask is the result of the dyadic product of “isSource” and “isTarget” followed by symmetrization.</li>
+        <li>Only active zones are considered as sources and targets of connections.</li>
+        <li>The "isSource" filter defines which zone is used as a source; "isTarget" defines the target zones. For symmetry reasons, the relations <em>od = do</em> hold. Nevertheless, "isTarget" zones are not part of the triangles but are reached by the "isSource" zones.</li>
+        <li>Implementation: A filter mask is applied to the adjacency matrices. This mask is the result of the dyadic product of "isSource" and "isTarget" followed by symmetrization.</li>
     </ul>
 
-    <p><strong>Example:</strong></p>
-    <p>Let “isOrigin” $o = \\left[ 1 \\; 1 \\; 0 \\; 0 \\; 1 \\right]^T$ and “isDestination” $d = \\left[ 1 \\; 1 \\; 1 \\; 1 \\; 0 \\right]^T$. Then:</p>
+    <p>Example: Let <span class="quote">"isOrigin"</span> <em>o</em> = <span class="vector">[1 1 0 0 1]<sup>T</sup></span> and <span class="quote">"isDestination"</span> <em>d</em> = <span class="vector">[1 1 1 1 0]<sup>T</sup></span>. Then:</p>
 
-    $$M_{o \\lor d } = o \\cdot d^T =
-    \\begin{bmatrix}
-    1 & 1 & 1 & 1 & 0 \\\\
-    1 & 1 & 1 & 1 & 0 \\\\
-    0 & 0 & 0 & 0 & 0 \\\\
-    0 & 0 & 0 & 0 & 0 \\\\
-    1 & 1 & 1 & 1 & 0
-    \\end{bmatrix}$$
+    <div class="align-block">
+        <p><em>M<sub>o ∨ d</sub></em> = <em>o · d<sup>T</sup></em> = </p>
+        <table>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        </table>
 
-    $$M_{symmetrisch} = M_{o \\lor d } + M_{o \\lor d }^T =
-    \\begin{bmatrix}
-    1 & 1 & 1 & 1 & 1 \\\\
-    1 & 1 & 1 & 1 & 1 \\\\
-    1 & 1 & 0 & 0 & 1 \\\\
-    1 & 1 & 0 & 0 & 1 \\\\
-    1 & 1 & 1 & 1 & 0
-    \\end{bmatrix}$$
+        <p><em>M<sub>symmetrisch</sub></em> = <em>M<sub>o ∨ d</sub></em> + <em>M<sub>o ∨ d</sub><sup>T</sup></em> = </p>
+        <table>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        </table>
+    </div>
 
-    <h2 id="export-cfl">Export of the Direct Distance Infrastructure for CFL</h2>
+    <h2>Export of the Direct Distance Infrastructure for CFL</h2>
+
     <p>Exporting the computed Direct Distance links for the specified connection function levels as a standalone infrastructure (nodes, link types, links, connectors) allows visualization of the results or use of the resulting triangulation network.</p>
 
     <p>When converting the adjacency matrices, two challenges must be addressed:</p>
     <ul>
         <li>Compatibility with the existing infrastructure of a Visum model.</li>
-        <li>Avoidance of overlaps when combining multiple connection function levels and correct assignment of VFS to links considered by multiple levels.</li>
+        <li>Avoidance of overlaps when combining multiple connection function levels and correct assignment of CFL to links considered by multiple levels.</li>
     </ul>
 
     <p>Therefore, the export of the Direct Distance infrastructure is performed in two steps:</p>
     <ol>
-        <li>If needed, update the required infrastructure objects (nodes, link types, links, connectors) taking into account all calculated adjacency matrices, and store them as attributes of the instance of the Direct Distance Tool calculator. This is implemented in the function <code>extract_net</code> of the class <code>directdistanceCalculator</code>. The numbering of objects relevant for Visum considers existing objects in the active Visum instance.</li>
-        <li>The function <code>export_net</code> creates a .net file containing the infrastructure of the chosen connection function levels and opens it in the current Visum instance.</li>
+        <li>If needed, update the required infrastructure objects (nodes, link types, links, connectors) taking into account all calculated adjacency matrices, and store them as attributes of the instance of the Direct Distance Tool calculator.<br>
+        This is implemented in the function <span class="code-ref"><a href="#" class="hyperlink">extract_net</a></span> of the class <span class="code-ref"><a href="#" class="hyperlink">directdistanceCalculator</a></span>.<br>
+        The numbering of objects relevant for Visum considers existing objects in the active Visum instance.</li>
+        <li>The function <span class="code-ref"><a href="#" class="hyperlink">export_net</a></span> creates a .net file containing the infrastructure of the chosen connection function levels and opens it in the current Visum instance.</li>
     </ol>
 </body>
+
 </html>

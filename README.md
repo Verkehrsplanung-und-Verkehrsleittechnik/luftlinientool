@@ -1,66 +1,59 @@
-# Luftlinientool2022
-Erstellen von Luftlinienverbindungen für gegebene Bezirke anhand der RIN.
+# Application
 
-## Anwendung
-### Anwendung via Dialog
-Zwei Möglichkeiten
-* Visumversion ist noch geschlossen:
-  
-  GUI extern starten (*llt_GUI.py* ausführen)
-* Visumversion ist bereits geöffnet:
-  * Das Ausführen der GUI (*llt_GUI.py*) in das Skriptmenü integrieren
-  * Skript via Skriptmenü starten 
-    
-    Hinweis: Wenn die GUI mehrmals gestarten & beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben. 
+## Application via Dialog
 
-### Aufruf via Code
-Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse DirectDistanceCalculator erstellt werden.
-Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden
-Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
+Two possibilities:
 
-### auszuführende Schritte
-1. Parameter setzen (welche VFS, Attributswerte etc.)
+- **Visum version is still closed:**  
+  GUI start externally (`ddt_GUI.py` execute)
 
-2. Luftlinienkalkulatorobjekt initialisieren
-   
-    Code: Aufruf Konstruktor mit Parameterübergabe
-   
-    GUI: "Daten einlesen" in Toolbar ausführen
-   
-3. Luftlinienverbindungen berechnen/erzeugen
+- **Visum version is already open:**
+  - Integrate execution of the GUI (`ddt_GUI.py`) into the script menu
+  - Start script via script menu  
+    **Note:** If the GUI is started & closed multiple times, an error message will appear. This can be ignored; the functionality is still intact.
 
-    Code: Aufruf calculate_main Methode
-   
-    GUI: "Berechnung Luftlinien-Netz" in Toolbar ausführen
-   
-4. Ergebnisse in gewünschter Form nach Visum exportieren
+## Call via Code
 
-    Code: Aufruf der export_matrix/export_net Methode
-   
-    GUI: Die entsprechenden Buttons (Mtx/Net) in der Spalte "anlegen in Visum als" verwenden. Alternativ überträgt der Button "Import nach Visum alle VFS Strecken + Mtx" die kombinierten Ergebnisse aller VFS.
-  
-Anmerkungen:
+The Direct Distance Tool can also be used without the GUI. For this, an instance of the class `DirectDistanceCalculator` must be created as a code execution. After that, the methods of the instance (Import, Calculation, Export) can be accessed. An example can be seen under `Bsp_Aufruf_ohne_GUI.py`.
 
-* Bei der GUI werden aktuelle Berchnungen zurückgesetzt, wenn die Auswahl eines der Bezirksattribtue geändert wird. Dabei wird eine neue Instanz des LLT Kalkulators erstellt.
-* Werden Bezirkswerte in Visum geändert, werden diese nicht automatisch im LLT Kalkulator geändert. Deshalb muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.
-* Die initialen Parameterwerte können in der GUI über das Tool "Defaultwerte" wieder aufgerufen werden
-* "Ergebnisse initialisieren" ermöglicht das Löschen bereits vorhandener Ergebnisse
-* Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren"). 
+### Steps to execute
 
-## Vorraussetzung
-Netz mit kategorisierten Bezirken:
-* Attribut für die Zentralität (Bezirke): je kleiner die Zahl, desto größer ist die Zentralität des Bezirks
+1. **Set parameters** (which VFS, attribute values, etc.)
 
-    Bsp.: Angabe der Zentralität über die Typnummer
-    * 0 ... Metropolregion
-    * 1 ... Oberzentrum
-    * 2 ... Mittelzentrum
-    * 3 ... Grundzentrum
-    * 4 ... Ort ohne zentrale Funktion
-    * 5 ... Teilort
-    
-* (optional) aktiver Bezirksfilter
-* (optional) Angabe eines Attributs, welcher Bezirk als Quelle verwendet werden soll) {0=Nein, 1=Ja}
-* (optional) Angabe eines Attributs, welcher Bezirk als Ziel verwendet werden soll) {0=Nein, 1=Ja}
- 
- 
+2. **Initialize Direct Distance Calculator object**
+   - **Code:** Call constructor with parameter passing
+   - **GUI:** Execute "Read data" in toolbar
+
+3. **Calculate/create direct distance connections**
+   - **Code:** Call `calculate_main` method
+   - **GUI:** Execute "Direct Distance Network Calculation" in toolbar
+
+4. **Export results to Visum in desired format**
+   - **Code:** Call `export_matrix` / `export_net` method
+   - **GUI:** Use the corresponding buttons (Mtx/Net) in the column "create in Visum as". Alternatively, the button "Import to Visum all VFS routes + Mtx" transfers the combined results of all VFS.
+
+### Notes
+
+- In the GUI, current calculations are reset if one of the zone attribute selections is changed. A new instance of the Direct Distance Calculator is created.
+- If zone values are changed in Visum, they are not automatically updated in the Direct Distance Calculator. Therefore, the procedure must be repeated from step 2.
+- Initial parameter values can be recalled in the GUI via the tool "Default values"
+- "Initialize results" enables deletion of already existing results
+- Step 3 uses the parameters currently entered in the GUI. Before calculating with new parameters, it is recommended to delete existing results ("Initialize results").
+
+## Requirements
+
+Network with categorized zones:
+
+- **Attribute for centrality (zones):** The smaller the number, the greater the centrality of the zone
+
+  **Example:** Indication of centrality via the type number
+  - `0` ... Metropolitan region
+  - `1` ... Major centrality
+  - `2` ... Medium centrality
+  - `3` ... Basic centrality
+  - `4` ... Place without central function
+  - `5` ... Subdivision
+
+- **(optional)** Active zone filter
+- **(optional)** Indication of an attribute defining which zone should be used as a source `{0=No, 1=Yes}`
+- **(optional)** Indication of an attribute defining which zone should be used as a target `{0=No, 1=Yes}`

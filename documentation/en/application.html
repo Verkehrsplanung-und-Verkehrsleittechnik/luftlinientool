@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="utf-8">
-    <title>AirlineTool2022</title>
+    <title>Anwendung - Luftlinientool2022</title>
     <script type="text/javascript" async
       src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
     </script>
@@ -44,80 +44,76 @@
     </style>
 </head>
 <body>
-    <h1 id="airlinetool2022">AirlineTool2022</h1>
-    <p>Create airline connections for given districts based on the RIN.</p>
+    <h1>Application</h1>
 
-    <h2 id="application">Application</h2>
-    <h3 id="application-via-dialog">Application via Dialog</h3>
-    <p>Two options:</p>
+    <h2>Application via Dialog</h2>
+
+    <p>Two possibilities</p>
     <ul>
-        <li>Visum version is not yet open:<br>
-            Start GUI externally (<em>llt_GUI.py</em>)
-        </li>
+        <li>Visum version is still closed:<br>
+        GUI start externally (<span class="code-ref"><a href="#" class="hyperlink">llt_GUI.py</a></span> execute)</li>
         <li>Visum version is already open:
-            <ul>
-                <li>Integrate execution of GUI (<em>llt_GUI.py</em>) into the script menu</li>
-                <li>Start script via script menu</li>
+            <ul class="nested-list">
+                <li>Integrate execution of the GUI (<span class="code-ref"><a href="#" class="hyperlink">llt_GUI.py</a></span>) into the script menu</li>
+                <li>Start script via script menu<br>
+                Note: If the GUI is started & closed multiple times, an error message will appear. This can be ignored; the functionality is still intact.</li>
             </ul>
-            <p>Note: If the GUI is started &amp; closed several times, an error message may appear. This can be ignored, functionality is still ensured.</p>
         </li>
     </ul>
 
-    <h3 id="call-via-code">Call via Code</h3>
-    <p>The AirlineTool can also be used without GUI. For this, a code execution must create an instance of the class <strong>AirlineCalculator</strong>.<br>
-    Afterwards, the methods of the instance (Import, Calculation, Export) can be accessed.<br>
-    An example can be found in <em>Bsp_Aufruf_ohne_GUI.py</em>.</p>
+    <h2>Call via Code</h2>
 
-    <h3 id="steps-to-execute">Steps to execute</h3>
+    <p>The Direct Distance Tool can also be used without the GUI. For this, an instance of the class directdistanceCalculator must be created as a code execution. After that, the methods of the instance (Import, Calculation, Export) can be accessed. An example can be seen under <span class="code-ref"><a href="#" class="hyperlink">Bsp_Aufruf_ohne_GUI.py</a></span>.</p>
+
+    <p class="bold">Steps to execute</p>
     <ol>
-        <li>Set parameters (which VFS, attribute values, etc.)</li>
-        <li>Initialize AirlineCalculator object
-            <ul>
-                <li>Code: Call constructor with parameter transfer</li>
-                <li>GUI: Execute "Read Data" in the toolbar</li>
-            </ul>
+        <li>Set parameters (which CFL, attribute values, etc.)</li>
+        <li>Initialize Direct Distance Calculator object
+            <p>Code: Call constructor with parameter passing</p>
+            <p>GUI: Execute "Read data" in toolbar</p>
         </li>
-        <li>Calculate/generate airline connections
-            <ul>
-                <li>Code: Call <code>calculate_main</code> method</li>
-                <li>GUI: Execute "Airline network calculation" in the toolbar</li>
-            </ul>
+        <li>Calculate/create direct distance connections
+            <p>Code: Call calculate_main method</p>
+            <p>GUI: Execute "Direct Distance Network Calculation" in toolbar</p>
         </li>
-        <li>Export results to Visum in the desired form
-            <ul>
-                <li>Code: Call <code>export_matrix</code>/<code>export_net</code> methods</li>
-                <li>GUI: Use the corresponding buttons (Mtx/Net) in the column "create in Visum as".<br>
-                Alternatively, the button <em>"Import into Visum all VFS routes + Mtx"</em> transfers the combined results of all VFS.</li>
-            </ul>
+        <li>Export results to Visum in desired format
+            <p>Code: Call export_matrix / export_net method</p>
+            <p>GUI: Use the corresponding buttons (Mtx/Net) in the column "create in Visum as". Alternatively, the button "Import to Visum all CFL routes + Mtx" transfers the combined results of all CFL.</p>
         </li>
     </ol>
 
-    <p><strong>Notes:</strong></p>
-    <ul>
-        <li>In the GUI, current calculations are reset if the selection of one of the district attributes is changed. A new instance of the LLT calculator is created.</li>
-        <li>If district values are changed in Visum, they are not automatically updated in the LLT calculator. Therefore, the procedure must be restarted from step 2.</li>
-        <li>The initial parameter values can be recalled in the GUI using the "Default values" tool.</li>
-        <li>"Initialize results" allows deletion of already existing results.</li>
-        <li>Step 3 uses the parameters currently entered in the GUI. Before calculation with new parameters, it is recommended to delete the existing results ("Initialize results").</li>
-    </ul>
+    <div class="note-section">
+        <p>Notes:</p>
+        <ul>
+            <li>In the GUI, current calculations are reset if one of the zone attribute selections is changed. A new instance of the Direct Distance Calculator is created.</li>
+            <li>If zone values are changed in Visum, they are not automatically updated in the Direct Distance Calculator. Therefore, the procedure must be repeated from step 2.</li>
+            <li>Initial parameter values can be recalled in the GUI via the tool "Default values"</li>
+            <li>"Initialize results" enables deletion of already existing results</li>
+            <li>Step 3 uses the parameters currently entered in the GUI. Before calculating with new parameters, it is recommended to delete existing results ("Initialize results").</li>
+        </ul>
+    </div>
 
-    <h2 id="requirements">Requirements</h2>
-    <p>Network with categorized districts:</p>
+    <h2>Requirement</h2>
+
+    <p>Network with categorized zones:</p>
     <ul>
-        <li>Attribute for centrality (districts): the smaller the number, the greater the centrality of the district
-            <p>Example: Indicating centrality via type number</p>
-            <ul>
-                <li>0 ... Metropolitan region</li>
-                <li>1 ... Major center</li>
-                <li>2 ... Medium center</li>
-                <li>3 ... Basic center</li>
-                <li>4 ... Place without central function</li>
-                <li>5 ... Sub-district</li>
-            </ul>
+        <li>Attribute for centrality (zones): the smaller the number, the greater the centrality of the zone
+            <div class="example-section">
+                <p>Example: Indication of centrality via the type number</p>
+                <ul>
+                    <li>0 ... Metropolitan region</li>
+                    <li>1 ... Major centrality</li>
+                    <li>2 ... Medium centrality</li>
+                    <li>3 ... Basic centrality</li>
+                    <li>4 ... Place without central function</li>
+                    <li>5 ... Subdivision</li>
+                </ul>
+            </div>
         </li>
-        <li>(optional) active district filter</li>
-        <li>(optional) Attribute indicating which district is used as source {0=No, 1=Yes}</li>
-        <li>(optional) Attribute indicating which district is used as target {0=No, 1=Yes}</li>
+        <li>(optional) active zone filter</li>
+        <li>(optional) Indication of an attribute defining which zone should be used as a source {0=No, 1=Yes}</li>
+        <li>(optional) Indication of an attribute defining which zone should be used as a target {0=No, 1=Yes}</li>
     </ul>
 </body>
+
 </html>

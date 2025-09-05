@@ -334,7 +334,7 @@ class DirectDistanceToolFrame(wx.Frame):
     ## Event handler for the Info button.
     #  @param event The event object.
     def event_info(self, event):
-        path_scripts = Path.cwd() # Path(self.visum.GetPath(37))
+        path_scripts = Path(__file__).parent # Path(self.visum.GetPath(37))
         logging.info(path_scripts)
         # Update this line to instantiate HelpPopUp directly and pass the translator.
         HelpPopUp(self, self.translator, path_scripts)
@@ -863,7 +863,7 @@ class HelpPopUp(wx.Frame):
         dict_docu = {
             translator.translate('application'): doc_dir / "application.html",
             translator.translate('foundations'): doc_dir / "foundations.html",
-            translator.translate('documentation_code'): doc_dir.parent / "code" / "index.html"
+            translator.translate('documentation_code'): doc_dir.parent / "code" / "html" /"index.html"
         }
 
         # Create tabs with embedded WebView for each documentation page
@@ -880,7 +880,7 @@ class HelpPopUp(wx.Frame):
                     # Load URL correctly for local files
                     wx.CallAfter(html_view.LoadURL, str(file_path.resolve()))
                 else:
-                    html_view.SetPage(f"<h3>Error: File {file_path.name} not found!</h3>", "")
+                    html_view.SetPage(f"<h3>Error: File {file_path} not found!</h3>", "")
             else:
                 html_view.SetPage("<h3>Error: Unsupported file format.</h3>", "")
 
