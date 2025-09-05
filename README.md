@@ -14,7 +14,7 @@ Zwei Möglichkeiten
     Hinweis: Wenn die GUI mehrmals gestarten & beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben. 
 
 ### Aufruf via Code
-Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse LuftlinienCalculator erstellt werden.
+Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse DirectDistanceCalculator erstellt werden.
 Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden
 Ein Beispiel ist unter *Bsp_Aufruf_ohne_GUI.py* zu sehen.
 

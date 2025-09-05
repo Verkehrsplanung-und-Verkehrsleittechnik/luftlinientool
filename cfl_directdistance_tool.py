@@ -1,5 +1,5 @@
-## @package luftlinientool.py
-# @brief Contains general methods and the LuftlinienCalculator class for calculating air-line connections
+## @package cfl_directdistance_tool.py
+# @brief Contains general methods and the DirectDistanceCalculator class for calculating air-line connections
 # considering the centrality of zones
 
 import pandas as pd
@@ -151,9 +151,9 @@ def show_info(path_scripts: Path = Path.cwd()):
 
 
 # ===== Class definition ======
-## @class LuftlinienCalculator
+## @class DirectDistanceCalculator
 # The class contains attributes and calculation methods to determine the VFS between zones
-class LuftlinienCalculator:
+class DirectDistanceCalculator:
 
     ## Constructor
     # @param source Filename (str) or Visum instance

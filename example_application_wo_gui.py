@@ -1,4 +1,4 @@
-## @package Bsp_Aufruf_ohne_GUI.py
+## @package example_application_wo_gui.py
 # @brief Example application of the air-line tool without GUI
 
 # from VisumOverlay import *
@@ -6,7 +6,7 @@ import logging
 
 if __name__ == '__main__':
     from pathlib import Path
-    import luftlinientool as llt
+    import cfl_directdistance_tool as llt
 
     # Parameter passing
     path_source = Path().cwd() / "Version"
@@ -32,9 +32,9 @@ if __name__ == '__main__':
 
     if source.suffix == ".ver":
         Visum = llt.open_visum(source)
-        # ltt1 = llt.LuftlinienCalculator(Visum, attr_orig="Quelle", attr_dest="Ziel", no_suppliers=1, max_distance=1)
-        llt1 = llt.LuftlinienCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=1,
-                                        no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
+        # ltt1 = llt.DirectDistanceCalculator(Visum, attr_orig="Quelle", attr_dest="Ziel", no_suppliers=1, max_distance=1)
+        llt1 = llt.DirectDistanceCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=1,
+                                            no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
     else:
         print("not implemented")
 

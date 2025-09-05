@@ -1,6 +1,6 @@
 import wx
 import wx.html2
-import luftlinientool as llt
+import cfl_directdistance_tool as llt
 from pathlib import Path
 import logging
 from language_management import Translator
@@ -18,12 +18,12 @@ def get_attr_zones(Visum):
 
 # ======= Classes ======
 
-## @class LLTFrame
+## @class DirectDistanceToolFrame
 #  @brief Defines the complete window, creates the individual components and connects them with the logic.
 #
-#  The `LLTFrame` class is the main window of the application. It creates and manages all UI components,
+#  The `DirectDistanceToolFrame` class is the main window of the application. It creates and manages all UI components,
 #  handles user interactions, and connects the UI with the underlying logic.
-class LLTFrame(wx.Frame):
+class DirectDistanceToolFrame(wx.Frame):
     ## Initializes the main application window.
     #  @param translator The translator object to handle language localization.
     def __init__(self, translator):
@@ -33,18 +33,18 @@ class LLTFrame(wx.Frame):
 
         # ===== Attribute =====
         self.buttons_value_n_supplier = None
-        self.cb_origin = None # Renamed from cb_quelle
-        self.cb_destination = None # Renamed from cb_ziel
+        self.cb_origin = None
+        self.cb_destination = None
         self.cb_cfl = None
         self.buttons_cfl_value = None
         self.buttons_value_k_neighbor_cfl = None
         self.button_cfl_active = None
-        self.llt_calculator = None  # llt.LuftlinienCalculator()
+        self.dd_calculator = None
         self.default_k_neighbor = 1
         self.default_no_supplier = 0
         self.attr_cfl = "TypeNo"
         self.attr_origin = None
-        self.attr_destination = None # Renamed from attr_ziel
+        self.attr_destination = None
 
         # If Visum exists -> do nothing
         # otherwise open a window to select a file
@@ -74,7 +74,7 @@ class LLTFrame(wx.Frame):
         self.list_attr = get_attr_zones(self.visum)
 
         self.attr_origin = None
-        self.attr_destination = None # Renamed from attr_ziel
+        self.attr_destination = None
         self.attr_cfl = "TypeNo"
         self.attr_dist_fcn = "euclidean"
 
@@ -278,9 +278,9 @@ class LLTFrame(wx.Frame):
         # Creating a new Calculator instance
         if self.visum is not None:
             # Initialize Calculator instance
-            self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
-                                                           no_suppliers=1, attr_orig=self.attr_origin,
-                                                           attr_dest=self.attr_destination,translator=self.translator)
+            self.dd_calculator = llt.DirectDistanceCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
+                                                              no_suppliers=1, attr_orig=self.attr_origin,
+                                                              attr_dest=self.attr_destination, translator=self.translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
@@ -296,11 +296,11 @@ class LLTFrame(wx.Frame):
         # 1. Update the specified parameters if something has been changed
         # 2. Calculate
         self.update_param_cfl()
-        # self.llt_calculator.init_results() # already implemented in calculate function
-        self.llt_calculator.calculate_main()
+        # self.dd_calculator.init_results() # already implemented in calculate function
+        self.dd_calculator.calculate_main()
 
         # Status bar
-        self.SetStatusText(self.translator.translate('calculation_Performed'))
+        self.SetStatusText(self.translator.translate('calculation_performed'))
 
     ## Event handler for the quit button or window close event.
     #  Destroys the panel and frame, and exits the application's main loop.
@@ -313,7 +313,7 @@ class LLTFrame(wx.Frame):
         wx.GetApp().ExitMainLoop()
 
     ## Event handler for importing data.
-    #  Creates a new LuftlinienCalculator instance with the current attributes,
+    #  Creates a new DirectDistanceCalculator instance with the current attributes,
     #  updates parameters, and updates the status bar.
     #  @param event The event object.
     def event_import_data(self, event):
@@ -322,14 +322,14 @@ class LLTFrame(wx.Frame):
         # Creating a Calculator instance
         if self.visum is not None:
             # Init Calculator instance
-            self.llt_calculator = llt.LuftlinienCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
-                                                           no_suppliers=1, attr_orig=self.attr_origin,
-                                                           attr_dest=self.attr_destination,translator=self.translator)
+            self.dd_calculator = llt.DirectDistanceCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
+                                                              no_suppliers=1, attr_orig=self.attr_origin,
+                                                              attr_dest=self.attr_destination, translator=self.translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
             logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
-        self.SetStatusText(self.translator.translate('data_Imported'))
+        self.SetStatusText(self.translator.translate('data_imported'))
 
     ## Event handler for the Info button.
     #  @param event The event object.
@@ -344,10 +344,10 @@ class LLTFrame(wx.Frame):
     #  and updates the status bar.
     #  @param event The event object.
     def event_reset(self, event):
-        if self.llt_calculator is None:
+        if self.dd_calculator is None:
             a = 1  # todo
         else:
-            self.llt_calculator.init_results()
+            self.dd_calculator.init_results()
 
         self.SetStatusText(self.translator.translate('status_results_deleted_may_reimport'))
 
@@ -355,9 +355,9 @@ class LLTFrame(wx.Frame):
     #  Exports both the network and matrix results from the calculator if it exists.
     #  @param event The event object.
     def event_export_results(self, event):
-        if self.llt_calculator is not None:
-            self.llt_calculator.export_net(links_additive=True)
-            self.llt_calculator.export_matrix()
+        if self.dd_calculator is not None:
+            self.dd_calculator.export_net(links_additive=True)
+            self.dd_calculator.export_matrix()
 
     ## Event handler for exporting network results for a specific CFL level.
     #  Exports the network results for the specified CFL level, deletes unused nodes,
@@ -367,11 +367,11 @@ class LLTFrame(wx.Frame):
         cfl_level = event.GetEventObject().cfl
         cfl_name = self.button_cfl_active[cfl_level].Label
 
-        if self.llt_calculator is not None:
-            self.llt_calculator.export_net(links_additive=True, list_cfl=[cfl_name])
-            self.llt_calculator.delete_unused_nodes()
+        if self.dd_calculator is not None:
+            self.dd_calculator.export_net(links_additive=True, list_cfl=[cfl_name])
+            self.dd_calculator.delete_unused_nodes()
 
-        self.SetStatusText(f"{cfl_name} {self.translator.translate(': status_net_exported_imported')}")
+        self.SetStatusText(f"{cfl_name}: {self.translator.translate('status_net_exported_imported')}")
 
     ## Event handler for exporting matrix results for a specific CFL level.
     #  Exports the matrix results for the specified CFL level and updates the status bar
@@ -381,19 +381,19 @@ class LLTFrame(wx.Frame):
         cfl_level = event.GetEventObject().cfl
         cfl_name = self.button_cfl_active[cfl_level].Label
 
-        if self.llt_calculator is not None:
-            self.llt_calculator.export_matrix(list_cfl=[cfl_name])  # list_vfs parameter name remains as per llt.py
+        if self.dd_calculator is not None:
+            self.dd_calculator.export_matrix(list_cfl=[cfl_name])  # list_vfs parameter name remains as per llt.py
 
-        self.SetStatusText(f"{cfl_name} {self.translator.translate(': status_matrix_loaded_into_visum')}")
+        self.SetStatusText(f"{cfl_name}: {self.translator.translate('status_matrix_loaded_into_visum')}")
 
     ## Event handler for exporting all results at once.
     #  Exports both matrix and network results for all CFL levels, deletes unused nodes,
     #  and updates the status bar.
     #  @param event The event object.
     def event_export_master(self, event):
-        self.llt_calculator.export_matrix()
-        self.llt_calculator.export_net(links_additive=True)
-        self.llt_calculator.delete_unused_nodes()
+        self.dd_calculator.export_matrix()
+        self.dd_calculator.export_net(links_additive=True)
+        self.dd_calculator.delete_unused_nodes()
 
         self.SetStatusText(self.translator.translate(f'status_combined_results_imported'))
 
@@ -401,40 +401,40 @@ class LLTFrame(wx.Frame):
     #  Applies a filter to show only the links created by the calculator.
     #  @param event The event object.
     def event_filter(self, event):
-        if self.llt_calculator is not None:
-            self.llt_calculator.filter_links_cfl()
+        if self.dd_calculator is not None:
+            self.dd_calculator.filter_links_cfl()
 
     ## Event handler for deleting links.
     #  Deletes all links created by the calculator and removes any unused nodes.
     #  @param event The event object.
     def event_delete_links(self, event):
-        if self.llt_calculator is not None:
-            self.llt_calculator.delete_added_links()
-            self.llt_calculator.delete_unused_nodes()
+        if self.dd_calculator is not None:
+            self.dd_calculator.delete_added_links()
+            self.dd_calculator.delete_unused_nodes()
 
     ## Updates the calculator parameters from the UI.
     #  Collects the current values from the UI controls and updates the calculator's parameters,
     #  including CFL levels, supplier counts, neighbor counts, and distance formula. Also logs the current settings.
     def update_param_cfl(self):
-        if self.llt_calculator is not None:
+        if self.dd_calculator is not None:
             dict_cfl_names= {cfl_level: item.Label for cfl_level, item in self.button_cfl_active.items() if item.Value > 0}
             dict_num_suppliers = {dict_cfl_names[cfl_level]: self.buttons_value_n_supplier[cfl_level].Value for cfl_level in dict_cfl_names}
             dict_max_neighbor = {dict_cfl_names[cfl_level]:  self.buttons_value_k_neighbor_cfl[cfl_level].Value for cfl_level in dict_cfl_names}
             dict_cfl_values = {dict_cfl_names[cfl_level]:  self.buttons_cfl_value[cfl_level].Value for cfl_level in dict_cfl_names}
 
-            self.llt_calculator.deg_neighbourhood_cfl = dict_max_neighbor
-            self.llt_calculator.num_suppliers_cfl = dict_num_suppliers
-            self.llt_calculator.cfl = dict_cfl_values
-            self.llt_calculator.formula_dist = self.attr_dist_fcn
+            self.dd_calculator.deg_neighbourhood_cfl = dict_max_neighbor
+            self.dd_calculator.num_suppliers_cfl = dict_num_suppliers
+            self.dd_calculator.cfl = dict_cfl_values
+            self.dd_calculator.formula_dist = self.attr_dist_fcn
 
-            logging.info( self.translator.translate('Current settings:') + "\n" +
-                          self.translator.translate('label_attr_zones_centrality')+f' {self.llt_calculator.attr_central_level}' + "\n"+
-                          self.translator.translate('label_zone_is_origin') + f': {self.llt_calculator.attr_is_from_zone}' + "\n" +
-                          self.translator.translate('label_zone_is_destination') + f': {self.llt_calculator.attr_is_to_zone}' + "\n" +
-                          self.translator.translate('distance_calculation_setting') + f': {self.llt_calculator.formula_dist}' + "\n" +
-                          self.translator.translate('CFL') + f': {self.llt_calculator.cfl}' + "\n" +
-                          self.translator.translate('setting_neighbourhood_LevelPerCFL_Setting') + f': {self.llt_calculator.deg_neighbourhood_cfl}' + "\n" +
-                          self.translator.translate('number_of_Suppliers_PerCFL_Setting') + f': {self.llt_calculator.num_suppliers_cfl}')
+            logging.info(self.translator.translate('current_settings') + "\n" +
+                         self.translator.translate('label_attr_zones_centrality') +f' {self.dd_calculator.attr_central_level}' + "\n" +
+                         self.translator.translate('label_zone_is_origin') + f': {self.dd_calculator.attr_is_from_zone}' + "\n" +
+                         self.translator.translate('label_zone_is_destination') + f': {self.dd_calculator.attr_is_to_zone}' + "\n" +
+                         self.translator.translate('distance_calculation_setting') + f': {self.dd_calculator.formula_dist}' + "\n" +
+                         self.translator.translate('CFL') + f': {self.dd_calculator.cfl}' + "\n" +
+                         self.translator.translate('setting_neighbourhood_degree_cfl') + f': {self.dd_calculator.deg_neighbourhood_cfl}' + "\n" +
+                         self.translator.translate('settings_number_of_suppliers_cfl') + f': {self.dd_calculator.num_suppliers_cfl}')
 
 
     ## Updates all text elements in the GUI to the current language.
@@ -444,8 +444,8 @@ class LLTFrame(wx.Frame):
         self.SetTitle(self.translator.translate('app_title'))
 
         # 2. Notebook-Tab-Titel aktualisieren
-        self.notebook.SetPageText(0, self.translator.translate('Main tab'))
-        self.notebook.SetPageText(1, self.translator.translate('Log tab'))
+        self.notebook.SetPageText(0, self.translator.translate('main_tab'))
+        self.notebook.SetPageText(1, self.translator.translate('log_tab'))
 
         # 3. Menüleiste aktualisieren
         self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice"))
@@ -453,7 +453,7 @@ class LLTFrame(wx.Frame):
         self.menu.FindItemById(12).SetItemLabel(self.translator.translate('menu_calculate'))
         self.menu.FindItemById(13).SetItemLabel(self.translator.translate('menu_reset_calculations'))
         self.menu.FindItemById(14).SetItemLabel(self.translator.translate('menu_set_defaults'))
-        self.menu.FindItemById(15).SetItemLabel(self.translator.translate('Info'))
+        self.menu.FindItemById(15).SetItemLabel(self.translator.translate('info'))
         # Update the menu bar's overall menu label using its index (assuming it's the first menu added, index 0)
         self.menu_bar.SetMenuLabel(0, self.translator.translate('options_tab'))
 
@@ -463,8 +463,8 @@ class LLTFrame(wx.Frame):
         self.toolbar.FindById(101).SetLabel(self.translator.translate('menu_import_data'))
         self.toolbar.FindById(102).SetLabel(self.translator.translate('menu_calculate'))
         self.toolbar.FindById(103).SetLabel(self.translator.translate('menu_reset_calculations'))
-        self.toolbar.FindById(104).SetLabel(self.translator.translate('default_Values_tab'))
-        self.toolbar.FindById(105).SetLabel(self.translator.translate('Info'))
+        self.toolbar.FindById(104).SetLabel(self.translator.translate('default_values_tab'))
+        self.toolbar.FindById(105).SetLabel(self.translator.translate('info'))
         self.toolbar.FindById(106).SetLabel(self.translator.translate('toolbar_filter_inserted_links'))
         self.toolbar.FindById(107).SetLabel(self.translator.translate('toolbar_delete_inserted_links'))
 
@@ -541,7 +541,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.cb_destination = self.cb_destination
 
         # Store StaticText widgets as instance attributes
-        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting')))
+        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('setting_zone_attribute')+ "\n"+self.translator.translate('setting_centrality')))
         self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_cfl, 0, wx.ALL | wx.EXPAND, 15)
 
@@ -861,8 +861,8 @@ class HelpPopUp(wx.Frame):
         ## @var dict_docu
         #  A dictionary mapping tab names to documentation file paths based on the selected language.
         dict_docu = {
-            translator.translate('application_cluster_tool_gui'): doc_dir / "application.html",
-            translator.translate('basics_cluster_analysis'): doc_dir / "foundation_clustering.html",
+            translator.translate('application'): doc_dir / "application.html",
+            translator.translate('foundations'): doc_dir / "foundations.html",
             translator.translate('documentation_code'): doc_dir.parent / "code" / "index.html"
         }
 
@@ -903,5 +903,5 @@ if __name__ == '__main__':
     # Initialize translator outside the app
     translator = Translator(Path(__file__).parent / "Translations.json", language="en")
     app = wx.App()
-    frame = LLTFrame(translator)
+    frame = DirectDistanceToolFrame(translator)
     app.MainLoop()

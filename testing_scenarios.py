@@ -83,7 +83,7 @@ def filter_links_vfs(set_linktypes):
 if __name__ == '__main__':
     # Load standard libraries
     from pathlib import Path
-    import luftlinientool as llt  # Assumption: luftlinientool is a custom library
+    import cfl_directdistance_tool as llt  # Assumption: luftlinientool is a custom library
 
     # Definition of test scenarios
     dict_scenarios = {
@@ -120,9 +120,9 @@ if __name__ == '__main__':
     for scenario, param in dict_scenarios.items():
         try:
             # Initialize the air-line tool and perform calculations
-            llt1 = llt.LuftlinienCalculator(Visum, attr_cfl=param["attr_cfl"], dict_cfl=dict_vfs,
-                                            max_distance=param["n"], no_suppliers=param["k"],
-                                            attr_orig=param["attr_origin"], attr_dest=param["attr_ziel"])
+            llt1 = llt.DirectDistanceCalculator(Visum, attr_cfl=param["attr_cfl"], dict_cfl=dict_vfs,
+                                                max_distance=param["n"], no_suppliers=param["k"],
+                                                attr_orig=param["attr_origin"], attr_dest=param["attr_ziel"])
             llt1.calculate_main()
 
             # Loop over the defined VFS and export results
