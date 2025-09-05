@@ -1,0 +1,406 @@
+{
+  "file_Selection": {
+    "en": "Choose a VISUM model",
+    "de": "Wähle ein Visumnetz"
+  },
+  "ver_files": {
+    "en": "VISUM version files",
+    "de": "Versiondateien"
+  },
+  "app_title": {
+    "en": "Generation of direct distance networks based on connection function levels",
+    "de": "Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen"
+  },
+  "language_choice": {
+    "en": "Language Choice",
+    "de": "Sprachauswahl"
+  },
+  "language_choice_title": {
+    "en": "Select your preferred language",
+    "de": "Wähle die gewünschte Sprache"
+  },
+  "menu_import_data": {
+    "en": "Import Data (initiates a calculator instance)",
+    "de": "Daten einlesen (initiiert eine Calculator-Instanz)"
+  },
+  "menu_calculate": {
+    "en": "Perform Calculation",
+    "de": "Berechnung durchführen"
+  },
+  "menu_reset_calculations": {
+    "en": "Reset Calculation",
+    "de": "Berechnungen zurücksetzen"
+  },
+  "menu_set_defaults": {
+    "en": "Set Default Values",
+    "de": "Defaultwerte übernehmen"
+  },
+  "menu_info": {
+    "en": "Info",
+    "de": "Info"
+  },
+  "options_tab": {
+    "en": "Options",
+    "de": "Auswahl"
+  },
+  "main_tab": {
+    "en": "Main",
+    "de": "Main"
+  },
+  "log_tab": {
+    "en": "Log",
+    "de": "Log"
+  },
+  "parameter_Input_Section": {
+    "en": "Input Parameter",
+    "de": "Parameter Eingaben"
+  },
+  "zone_AttributeCentrality_Header": {
+    "en": "zone attribute centrality",
+    "de": "Bezirksattribut Zentralität"
+  },
+  "log_Messages_tab": {
+    "en": "Log-Messages",
+    "de": "Log-Messages"
+  },
+  "default_Values_tab": {
+    "en": "Default Values",
+    "de": "Defaultwerte"
+  },
+  "toolbar_filter_inserted_links": {
+    "en": "Filtering of inserted links",
+    "de": "Filtern der eingefügten Strecken"
+  },
+  "toolbar_delete_inserted_links": {
+    "en": "Deletion of inserted links",
+    "de": "Löschen der eingefügten Strecken"
+  },
+  "set_defaults": {
+    "en": "Set Default Values",
+    "de": "Default-Werte hergestellt"
+  },
+  "warning_should_never_happen": {
+    "en": "should never happen",
+    "de": "sollte nie passieren"
+  },
+  "warning_non_visum_files_not_supported": {
+    "en": "Handling of file type is not implemented",
+    "de": "Umgang mit Dateityp ist nicht implementiert"
+  },
+  "status_attribute_applied_reimport_reset": {
+    "en": "Attribute transferred, new zones imported, Calculations reset",
+    "de": "Attribut \u00fcbernommen, Bezirke neu importiert, Rechnungen zur\u00fcckgesetzt"
+  },
+  "calculation_performed": {
+    "en": "Calculation Performed",
+    "de": "Berechnung durchgef\u00fchrt"
+  },
+  "data_imported": {
+    "en": "Data imported",
+    "de": "Daten importiert"
+  },
+  "status_results_deleted_may_reimport": {
+    "en": "Results deleted, re-import Results to visum if necessary",
+    "de": "Ergebnisse gel\u00f6scht, ggf Ergebnisse neu nach Visum importieren"
+  },
+  ": status_net_exported_imported": {
+    "en": "Network file exported and imported into Visum",
+    "de": "Net-Datei exportiert und in Visum importiert"
+  },
+  ": status_matrix_loaded_into_visum": {
+    "en": "Matrix Loaded to Visum",
+    "de": "Matrix in Visum geladen"
+  },
+  "f'status_combined_results_imported'": {
+    "en": "f'The combined Results were imported into Visum",
+    "de": "f'die kombinierten Ergebnisse wurden in Visum importiert"
+  },
+  "current_Settings_Section": {
+    "en": "Current Settings",
+    "de": "aktuelle Settings"
+  },
+  "setting_zone_attribute_centrality": {
+    "en": "zones: Attr. Centrality",
+    "de": "Bezirke: Attr. Zentralit\u00e4t"
+  },
+  "label_zone_is_origin": {
+    "en": "Attr isOrigin",
+    "de": "Attr istQuelle"
+  },
+  "label_zone_is_destination": {
+    "en": "Attr isDestination",
+    "de": "Attr istZeil"
+  },
+  "distance_calculation_Setting": {
+    "en": "Distance calculation",
+    "de": "Distanzberechnung"
+  },
+  "setting_neighbourhood_degree_cflg": {
+    "en": "Neighbourhood level per CFL",
+    "de": "Nachbarschaftsgrad je VFS"
+  },
+  "number_of_Suppliers_PerCFL_Setting": {
+    "en": "Number of Suppliers per CFL",
+    "de": "Anzahl Versorger je VFS"
+  },
+  "zone_Attribute_Setting": {
+    "en": "zone Attribute",
+    "de": "Bezirksattribut"
+  },
+  "centrality_Setting": {
+    "en": "Centrality",
+    "de": "Zentralit\u00e4t"
+  },
+  "isOrigin_Option": {
+    "en": "is Origin",
+    "de": "ist Quelle"
+  },
+  "isDestination_Option": {
+    "en": "is Destination",
+    "de": "ist Ziel"
+  },
+  "connectivity_Function_Level_Parameter": {
+    "en": "Connectivity Function Level",
+    "de": "Verbindungsfunktionsstufe"
+  },
+  "attribute_value_CFL_Parameter": {
+    "en": "Attribute value CFL",
+    "de": "Attributwert VFS"
+  },
+  "interchangeFunction_Parameter": {
+    "en": "Interchange function",
+    "de": "Austauschfunktion"
+  },
+  "n_Nearest_Neighbour_Parameter": {
+    "en": "n-Nearest Neighbour",
+    "de": "n-naechste Nachbarn"
+  },
+  "supply_Function_Parameter": {
+    "en": "Supply function",
+    "de": "Versorgungsfunktion"
+  },
+  "n_Supply_Centers_Parameter": {
+    "en": "n Supply Centers",
+    "de": "n Versorgungszentren"
+  },
+  "create_In_VisumAs_Option": {
+    "en": "Create in Visum as",
+    "de": "anlegen in Visum als"
+  },
+  "import_To_Visum_All_CFL_Option": {
+    "en": "Import to Visum all CFL",
+    "de": "Import nach Visum alle VFS"
+  },
+  "routes_And_Matrix_Option": {
+    "en": "Routes + Mtx",
+    "de": "Strecken + Mtx"
+  },
+  "distance_Calculation_Fcn_Option": {
+    "en": "Distance calculation Function",
+    "de": "Funktion Distanzberechnung"
+  },
+  "Main tab": {
+    "en": "Main tab",
+    "de": "Main tab"
+  },
+  "Log tab": {
+    "en": "Log tab",
+    "de": "Log tab"
+  },
+  "dialog_language_select_message": {
+    "en": "Please select your preferred language",
+    "de": "Bitte w\u00e4hlen Sie Ihre bevorzugte Sprache"
+  },
+  "attr_cfl": {
+    "en": "attr_cfl",
+    "de": "attr_VFS"
+  },
+  "attr_origin": {
+    "en": "attr_origin",
+    "de": "attr_origin"
+  },
+  "attr_Destination": {
+    "en": "attr_Destination",
+    "de": "attr_ziel"
+  },
+  "dialog_language_select_title": {
+    "en": "Select Language",
+    "de": "Sprache ausw\u00e4hlen"
+  },
+  "log_calculation_all_vfs_finished": {
+    "en": "The calculation for all CFLs is complete.",
+    "de": "Die Berechnung \u00fcber alle VFS ist abgeschlossen."
+  },
+  "log_vfs_too_few_active_zones": {
+    "en": "Too few zones are active.",
+    "de": "es sind zu wenige Bezirke aktiv."
+  },
+  "error_matrix_not_symmetric": {
+    "en": "Error: Matrix is not symmetric.",
+    "de": "Fehler: Matrix ist nicht symmetrisch."
+  },
+  "error_duplicate_coordinates": {
+    "en": "Aborted: Zones with identical coordinates found (NUMBER\/NAME): ",
+    "de": "Abbruch: Bezirke mit den identischen Koordinaten (NUMMER\/NAME): "
+  },
+  "log_delaunay_for_zones": {
+    "en": "{vfs}: Performing Delaunay triangulation for {count} zones.",
+    "de": "{vfs}: Delauney Triangulation wird f\u00fcr {count} Bezirke durchgef\u00fchrt."
+  },
+  "warn_load_failed_format": {
+    "en": "Loading zone data failed, input format is not implemented.",
+    "de": "Laden der Bezirksdaten fehlgeschlagen, Eingabeformat ist nicht implementiert."
+  },
+  "log_init_visum_instance": {
+    "en": "Initializing Visum instance...",
+    "de": "Initialisiere Visum Instanz..."
+  },
+  "log_opening_version_file": {
+    "en": "Opening version file:",
+    "de": "\u00d6ffne Versionsdatei:"
+  },
+  "log_version_file_loaded": {
+    "en": "Version file successfully loaded.",
+    "de": "Versionsdatei erfolgreich geladen."
+  },
+  "warn_distance_calc_not_implemented": {
+    "en": "Distance calculation case is not implemented.",
+    "de": "Distanzberechnungsfall ist nicht implementiert."
+  },
+  "error_param_type_not_implemented": {
+    "en": "Parameter type not implemented.",
+    "de": "Parametertyp nicht implementiert."
+  },
+  "log_zones_loaded": {
+    "en": "{count} zones loaded.",
+    "de": "{count} Bezirke geladen."
+  },
+  "warn_zone_data_load_failed": {
+    "en": "Loading zone data failed, input format is not implemented.",
+    "de": "Laden der Bezirksdaten fehlgeschlagen, Eingabeformat ist nicht implementiert."
+  },
+  "warn_adj_matrix_not_symmetric": {
+    "en": "Adjacency matrix is not symmetric.",
+    "de": "Adjazenzmatrix ist nicht symmetrisch."
+  },
+  "log_calc_all_vfs_start": {
+    "en": "Starting calculation for all CFLs.",
+    "de": "Berechnung \u00fcber alle VFS wird gestartet."
+  },
+  "log_adj_matrices_initialized": {
+    "en": "Adjacency matrices have been initialized.",
+    "de": "Adjazenzmatrizen wurden initialisiert."
+  },
+  "log_delaunay_for": {
+    "en": "Performing Delaunay triangulation for",
+    "de": "Delauney Triangulation wird f\u00fcr"
+  },
+  "_zones": {
+    "en": " zones.",
+    "de": " Bezirke durchgef\u00fchrt."
+  },
+  "log_triangles_created": {
+    "en": "triangles were created.",
+    "de": "es wurden Dreiecke gebildet."
+  },
+  "log_calculating_neighborhood_degree": {
+    "en": ": The neighborhood degree must be calculated.",
+    "de": " : der Nachbarschaftsgrad muss berechnet werden."
+  },
+  "log_debug_results_in_visum": {
+    "en": ": The result can be viewed in Visum.",
+    "de": ": das Ergebnis kann in Visum bestaunt werden."
+  },
+  "log_vfs_calculation": {
+    "en": "The calculation for ",
+    "de": "Die Berechnung "
+  },
+  "_finished": {
+    "en": " is complete.",
+    "de": " ist abgeschlossen."
+  },
+  "warn_delete_nodes_no_visum": {
+    "en": "Delete nodes: No Visum instance is linked.",
+    "de": "Knoten l\u00f6schen: es ist keine Visuminstanz verkn\u00fcpft."
+  },
+  "log_isolated_nodes_deleted": {
+    "en": " isolated nodes were deleted.",
+    "de": " isolierte Knoten wurden gel\u00f6scht."
+  },
+  "log_matrix_export": {
+    "en": "Starting export of ",
+    "de": "Beginne mit Export von "
+  },
+  "_start": {
+    "en": " matrices.",
+    "de": " Matrizen."
+  },
+  "warn_vfs": {
+    "en": "Error: ",
+    "de": "Fehler: "
+  },
+  "not_in_calculated_list": {
+    "en": " is not in the list of calculated CFLs.",
+    "de": " ist nicht in der Liste der berechneten VFS."
+  },
+  "log_matrix": {
+    "en": "Matrix ",
+    "de": "Matrix "
+  },
+  "saved_to_file": {
+    "en": "saved to file: ",
+    "de": " in Datei gespeichert: "
+  },
+  "warn_matrix_code_duplicate": {
+    "en": "Matrix code exists multiple times, the first matrix will be overwritten.",
+    "de": "Matrixcode ist mehrfach vorhanden, erste Matrix wird \u00fcberschrieben."
+  },
+  "log_matrix_code_exists_overwrite": {
+    "en": "Matrix code exists, content will be overwritten.",
+    "de": "Matrixcode ist vorhanden, Inhalt wird \u00fcberschrieben."
+  },
+  "log_matrix_read_into_visum": {
+    "en": " was read into Visum.",
+    "de": " wurde in Visum eingelesen."
+  },
+  "log_matrix_mtx_read_into_visum": {
+    "en": " was read into Visum.",
+    "de": " wurde in Visum eingelesen."
+  },
+  "log_visum_not_open_matrices_exported": {
+    "en": "Visum is not open. Matrices were exported as files to: {path}",
+    "de": "Visum ist nicht ge\u00f6ffnet. Matrizen wurden als Dateien exportiert nach: "
+  },
+  "error_link_numbering_mismatch": {
+    "en": "Link numbering does not match the number of links.",
+    "de": "Streckennummerierung passt nicht zur Streckenanzahl."
+  },
+  "log_no_links_to_export": {
+    "en": "No links to export, aborting.",
+    "de": "Keine Strecken zum Exportieren, Abbruch."
+  },
+  "warn_net_file_import_error": {
+    "en": "Error importing the network file.",
+    "de": "Fehler beim Import der Netzdatei."
+  },
+  "log_net": {
+    "en": "The network file of ",
+    "de": "Die Netzdatei von "
+  },
+  "file_exported_to_visum": {
+    "en": " CFLs has been exported to Visum.",
+    "de": " VFS wurde nach Visum exportiert."
+  },
+  "Current settings:": {
+    "en": "Current settings",
+    "de": "aktuelle Settings:"
+  },
+  "label_attr_zones_centrality": {
+    "en": "zones: Attr. Centrality",
+    "de": "Bezirke: Attr. Zentralität"
+  },
+  "CFL": {
+    "en": "CFL",
+    "de": "VFS"
+  }
+}
