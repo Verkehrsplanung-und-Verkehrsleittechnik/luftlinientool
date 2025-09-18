@@ -21,7 +21,7 @@
   },
   "menu_import_data": {
     "en": "Import Data (initiates a calculator instance)",
-    "de": "Daten einlesen (initiiert eine Calculator-Instanz)"
+    "de": "Daten einlesen (initiiert eine Berechnungsinstanz)"
   },
   "menu_calculate": {
     "en": "Perform Calculation",
@@ -227,165 +227,13 @@
     "en": "Select Language",
     "de": "Sprache auswählen"
   },
-  "log_calculation_all_vfs_finished": {
-    "en": "The calculation for all CFLs is complete.",
-    "de": "Die Berechnung über alle VFS ist abgeschlossen."
-  },
-  "log_vfs_too_few_active_zones": {
-    "en": "Too few zones are active.",
-    "de": "es sind zu wenige Bezirke aktiv."
-  },
-  "error_matrix_not_symmetric": {
-    "en": "Error: Matrix is not symmetric.",
-    "de": "Fehler: Matrix ist nicht symmetrisch."
-  },
-  "error_duplicate_coordinates": {
-    "en": "Aborted: Zones with identical coordinates found (NUMBER\/NAME): ",
-    "de": "Abbruch: Bezirke mit den identischen Koordinaten (NUMMER\/NAME): "
-  },
-  "log_delaunay_for_zones": {
-    "en": "{vfs}: Performing Delaunay triangulation for {count} zones.",
-    "de": "{vfs}: Delauney Triangulation wird für {count} Bezirke durchgeführt."
-  },
-  "warn_load_failed_format": {
-    "en": "Loading zone data failed, input format is not implemented.",
-    "de": "Laden der Bezirksdaten fehlgeschlagen, Eingabeformat ist nicht implementiert."
-  },
-  "log_init_visum_instance": {
-    "en": "Initializing Visum instance...",
-    "de": "Initialisiere Visum Instanz..."
-  },
-  "log_opening_version_file": {
-    "en": "Opening version file:",
-    "de": "\u00d6ffne Versionsdatei:"
-  },
-  "log_version_file_loaded": {
-    "en": "Version file successfully loaded.",
-    "de": "Versionsdatei erfolgreich geladen."
-  },
-  "warn_distance_calc_not_implemented": {
-    "en": "Distance calculation case is not implemented.",
-    "de": "Distanzberechnungsfall ist nicht implementiert."
-  },
-  "error_param_type_not_implemented": {
-    "en": "Parameter type not implemented.",
-    "de": "Parametertyp nicht implementiert."
-  },
-  "log_zones_loaded": {
-    "en": "{count} zones loaded.",
-    "de": "{count} Bezirke geladen."
-  },
-  "warn_zone_data_load_failed": {
-    "en": "Loading zone data failed, input format is not implemented.",
-    "de": "Laden der Bezirksdaten fehlgeschlagen, Eingabeformat ist nicht implementiert."
-  },
-  "warn_adj_matrix_not_symmetric": {
-    "en": "Adjacency matrix is not symmetric.",
-    "de": "Adjazenzmatrix ist nicht symmetrisch."
-  },
-  "log_calc_all_vfs_start": {
-    "en": "Starting calculation for all CFLs.",
-    "de": "Berechnung über alle VFS wird gestartet."
-  },
-  "log_adj_matrices_initialized": {
-    "en": "Adjacency matrices have been initialized.",
-    "de": "Adjazenzmatrizen wurden initialisiert."
-  },
-  "log_delaunay_for": {
-    "en": "Performing Delaunay triangulation for",
-    "de": "Delauney Triangulation wird für"
-  },
-  "_zones": {
-    "en": " zones.",
-    "de": " Bezirke durchgeführt."
-  },
-  "log_triangles_created": {
-    "en": "triangles were created.",
-    "de": "es wurden Dreiecke gebildet."
-  },
-  "log_calculating_neighborhood_degree": {
-    "en": ": The neighborhood degree must be calculated.",
-    "de": " : der Nachbarschaftsgrad muss berechnet werden."
-  },
-  "log_debug_results_in_visum": {
-    "en": ": The result can be viewed in Visum.",
-    "de": ": das Ergebnis kann in Visum bestaunt werden."
-  },
-  "log_vfs_calculation": {
-    "en": "The calculation for ",
-    "de": "Die Berechnung "
-  },
-  "_finished": {
-    "en": " is complete.",
-    "de": " ist abgeschlossen."
-  },
-  "warn_delete_nodes_no_visum": {
-    "en": "Delete nodes: No Visum instance is linked.",
-    "de": "Knoten löschen: es ist keine Visuminstanz verknüpft."
-  },
-  "log_isolated_nodes_deleted": {
-    "en": " isolated nodes were deleted.",
-    "de": " isolierte Knoten wurden gelöscht."
-  },
-  "log_matrix_export": {
-    "en": "Starting export of ",
-    "de": "Beginne mit Export von "
-  },
-  "_start": {
-    "en": " matrices.",
-    "de": " Matrizen."
-  },
-  "warn_vfs": {
-    "en": "Error: ",
-    "de": "Fehler: "
-  },
-  "not_in_calculated_list": {
-    "en": " is not in the list of calculated CFL.",
-    "de": " ist nicht in der Liste der berechneten VFS."
-  },
-  "log_matrix": {
-    "en": "Matrix ",
-    "de": "Matrix "
-  },
-  "saved_to_file": {
-    "en": "saved to file: ",
-    "de": " in Datei gespeichert: "
-  },
-  "warn_matrix_code_duplicate": {
-    "en": "Matrix code exists multiple times, the first matrix will be overwritten.",
-    "de": "Matrixcode ist mehrfach vorhanden, erste Matrix wird überschrieben."
-  },
-  "log_matrix_code_exists_overwrite": {
-    "en": "Matrix code exists, content will be overwritten.",
-    "de": "Matrixcode ist vorhanden, Inhalt wird überschrieben."
-  },
-  "log_matrix_read_into_visum": {
-    "en": " was read into Visum.",
-    "de": " wurde in Visum eingelesen."
-  },
-  "log_matrix_mtx_read_into_visum": {
-    "en": " was read into Visum.",
-    "de": " wurde in Visum eingelesen."
-  },
-  "log_visum_not_open_matrices_exported": {
-    "en": "Visum is not open. Matrices were exported as files to",
-    "de": "Visum ist nicht geöffnet. Matrizen wurden als Dateien exportiert nach"
-  },
-  "error_link_numbering_mismatch": {
-    "en": "Link numbering does not match the number of links.",
-    "de": "Streckennummerierung passt nicht zur Streckenanzahl."
-  },
-  "log_no_links_to_export": {
-    "en": "No links to export, aborting.",
-    "de": "Keine Strecken zum Exportieren, Abbruch."
+  "error_no_calculator_instance": {
+    "en": "There is no calculator instance defined. Use Import Data first.",
+    "de": "Es existiert keine Berechnungsinstanz. Verwende Zuerst."
   },
   "warn_net_file_import_error": {
     "en": "Error importing the network file.",
     "de": "Fehler beim Import der Netzdatei."
-  },
-  "log_net": {
-    "en": "The network file of ",
-    "de": "Die Netzdatei von "
   },
   "file_exported_to_visum": {
     "en": " CFLs has been exported to Visum.",
