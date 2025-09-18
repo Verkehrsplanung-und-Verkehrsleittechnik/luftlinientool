@@ -10,9 +10,7 @@ from pathlib import Path
 from math import radians
 import win32com.client as com
 import webbrowser
-
-
-# from language_management import Translator  # Added import
+from language_management import Translator  # Added import
 
 
 # todo update immediately in GUI event after change, no repeated update here
@@ -176,7 +174,15 @@ class DirectDistanceCalculator:
                  attr_dest=None,
                  use_filter: bool = False,
                  formula_distance: str = "euclidean",
-                 path_output=None):
+                 path_output=None,
+                 translator: Translator = None):
+
+        ## Translator instance for logging
+        if translator is None:
+            # Create a default translator if none is provided
+            self.translator = Translator()
+        else:
+            self.translator = translator
 
         ## Debug mode flag. Enables the execution of intermediate analyses that are not considered in the normal program flow
         self.debug_mode = False
@@ -197,7 +203,7 @@ class DirectDistanceCalculator:
         ## Output directory
         self.path_output = path_output
 
-        ## List of VFS to be processed (using stable keys)
+        ## List of VFS to be processed
         self.cfl = dict_cfl
         ## Dictionary to hold display names for CFLs for export
         self.cfl_labels = {}
@@ -536,7 +542,7 @@ class DirectDistanceCalculator:
         # Filter initialisieren
         self.visum.Filters.NodeFilter().Init()
 
-        logging.info(f'{n}: isolated nodes were deleted.')
+        logging.info(f'{n} isolated nodes were deleted.')
 
     ## Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked)
     # or as .mtx file.
@@ -558,17 +564,13 @@ class DirectDistanceCalculator:
                 continue
 
             matrix_cfl = self.matrices_cfl[cfl]
-
-            # Get the user-facing, translated label for the matrix name
-            cfl_label = self.cfl_labels.get(cfl, cfl)  # Fallback to the key if no label is found
-
             # Benennung in der Matrix in Visum bzw. Datei
             if self.num_suppliers_cfl[cfl] < 1:
                 # Term mit Versorgungsfkt wird weggelassen
-                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
                 # Term mit Versorgungsfkt wird hinzugefügt
-                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
 
             # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
             path_mat = self.path_output or Path.cwd() / 'mtx'
@@ -585,10 +587,10 @@ class DirectDistanceCalculator:
                                       , dtype=int
                                       ).stack().reset_index()
 
-                df_mat.columns = ['origin', 'destination', 'Matrix value']
+                df_mat.columns = ['origin', 'destination', 'value']
 
                 # Das O-Format kommt ohne 0 Werte aus, bereite einen entsprechenden DataFrame vor
-                df_mat_light = df_mat.loc[df_mat['Matrix value'] != 0]
+                df_mat_light = df_mat.loc[df_mat['value'] != 0]
 
                 with open(path_mat_file, "w", newline='\n') as f:
                     str_header = '''$O
@@ -609,7 +611,7 @@ class DirectDistanceCalculator:
 *
 1.0
 *
-* VonBezirk NachBezirk Matrix value
+* VonBezirk NachBezirk Matrixwert
 '''
 
                     f.write(str_header)
