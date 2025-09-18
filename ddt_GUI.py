@@ -119,7 +119,7 @@ class DirectDistanceToolFrame(wx.Frame):
 
         # create a menu ...
         self.menu = wx.Menu()
-        self.menu.Append(10, self.translator.translate("language_choice"))
+        self.menu.Append(10, self.translator.translate('language_choice_title'))
         self.menu.AppendSeparator()
         self.menu.Append(11, self.translator.translate('menu_import_data'))
         self.menu.Append(12, self.translator.translate('menu_calculate'))
@@ -127,7 +127,7 @@ class DirectDistanceToolFrame(wx.Frame):
         self.menu.Append(13, self.translator.translate('menu_reset_calculations'))
         self.menu.Append(14, self.translator.translate('menu_set_defaults'))
         self.menu.AppendSeparator()
-        self.menu.Append(15, "&Info")
+        self.menu.Append(15, self.translator.translate('menu_info'))
 
         self.menu.AppendSeparator()
         # put the menu on the menubar
@@ -136,12 +136,12 @@ class DirectDistanceToolFrame(wx.Frame):
         self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
 
         # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
-        self.toolbar.AddTool(100, self.translator.translate('language_choice'), wx.Bitmap())
+        self.toolbar.AddTool(100, self.translator.translate('language_choice_title'), wx.Bitmap())
         self.toolbar.AddTool(101, self.translator.translate('menu_import_data'), wx.Bitmap())
         self.toolbar.AddTool(102, self.translator.translate('menu_calculate'), wx.Bitmap())
         self.toolbar.AddTool(103, self.translator.translate('menu_reset_calculations'), wx.Bitmap())
-        self.toolbar.AddTool(104, self.translator.translate('default_Values_tab'), wx.Bitmap())
-        self.toolbar.AddTool(105, 'Info', wx.Bitmap())
+        self.toolbar.AddTool(104, self.translator.translate('menu_default_values'), wx.Bitmap())
+        self.toolbar.AddTool(105, self.translator.translate('menu_info'), wx.Bitmap())
         self.toolbar.AddTool(106, self.translator.translate('toolbar_filter_inserted_links'), wx.Bitmap())
         self.toolbar.AddTool(107, self.translator.translate('toolbar_delete_inserted_links'), wx.Bitmap())
         self.toolbar.Realize()
@@ -204,8 +204,8 @@ class DirectDistanceToolFrame(wx.Frame):
         # Erstelle den wx.SingleChoiceDialog
         dlg = wx.SingleChoiceDialog(
             self,
-            self.translator.translate('dialog_language_select_message'),
-            self.translator.translate('dialog_language_select_title'),
+            self.translator.translate('language_choice_title'),
+            self.translator.translate('language_choice'),
             choices=languages,
         )
 
@@ -246,7 +246,7 @@ class DirectDistanceToolFrame(wx.Frame):
         self.cb_destination.SetValue("None")
         self.cb_dist_fcn.SetValue("euclidean")
 
-        self.SetStatusText(self.translator.translate('set_defaults'))
+        self.SetStatusText(self.translator.translate('status_set_defaults'))
 
     ## Event handler for attribute selection changes.
     #  Updates the appropriate attribute based on which combo box triggered the event,
@@ -255,17 +255,17 @@ class DirectDistanceToolFrame(wx.Frame):
     def event_choose_attr(self, event):
         attr = event.GetEventObject().GetStringSelection()
 
-        if event.GetEventObject().Label == self.translator.translate('attr_cfl'):
+        if event.GetEventObject().Label == 'attr_cfl':
             self.attr_cfl = attr
             # Adjust buttons for attribute values
             self.__set_values_cfl_buttons__()
 
-        elif event.GetEventObject().Label == self.translator.translate('attr_origin'):
+        elif event.GetEventObject().Label == 'attr_origin':
             if attr == 'None':
                 self.attr_origin = None
             else:
                 self.attr_origin = attr
-        elif event.GetEventObject().Label == self.translator.translate('attr_Destination'):
+        elif event.GetEventObject().Label == 'attr_destination':
             if attr == 'None':
                 self.attr_destination = None
             else:
@@ -273,18 +273,18 @@ class DirectDistanceToolFrame(wx.Frame):
         elif event.GetEventObject().Label == 'attr_dist_fcn':
             self.attr_dist_fcn = attr
         else:
-            logging.warning(self.translator.translate('warning_should_never_happen'))
+            logging.warning("should never happen")
 
         # Creating a new Calculator instance
         if self.visum is not None:
             # Initialize Calculator instance
             self.dd_calculator = llt.DirectDistanceCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                               no_suppliers=1, attr_orig=self.attr_origin,
-                                                              attr_dest=self.attr_destination, translator=self.translator)
+                                                              attr_dest=self.attr_destination)
             # Pass current parameters
             self.update_param_cfl()
         else:
-            logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
+            logging.warning("Handling of file type is not implemented")
         self.SetStatusText(self.translator.translate('status_attribute_applied_reimport_reset'))
 
     ## Event handler for the calculate button.
@@ -300,7 +300,7 @@ class DirectDistanceToolFrame(wx.Frame):
         self.dd_calculator.calculate_main()
 
         # Status bar
-        self.SetStatusText(self.translator.translate('calculation_performed'))
+        self.SetStatusText(self.translator.translate('status_calculation_performed'))
 
     ## Event handler for the quit button or window close event.
     #  Destroys the panel and frame, and exits the application's main loop.
@@ -324,12 +324,12 @@ class DirectDistanceToolFrame(wx.Frame):
             # Init Calculator instance
             self.dd_calculator = llt.DirectDistanceCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                               no_suppliers=1, attr_orig=self.attr_origin,
-                                                              attr_dest=self.attr_destination, translator=self.translator)
+                                                              attr_dest=self.attr_destination)
             # Pass current parameters
             self.update_param_cfl()
         else:
-            logging.warning(self.translator.translate('warning_non_visum_files_not_supported'))
-        self.SetStatusText(self.translator.translate('data_imported'))
+            logging.warning("Handling of file type is not implemented")
+        self.SetStatusText(self.translator.translate('status_data_imported'))
 
     ## Event handler for the Info button.
     #  @param event The event object.
@@ -356,6 +356,7 @@ class DirectDistanceToolFrame(wx.Frame):
     #  @param event The event object.
     def event_export_results(self, event):
         if self.dd_calculator is not None:
+            self.update_param_cfl()
             self.dd_calculator.export_net(links_additive=True)
             self.dd_calculator.export_matrix()
 
@@ -368,7 +369,8 @@ class DirectDistanceToolFrame(wx.Frame):
         cfl_name = self.button_cfl_active[cfl_level].Label
 
         if self.dd_calculator is not None:
-            self.dd_calculator.export_net(links_additive=True, list_cfl=[cfl_name])
+            self.update_param_cfl()
+            self.dd_calculator.export_net(links_additive=True, list_cfl=[cfl_level])
             self.dd_calculator.delete_unused_nodes()
 
         self.SetStatusText(f"{cfl_name}: {self.translator.translate('status_net_exported_imported')}")
@@ -382,7 +384,8 @@ class DirectDistanceToolFrame(wx.Frame):
         cfl_name = self.button_cfl_active[cfl_level].Label
 
         if self.dd_calculator is not None:
-            self.dd_calculator.export_matrix(list_cfl=[cfl_name])  # list_vfs parameter name remains as per llt.py
+            self.update_param_cfl()
+            self.dd_calculator.export_matrix(list_cfl=[cfl_level])
 
         self.SetStatusText(f"{cfl_name}: {self.translator.translate('status_matrix_loaded_into_visum')}")
 
@@ -391,11 +394,13 @@ class DirectDistanceToolFrame(wx.Frame):
     #  and updates the status bar.
     #  @param event The event object.
     def event_export_master(self, event):
-        self.dd_calculator.export_matrix()
-        self.dd_calculator.export_net(links_additive=True)
-        self.dd_calculator.delete_unused_nodes()
+        if self.dd_calculator is not None:
+            self.update_param_cfl()
+            self.dd_calculator.export_matrix()
+            self.dd_calculator.export_net(links_additive=True)
+            self.dd_calculator.delete_unused_nodes()
 
-        self.SetStatusText(self.translator.translate(f'status_combined_results_imported'))
+        self.SetStatusText(self.translator.translate('status_combined_results_imported'))
 
     ## Event handler for filtering links.
     #  Applies a filter to show only the links created by the calculator.
@@ -417,24 +422,28 @@ class DirectDistanceToolFrame(wx.Frame):
     #  including CFL levels, supplier counts, neighbor counts, and distance formula. Also logs the current settings.
     def update_param_cfl(self):
         if self.dd_calculator is not None:
-            dict_cfl_names= {cfl_level: item.Label for cfl_level, item in self.button_cfl_active.items() if item.Value > 0}
-            dict_num_suppliers = {dict_cfl_names[cfl_level]: self.buttons_value_n_supplier[cfl_level].Value for cfl_level in dict_cfl_names}
-            dict_max_neighbor = {dict_cfl_names[cfl_level]:  self.buttons_value_k_neighbor_cfl[cfl_level].Value for cfl_level in dict_cfl_names}
-            dict_cfl_values = {dict_cfl_names[cfl_level]:  self.buttons_cfl_value[cfl_level].Value for cfl_level in dict_cfl_names}
+            # Use stable, language-independent keys ('cfl_0', 'cfl_1', etc.) for internal logic
+            active_cfls = {cfl_level for cfl_level, item in self.button_cfl_active.items() if item.Value > 0}
+            dict_num_suppliers = {cfl_level: self.buttons_value_n_supplier[cfl_level].Value for cfl_level in active_cfls}
+            dict_max_neighbor = {cfl_level: self.buttons_value_k_neighbor_cfl[cfl_level].Value for cfl_level in active_cfls}
+            dict_cfl_values = {cfl_level: self.buttons_cfl_value[cfl_level].Value for cfl_level in active_cfls}
 
             self.dd_calculator.deg_neighbourhood_cfl = dict_max_neighbor
             self.dd_calculator.num_suppliers_cfl = dict_num_suppliers
             self.dd_calculator.cfl = dict_cfl_values
             self.dd_calculator.formula_dist = self.attr_dist_fcn
 
-            logging.info(self.translator.translate('current_settings') + "\n" +
-                         self.translator.translate('label_attr_zones_centrality') +f' {self.dd_calculator.attr_central_level}' + "\n" +
-                         self.translator.translate('label_zone_is_origin') + f': {self.dd_calculator.attr_is_from_zone}' + "\n" +
-                         self.translator.translate('label_zone_is_destination') + f': {self.dd_calculator.attr_is_to_zone}' + "\n" +
-                         self.translator.translate('distance_calculation_setting') + f': {self.dd_calculator.formula_dist}' + "\n" +
-                         self.translator.translate('CFL') + f': {self.dd_calculator.cfl}' + "\n" +
-                         self.translator.translate('setting_neighbourhood_degree_cfl') + f': {self.dd_calculator.deg_neighbourhood_cfl}' + "\n" +
-                         self.translator.translate('settings_number_of_suppliers_cfl') + f': {self.dd_calculator.num_suppliers_cfl}')
+            # Store current translated labels for user-friendly export names
+            self.dd_calculator.cfl_labels = {level: btn.GetLabel() for level, btn in self.button_cfl_active.items()}
+
+            logging.info("Current Settings \n" +
+                         f'zones: Attr. Centrality: {self.dd_calculator.attr_central_level}' + "\n" +
+                         f'Attr is Origin: {self.dd_calculator.attr_is_from_zone}' + "\n" +
+                         f'Attr is Destination: {self.dd_calculator.attr_is_to_zone}' + "\n" +
+                         f'Distance calculation: {self.dd_calculator.formula_dist}' + "\n" +
+                         f'CFL: {self.dd_calculator.cfl}' + "\n" +
+                         f'Neighbourhood level per CFL: {self.dd_calculator.deg_neighbourhood_cfl}' + "\n" +
+                         f'Number of Suppliers per CFL: {self.dd_calculator.num_suppliers_cfl}')
 
 
     ## Updates all text elements in the GUI to the current language.
@@ -448,23 +457,23 @@ class DirectDistanceToolFrame(wx.Frame):
         self.notebook.SetPageText(1, self.translator.translate('log_tab'))
 
         # 3. Menüleiste aktualisieren
-        self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice"))
+        self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice_title"))
         self.menu.FindItemById(11).SetItemLabel(self.translator.translate('menu_import_data'))
         self.menu.FindItemById(12).SetItemLabel(self.translator.translate('menu_calculate'))
         self.menu.FindItemById(13).SetItemLabel(self.translator.translate('menu_reset_calculations'))
         self.menu.FindItemById(14).SetItemLabel(self.translator.translate('menu_set_defaults'))
-        self.menu.FindItemById(15).SetItemLabel(self.translator.translate('info'))
+        self.menu.FindItemById(15).SetItemLabel(self.translator.translate('menu_info'))
         # Update the menu bar's overall menu label using its index (assuming it's the first menu added, index 0)
         self.menu_bar.SetMenuLabel(0, self.translator.translate('options_tab'))
 
 
         # 4. Toolbar aktualisieren
-        self.toolbar.FindById(100).SetLabel(self.translator.translate('language_choice'))
+        self.toolbar.FindById(100).SetLabel(self.translator.translate('language_choice_title'))
         self.toolbar.FindById(101).SetLabel(self.translator.translate('menu_import_data'))
         self.toolbar.FindById(102).SetLabel(self.translator.translate('menu_calculate'))
         self.toolbar.FindById(103).SetLabel(self.translator.translate('menu_reset_calculations'))
-        self.toolbar.FindById(104).SetLabel(self.translator.translate('default_values_tab'))
-        self.toolbar.FindById(105).SetLabel(self.translator.translate('info'))
+        self.toolbar.FindById(104).SetLabel(self.translator.translate('menu_default_values'))
+        self.toolbar.FindById(105).SetLabel(self.translator.translate('menu_info'))
         self.toolbar.FindById(106).SetLabel(self.translator.translate('toolbar_filter_inserted_links'))
         self.toolbar.FindById(107).SetLabel(self.translator.translate('toolbar_delete_inserted_links'))
 
@@ -473,7 +482,7 @@ class DirectDistanceToolFrame(wx.Frame):
         self.tabLog.refresh_gui_text()
 
         # Update the status text
-        self.SetStatusText(self.translator.translate('set_defaults'))
+        self.SetStatusText(self.translator.translate('status_set_defaults'))
 
         # Wichtig: Layout und Refresh erzwingen nach Textänderungen
         self.Layout()
@@ -527,34 +536,34 @@ class MainTab(wx.Panel):
         # Selection of zone attributes
         self.cb_cfl= wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
                                  style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_cfl.Label = self.translator.translate('attr_cfl')
+        self.cb_cfl.Label = 'attr_cfl'
         self.TopLevelParent.cb_cfl = self.cb_cfl
 
         self.cb_origin = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
                                      style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_origin.Label = self.translator.translate('attr_origin')
+        self.cb_origin.Label = 'attr_origin'
         self.TopLevelParent.cb_origin = self.cb_origin
 
         self.cb_destination = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
                                    style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.cb_destination.Label = self.translator.translate('attr_destination')
+        self.cb_destination.Label = 'attr_destination'
         self.TopLevelParent.cb_destination = self.cb_destination
 
         # Store StaticText widgets as instance attributes
-        self.static_text_centrality = wx.StaticText(self, -1, (self.translator.translate('setting_zone_attribute')+ "\n"+self.translator.translate('setting_centrality')))
+        self.static_text_centrality = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_centrality'))
         self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_cfl, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_origin = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option')))
+        self.static_text_origin = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_origin'))
         self.hbox1.Add(self.static_text_origin, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_origin, 0, wx.ALL | wx.EXPAND, 15)
 
-        self.static_text_destination = wx.StaticText(self, -1, (self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option')))
+        self.static_text_destination = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_destination'))
         self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.EXPAND, 5)
         self.hbox1.Add(self.cb_destination, 0, wx.ALL | wx.EXPAND, 15)
 
         # Header Column 1
-        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('connectivity_Function_Level_Parameter'))
+        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('setting_cfl'))
         self.gridbagsizer1.Add(self.static_text_cfl_label,
                           pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
 
@@ -575,7 +584,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.button_cfl_active = self.button_cfl_active
 
         # Column 2 Value specification per CFL
-        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
+        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('setting_attribute_value_CFL')) # Reverted to 'Attributwert VFS'
         self.gridbagsizer1.Add(self.static_text_attr_cfl,
                           pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_cfl_value = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
@@ -592,7 +601,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_cfl_value = self.buttons_cfl_value
 
         # Column 2 Selection of exchange function per CFL
-        self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('interchangeFunction_Parameter')+ "\n"  + self.translator.translate('n_Nearest_Neighbour_Parameter')))
+        self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('setting_interchange_function_&_nearest_neighbour')))
         self.gridbagsizer1.Add(self.static_text_exchange_fcn,
                           pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
 
@@ -610,7 +619,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_value_k_neighbor_cfl = self.buttons_value_k_neighbor_cfl
 
         # Column 3 Supply function
-        self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('supply_Function_Parameter')+"\n"+self.translator.translate('n_Supply_Centers_Parameter')))
+        self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('setting_supply_function_&_supply_centers')))
         self.gridbagsizer1.Add(self.static_text_supply_fcn,
             pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_value_n_supplier = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
@@ -628,7 +637,7 @@ class MainTab(wx.Panel):
         self.TopLevelParent.buttons_value_n_supplier = self.buttons_value_n_supplier
 
         # Export Matrix Buttons
-        self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('create_In_VisumAs_Option'))
+        self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('setting_create_in_visum'))
         self.gridbagsizer1.Add(self.static_text_visum_as,
             pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
         self.buttons_export_mat = {"cfl_0": wx.Button(self, -1, "MTX"), # Reverted to 'VFS 0'
@@ -658,8 +667,8 @@ class MainTab(wx.Panel):
             tmp_iterator += 1
 
         # Buttons export all
-        self.btn_export_master = wx.Button(self, -1, (self.translator.translate('import_To_Visum_All_CFL_Option') +"\n"+self.translator.translate('routes_And_Matrix_Option'))) # Reverted to 'Import nach Visum alle VFS'
-        self.btn_export_master.cfl_level = 'alle'
+        self.btn_export_master = wx.Button(self, -1, (self.translator.translate('setting_import_to_visum'))) # Reverted to 'Import nach Visum alle VFS'
+        self.btn_export_master.cfl_level = 'all'
         self.gridbagsizer1.Add(self.btn_export_master,
                           pos=(7, 4), span=(3, 2), flag=wx.EXPAND)
 
@@ -671,7 +680,7 @@ class MainTab(wx.Panel):
         self.cb_dist_fcn.Label = 'attr_dist_fcn'
         self.TopLevelParent.cb_dist_fcn = self.cb_dist_fcn
 
-        self.static_text_dist_fcn_label = wx.StaticText(self, -1, self.translator.translate('distance_Calculation_Fcn_Option'))
+        self.static_text_dist_fcn_label = wx.StaticText(self, -1, self.translator.translate('label_distance_Calculation_function'))
         self.gridbagsizer1.Add(self.static_text_dist_fcn_label, pos=(8, 0), span=(1, 1),
                           flag=wx.EXPAND)
         self.gridbagsizer1.Add(self.cb_dist_fcn, pos=(8, 1), span=(1, 1), flag=wx.EXPAND)
@@ -704,21 +713,16 @@ class MainTab(wx.Panel):
 
     ## Updates all text elements in the main tab to the current language.
     def refresh_gui_text(self):
-        # Update ComboBox labels
-        self.cb_cfl.Label = self.translator.translate('attr_cfl')
-        self.cb_origin.Label = self.translator.translate('attr_origin')
-        self.cb_destination.Label = self.translator.translate('attr_destination')
-
         # Update StaticText widgets
-        self.static_text_centrality.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('centrality_Setting'))
-        self.static_text_origin.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isOrigin_Option'))
-        self.static_text_destination.SetLabel(self.translator.translate('zone_Attribute_Setting')+ "\n"+self.translator.translate('isDestination_Option'))
-        self.static_text_cfl_label.SetLabel(self.translator.translate('connectivity_Function_Level_Parameter'))
-        self.static_text_attr_cfl.SetLabel(self.translator.translate('attribute_value_CFL_Parameter')) # Reverted to 'Attributwert VFS'
-        self.static_text_exchange_fcn.SetLabel(self.translator.translate('interchangeFunction_Parameter') + "\n" + self.translator.translate('n_Nearest_Neighbour_Parameter'))
-        self.static_text_supply_fcn.SetLabel(self.translator.translate('supply_Function_Parameter') + "\n" + self.translator.translate('n_Supply_Centers_Parameter'))
-        self.static_text_visum_as.SetLabel(self.translator.translate('create_In_VisumAs_Option'))
-        self.static_text_dist_fcn_label.SetLabel(self.translator.translate('distance_Calculation_Fcn_Option'))
+        self.static_text_centrality.SetLabel(self.translator.translate('setting_zone_attribute_centrality'))
+        self.static_text_origin.SetLabel(self.translator.translate('setting_zone_attribute_origin'))
+        self.static_text_destination.SetLabel(self.translator.translate('setting_zone_attribute_destination'))
+        self.static_text_cfl_label.SetLabel(self.translator.translate('setting_cfl'))
+        self.static_text_attr_cfl.SetLabel(self.translator.translate('setting_attribute_value_CFL')) # Reverted to 'Attributwert VFS'
+        self.static_text_exchange_fcn.SetLabel(self.translator.translate('setting_interchange_function_&_nearest_neighbour'))
+        self.static_text_supply_fcn.SetLabel(self.translator.translate('setting_supply_function_&_supply_centers'))
+        self.static_text_visum_as.SetLabel(self.translator.translate('setting_create_in_visum'))
+        self.static_text_dist_fcn_label.SetLabel(self.translator.translate('label_distance_Calculation_function'))
 
         # Update CheckBox labels (iterate over existing objects)
         for key, checkbox in self.button_cfl_active.items():
@@ -728,7 +732,7 @@ class MainTab(wx.Panel):
             checkbox.SetLabel(f"{str_cfl} {no_cfl}")
 
         # Update master export button label
-        self.btn_export_master.SetLabel(self.translator.translate('import_To_Visum_All_CFL_Option') +"\n"+self.translator.translate('routes_And_Matrix_Option')) # Reverted to 'Import nach Visum alle VFS'
+        self.btn_export_master.SetLabel(self.translator.translate('setting_import_to_visum')) # Reverted to 'Import nach Visum alle VFS'
 
         self.Layout()
         self.Refresh()

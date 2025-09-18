@@ -1,5 +1,5 @@
 {
-  "file_Selection": {
+  "file_selection": {
     "en": "Choose a VISUM model",
     "de": "Wähle ein Visumnetz"
   },
@@ -11,11 +11,11 @@
     "en": "Generation of direct distance networks based on connection function levels",
     "de": "Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen"
   },
-  "language_choice": {
+  "language_choice_title": {
     "en": "Language Choice",
     "de": "Sprachauswahl"
   },
-  "language_choice_title": {
+  "language_choice": {
     "en": "Select your preferred language",
     "de": "Wähle die gewünschte Sprache"
   },
@@ -63,7 +63,7 @@
     "en": "Log-Messages",
     "de": "Log-Messages"
   },
-  "default_values_tab": {
+  "menu_default_values": {
     "en": "Default Values",
     "de": "Defaultwerte"
   },
@@ -75,15 +75,15 @@
     "en": "Deletion of inserted links",
     "de": "Löschen der eingefügten Strecken"
   },
-  "set_defaults": {
+  "status_set_defaults": {
     "en": "Set Default Values",
     "de": "Default-Werte hergestellt"
   },
-  "warning_should_never_happen": {
+  "logging_warning_should_never_happen": {
     "en": "should never happen",
     "de": "sollte nie passieren"
   },
-  "warning_non_visum_files_not_supported": {
+  "logging_warning_non_visum_files_not_supported": {
     "en": "Handling of file type is not implemented",
     "de": "Umgang mit Dateityp ist nicht implementiert"
   },
@@ -95,7 +95,7 @@
     "en": "Calculation is executed",
     "de": "Berechnung durchgeführt"
   },
-  "data_imported": {
+  "status_data_imported": {
     "en": "Data imported",
     "de": "Daten importiert"
   },
@@ -111,25 +111,25 @@
     "en": "Matrix Loaded to Visum",
     "de": "Matrix in Visum geladen"
   },
-  "f'status_combined_results_imported'": {
-    "en": "f'The combined Results were imported into Visum",
-    "de": "f'die kombinierten Ergebnisse wurden in Visum importiert"
+  "status_combined_results_imported": {
+    "en": "The combined Results were imported into Visum",
+    "de": "die kombinierten Ergebnisse wurden in Visum importiert"
   },
-  "current_settings": {
+  "logging_current_settings": {
     "en": "Current Settings",
     "de": "aktuelle Settings"
   },
   "setting_zone_attribute_centrality": {
-    "en": "zones: Attr. Centrality",
-    "de": "Bezirke: Attr. Zentralität"
+    "en": "zones: Attr. \n Centrality",
+    "de": "Bezirke: Attr. \n Zentralität"
   },
   "label_zone_is_origin": {
-    "en": "Attr isOrigin",
-    "de": "Attr istQuelle"
+    "en": "Attr is Origin",
+    "de": "Attr ist Quelle"
   },
   "label_zone_is_destination": {
-    "en": "Attr isDestination",
-    "de": "Attr istZeil"
+    "en": "Attr is Destination",
+    "de": "Attr ist Zeil"
   },
   "distance_calculation_Setting": {
     "en": "Distance calculation",
@@ -143,9 +143,9 @@
     "en": "Number of Suppliers per CFL",
     "de": "Anzahl Versorger je VFS"
   },
-  "zone_Attribute_Setting": {
-    "en": "zone Attribute",
-    "de": "Bezirksattribut"
+  "setting_zone_attribute_origin": {
+    "en": "Zone attribute \n is Origin",
+    "de": "Bezirksattribut \n ist Quelle"
   },
   "centrality": {
     "en": "Centrality",
@@ -155,47 +155,47 @@
     "en": "is Origin",
     "de": "ist Quelle"
   },
-  "isDestination_Option": {
-    "en": "is Destination",
-    "de": "ist Ziel"
+  "setting_zone_attribute_destination": {
+    "en": "Zone attribute \n is Destination",
+    "de": "Bezirksattribut \n ist Ziel"
   },
-  "parameter_cfl": {
+  "setting_cfl": {
     "en": "Connectivity Function Level",
     "de": "Verbindungsfunktionsstufe"
   },
-  "attribute_value_CFL_Parameter": {
+  "setting_attribute_value_CFL": {
     "en": "Attribute value CFL",
     "de": "Attributwert VFS"
   },
-  "interchangeFunction_Parameter": {
-    "en": "Interchange function",
-    "de": "Austauschfunktion"
+  "setting_interchange_function_&_nearest_neighbour": {
+    "en": "Interchange function \n n-Nearest Neighbour",
+    "de": "Austauschfunktion \n n-naechste Nachbarn"
   },
-  "n_Nearest_Neighbour_Parameter": {
+  "setting_nearest_neighbour": {
     "en": "n-Nearest Neighbour",
     "de": "n-naechste Nachbarn"
   },
-  "supply_Function_Parameter": {
-    "en": "Supply function",
-    "de": "Versorgungsfunktion"
+  "setting_supply_function_&_supply_centers": {
+    "en": "Supply function \n n Supply Centers",
+    "de": "Versorgungsfunktion \n n Versorgungszentren"
   },
-  "n_Supply_Centers_Parameter": {
+  "setting_supply_centers": {
     "en": "n Supply Centers",
     "de": "n Versorgungszentren"
   },
-  "create_In_VisumAs_Option": {
+  "setting_create_in_visum": {
     "en": "Create in Visum as",
     "de": "anlegen in Visum als"
   },
-  "import_To_Visum_All_CFL_Option": {
-    "en": "Import to Visum all CFL",
-    "de": "Import nach Visum alle VFS"
+  "setting_import_to_visum": {
+    "en": "Import to Visum all CFL \n Routes + Mtx",
+    "de": "Import nach Visum alle VFS \n Strecken + Mtx"
   },
-  "routes_And_Matrix_Option": {
+  "setting_routes_and_matrix": {
     "en": "Routes + Mtx",
     "de": "Strecken + Mtx"
   },
-  "distance_Calculation_Fcn_Option": {
+  "label_distance_Calculation_function": {
     "en": "Distance calculation Function",
     "de": "Funktion Distanzberechnung"
   },
@@ -211,17 +211,17 @@
     "en": "Please select your preferred language",
     "de": "Bitte wählen Sie Ihre bevorzugte Sprache"
   },
-  "attr_cfl": {
-    "en": "attr_cfl",
-    "de": "attr_VFS"
+  "label_attr_cfl": {
+    "en": "Attribute CFL",
+    "de": "Attribut VFS"
   },
-  "attr_origin": {
-    "en": "attr_origin",
-    "de": "attr_origin"
+  "label_attr_origin": {
+    "en": "Attribute origin",
+    "de": "Attribut origin"
   },
-  "attr_Destination": {
-    "en": "attr_Destination",
-    "de": "attr_ziel"
+  "label_attr_Destination": {
+    "en": "Attribute Destination",
+    "de": "Attribut ziel"
   },
   "dialog_language_select_title": {
     "en": "Select Language",

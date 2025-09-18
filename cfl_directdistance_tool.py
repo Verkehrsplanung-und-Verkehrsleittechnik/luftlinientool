@@ -10,7 +10,9 @@ from pathlib import Path
 from math import radians
 import win32com.client as com
 import webbrowser
-from language_management import Translator  # Added import
+
+
+# from language_management import Translator  # Added import
 
 
 # todo update immediately in GUI event after change, no repeated update here
@@ -22,20 +24,18 @@ from language_management import Translator  # Added import
 # @param path (Path/str) to a Visum version file
 # @param version Visum version, default 240
 # @return Visum instance
-def open_visum(path, version=240, translator: Translator = None):  # Added translator
-    # Use a default translator if none is provided
-    trans = translator if translator is not None else Translator()
+def open_visum(path, version=240):
     try:
         # tests if the variable Visum exists
         global Visum
         Visum
     except NameError:
         # if not - open a Visum instance
-        logging.info(trans.translate('log_init_visum_instance'))
+        logging.info('Initializing Visum instance.')
         Visum = com.Dispatch(f"Visum.Visum.{version}")
-        logging.info(trans.translate('log_opening_version_file')+ f'{path}')
+        logging.info('Opening version file:' + f'{path}')
         Visum.LoadVersion(path)
-        logging.info(trans.translate('log_version_file_loaded'))
+        logging.info('Version file successfully loaded.')
     return Visum
 
 
@@ -119,10 +119,8 @@ def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
 # @param[in] array_points Array with the x & y coordinates of the points
 # @param[in] formula Distance formula to use ("haversine" or "euclidean")
 # @param[in] n Desired number of points
-# @return list_indizes List of indices of the n nearest points
-def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None,
-                                translator: Translator = None):  # Added translator
-    trans = translator if translator is not None else Translator()
+# @return list_indices List of indices of the n nearest points
+def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None):
     # If no selection exists
     if (n is not None) and (n >= len(array_points)):
         # all possible points are returned
@@ -136,12 +134,12 @@ def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None,
         distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
                                                         vec_y2=array_points[:, 1])
     else:
-        logging.warning(trans.translate("warn_distance_calc_not_implemented"))
+        logging.warning("Distance calculation case is not implemented.d")
 
     # Index of the n lowest values
-    list_indizes = np.argpartition(distances, n)[:n]
+    list_indices = np.argpartition(distances, n)[:n]
 
-    return list_indizes
+    return list_indices
 
 
 ## Opens the Readme file
@@ -171,22 +169,14 @@ class DirectDistanceCalculator:
     # @param translator Optional Translator instance for multilingual logging.
     def __init__(self, source,
                  attr_cfl: str = "TypeNo",
-                 dict_cfl: dict = {"VFS 0": 0, "VFS 1": 1, "VFS 2": 2, "VFS 3": 3, "VFS 4": 4, "VFS 5": 5},
+                 dict_cfl: dict = {"cfl_0": 0, "cfl_1": 1, "cfl_2": 2, "cfl_3": 3, "cfl_4": 4, "cfl_5": 5},
                  max_distance=1,
                  no_suppliers=0,
                  attr_orig=None,
                  attr_dest=None,
                  use_filter: bool = False,
                  formula_distance: str = "euclidean",
-                 path_output=None,
-                 translator: Translator = None):
-
-        ## Translator instance for logging
-        if translator is None:
-            # Create a default translator if none is provided
-            self.translator = Translator()
-        else:
-            self.translator = translator
+                 path_output=None):
 
         ## Debug mode flag. Enables the execution of intermediate analyses that are not considered in the normal program flow
         self.debug_mode = False
@@ -207,8 +197,10 @@ class DirectDistanceCalculator:
         ## Output directory
         self.path_output = path_output
 
-        ## List of VFS to be processed
+        ## List of VFS to be processed (using stable keys)
         self.cfl = dict_cfl
+        ## Dictionary to hold display names for CFLs for export
+        self.cfl_labels = {}
 
         ## Distance calculation
         self.formula_dist = formula_distance
@@ -222,21 +214,21 @@ class DirectDistanceCalculator:
         # Goal: dict with VFS: value
         if isinstance(max_distance, int):
             # Conversion to dict with scalar for each VFS
-            self.deg_neighbourhood_cfl = dict(zip(dict_cfl.keys(), max_distance * np.ones(len(dict_cfl), dtype=int)))
+            self.deg_neighbourhood_cfl = dict(zip(self.cfl.keys(), max_distance * np.ones(len(self.cfl), dtype=int)))
         elif isinstance(max_distance, dict):
             self.deg_neighbourhood_cfl = max_distance
         else:
-            raise TypeError(self.translator.translate("error_param_type_not_implemented"))
+            raise TypeError("Parameter type not implemented.")
 
         # Goal: dict with VFS: value
         if isinstance(no_suppliers, int):
             # Conversion to dict with scalar for each VFS
             self.num_suppliers_cfl = dict(
-                zip(dict_cfl.keys(), no_suppliers * np.ones(len(dict_cfl), dtype=int)))
+                zip(self.cfl.keys(), no_suppliers * np.ones(len(self.cfl), dtype=int)))
         elif isinstance(no_suppliers, dict):
             self.num_suppliers_cfl = no_suppliers
         else:
-            raise TypeError(self.translator.translate("error_param_type_not_implemented"))
+            raise TypeError("Parameter type not implemented.")
 
         # Reading the zone data
         # Important: Index of the table = 0...n
@@ -251,17 +243,17 @@ class DirectDistanceCalculator:
                 np.array(source.Net.Zones.GetMultiAttValues("No", OnlyActive=use_filter), dtype=int)[:, 1])
             self.zones["IsActive"] = self.zones["No"].isin(set_active_zones)
 
-            logging.info(self.translator.translate("log_zones_loaded").format(count=len(self.zones)))
+            logging.info("%s Zones loaded", len(self.zones))
         else:
             self.visum = None
-            logging.warning(self.translator.translate("warn_zone_data_load_failed"))
+            logging.warning("Loading zone data failed, input format is not implemented.")
 
         if attr_orig is None:
-            attr_orig = 'quelle'
+            attr_orig = 'origin'
             self.zones[attr_orig] = 1
 
         if attr_dest is None:
-            attr_dest = 'ziel'
+            attr_dest = 'destination'
             self.zones[attr_dest] = 1
 
         # Handle attr_dest=attr_origin: Delete column duplicate
@@ -302,7 +294,7 @@ class DirectDistanceCalculator:
         list_df_edges = []
         for cfl in list_cfl:
             if not is_symmetric(self.matrices_cfl[cfl]):
-                logging.warning(f'{cfl}: ' + self.translator.translate("warn_adj_matrix_not_symmetric"))
+                logging.warning(f'{cfl}: Adjacency matrix is not symmetric.')
 
             df_edges = pd.DataFrame(self.matrices_cfl[cfl]).stack().reset_index()
             df_edges.columns = ["FromNodeNo", "ToNodeNo", "TypeNo"]
@@ -361,16 +353,16 @@ class DirectDistanceCalculator:
     # @return No return. The results are saved internally.
     def calculate_main(self):
         # Init Ergebnisse
-        logging.info(self.translator.translate("log_calc_all_vfs_start"))
+        logging.info("Starting calculation for all CFLs.")
         self.init_results()
-        logging.info(self.translator.translate("log_adj_matrices_initialized"))
+        logging.info("Adjacency matrices have been initialized.")
 
         # Schleife über alle cfl
         for cfl in self.cfl:
             # Berechne die Werte für die VFS
             self.calculate_cfl(cfl)
 
-        logging.info(self.translator.translate("log_calculation_all_vfs_finished"))
+        logging.info("The calculation for all CFLs is complete.")
 
     ## Calculates the connections of a CFL.
     # @param cfl: the connection function level for which connections are determined
@@ -396,19 +388,19 @@ class DirectDistanceCalculator:
             duplicate_zones = active_zones[active_zones.duplicated(subset=["XCoord", "YCoord"], keep=False)]
             duplicate_zones_string = ', '.join(
                 duplicate_zones["No"].apply(lambda x: str(int(x))) + "/" + duplicate_zones["Name"])
-            error_msg = (self.translator.translate("error_duplicate_coordinates")+f'{duplicate_zones_string}')
+            error_msg = f'Aborted: Zones with identical coordinates found (NUMBER/NAME): {duplicate_zones_string}'
             raise ValueError(error_msg)
         elif len(active_zones) < 3:
-            logging.info(f'{cfl}: ' + self.translator.translate("log_vfs_too_few_active_zones"))
+            logging.info(f'{cfl}: Too few zones are active.')
         else:
-            logging.info(f'{cfl}: ' + self.translator.translate("log_delaunay_for") + f'{len(active_zones)}' + self.translator.translate("_zones"))
+            logging.info(f'{cfl}: Performing Delaunay triangulation for {len(active_zones)} zones')
 
             if k_neighbour > 0:
 
                 # Delaunay Triangulation
                 tri = Delaunay(active_zones[["XCoord", "YCoord"]])
                 zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
-                logging.info(f'{cfl}: ' + f'{len(zone_orig_idx_triangles)}' + self.translator.translate("log_triangles_created"))
+                logging.info(f'{cfl}: {len(zone_orig_idx_triangles)} triangles were created')
 
                 # Adjazenzmatrix ausfüllen
                 # Schleife über Dreiecke
@@ -425,7 +417,7 @@ class DirectDistanceCalculator:
 
             # Nachbarschaften Grad n bestimmen
             if k_neighbour > 1:
-                logging.info(f'{cfl}' + self.translator.translate("log_calculating_neighborhood_degree"))
+                logging.info(f'{cfl}: the neighborhood degree must be calculated')
                 adj_k_steps = self.calculate_reachability_max_steps(k_neighbour, cfl)
                 self.matrices_cfl[cfl] = adj_k_steps
 
@@ -464,8 +456,7 @@ class DirectDistanceCalculator:
                                                                         zone, "no_provider"],
                                                                     array_points=provider_tmp[
                                                                         ["XCoord", "YCoord"]].values,
-                                                                    formula=self.formula_dist,
-                                                                    translator=self.translator)  # Pass translator
+                                                                    formula=self.formula_dist)
                     self.matrices_cfl[cfl][zone, provider_tmp.index[list_idx_provider]] = 1
                     self.matrices_cfl[cfl][provider_tmp.index[list_idx_provider], zone] = 1
                     # debugbefehl Entfernungen
@@ -473,13 +464,13 @@ class DirectDistanceCalculator:
                     #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
                     #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
 
-            # inaktive Quelle oder Ziel
+            # inaktive origin oder Ziel
 
             # Aufbau Maske mit aktiven und inaktiven OD Paaren
-            # Quelle und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
-            # Logik: Filtere OD-Paare mit Quelle & Ziel aktiv...
+            # origin und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
+            # Logik: Filtere OD-Paare mit origin & Ziel aktiv...
             #
-            #  Quelle * Ziel  = Matrix
+            #  origin * Ziel  = Matrix
             # (1 0).T * (1 1) = (1  1
             #                    0  0)
             #
@@ -487,7 +478,7 @@ class DirectDistanceCalculator:
             # (1  1
             #  1  0)
 
-            # Attribute Quelle und Ziel
+            # Attribute origin und Ziel
             vector_is_from_zone = self.zones[self.attr_is_from_zone].values
             vector_is_to_zone = self.zones[self.attr_is_to_zone].values
             # über dyadisches Produkt ("outer product") verknüpfen
@@ -502,7 +493,7 @@ class DirectDistanceCalculator:
 
             # Symmetrietest
             if np.sum(self.matrices_cfl[cfl] - self.matrices_cfl[cfl].T) > 0:
-                raise ValueError(self.translator.translate("error_matrix_not_symmetric"))
+                raise ValueError("Error: Matrix is not symmetric")
 
             # debugzwecke
             if self.debug_mode:
@@ -512,9 +503,9 @@ class DirectDistanceCalculator:
                 # Zeigt das Ergebnis in Visum an
                 self.export_net(links_additive=False, list_cfl=[cfl])
 
-                logging.info(f'{cfl}' + self.translator.translate("log_debug_results_in_visum"))
+                logging.info(f'{cfl}: : The result can be viewed in Visum.')
 
-            logging.info(self.translator.translate("log_vfs_calculation") +f'{cfl}' + self.translator.translate("_finished"))
+            logging.info(f'The calculation for {cfl} is completed.')
 
             df_zones_info = self.adj_matrix_to_set_of_connected_zones(cfl)
             df_zones_info["set zones"] = df_zones_info["set zones"].str.join(",")
@@ -526,7 +517,7 @@ class DirectDistanceCalculator:
     # @return No return. The visum instance is changed.
     def delete_unused_nodes(self):
         if self.visum is None:
-            logging.warning(self.translator.translate("warn_delete_nodes_no_visum"))
+            logging.warning("Delete nodes: No Visum instance is linked.")
             return
 
         # Lösche Punkte ohne Strecke
@@ -545,13 +536,13 @@ class DirectDistanceCalculator:
         # Filter initialisieren
         self.visum.Filters.NodeFilter().Init()
 
-        logging.info(f'{n}'+self.translator.translate("log_isolated_nodes_deleted"))
+        logging.info(f'{n}: isolated nodes were deleted.')
 
     ## Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked)
     # or as .mtx file.
     # Existing matrices are overwritten.
     # @param visum: optional visum instance. Default None
-    # @param list_vfs: optional set of CFL. Default: None (all of the object)
+    # @param list_cfl: optional set of CFL. Default: None (all of the object)
     def export_matrix(self, list_cfl=None):
         # Falls Visuminstanz erkannt: erstelle & exportiere Daten direkt in Visum (Für Netze mit <1500 Bezirken über SetValues sonst mithilfe einer mtx-Datei im O-Fromat)
         # Sonst: Speichere .mtx Datei
@@ -559,21 +550,25 @@ class DirectDistanceCalculator:
         if list_cfl is None:
             list_cfl = self.cfl.keys()
 
-        logging.info(self.translator.translate("log_matrix_export") +f'{len(list_cfl)}' + self.translator.translate("_start"))
+        logging.info(f'Starting the export of {len(list_cfl)} matrices.')
 
         for cfl in list_cfl:
             if cfl not in self.matrices_cfl.keys():
-                logging.warning(self.translator.translate("warn_vfs") +f'{cfl}' + self.translator.translate("not_in_calculated_list"))
+                logging.warning(f'Error: {cfl}  is not in the list of calculated CFLs.')
                 continue
 
             matrix_cfl = self.matrices_cfl[cfl]
+
+            # Get the user-facing, translated label for the matrix name
+            cfl_label = self.cfl_labels.get(cfl, cfl)  # Fallback to the key if no label is found
+
             # Benennung in der Matrix in Visum bzw. Datei
             if self.num_suppliers_cfl[cfl] < 1:
                 # Term mit Versorgungsfkt wird weggelassen
-                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
                 # Term mit Versorgungsfkt wird hinzugefügt
-                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
 
             # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
             path_mat = self.path_output or Path.cwd() / 'mtx'
@@ -590,10 +585,10 @@ class DirectDistanceCalculator:
                                       , dtype=int
                                       ).stack().reset_index()
 
-                df_mat.columns = ['Quelle', 'Ziel', 'Matrixwert']
+                df_mat.columns = ['origin', 'destination', 'Matrix value']
 
                 # Das O-Format kommt ohne 0 Werte aus, bereite einen entsprechenden DataFrame vor
-                df_mat_light = df_mat.loc[df_mat['Matrixwert'] != 0]
+                df_mat_light = df_mat.loc[df_mat['Matrix value'] != 0]
 
                 with open(path_mat_file, "w", newline='\n') as f:
                     str_header = '''$O
@@ -614,12 +609,12 @@ class DirectDistanceCalculator:
 *
 1.0
 *
-* VonBezirk NachBezirk Matrixwert
+* VonBezirk NachBezirk Matrix value
 '''
 
                     f.write(str_header)
                     df_mat_light.to_csv(f, header=False, sep=" ", index=False)
-                    logging.info(self.translator.translate("log_matrix")+f'{name_matrix}'+self.translator.translate("saved_to_file")+f'{path_mat_file}')
+                    logging.info(f'Matrix {name_matrix} is saved to this file: {path_mat_file}')
 
             # Falls eine Instanz existiert, Inhalte in Visum importieren
             if self.visum is not None:
@@ -640,24 +635,23 @@ class DirectDistanceCalculator:
                         matrix_instance.SetAttValue("CODE", name_matrix)
                         matrix_instance.SetAttValue("NAME", name_matrix)
                     elif matrix_instances.Count > 1:
-                        logging.warning(self.translator.translate("warn_matrix_code_duplicate"))
+                        logging.warning("Matrix code exists multiple times, the first matrix will be overwritten.")
                         matrix_instance = matrix_instances.Iterator.Item
                     else:
                         matrix_instance = matrix_instances.Iterator.Item
-                        logging.info(self.translator.translate("log_matrix_code_exists_overwrite"))
+                        logging.info("Matrix code exists, content will be overwritten.")
 
                 # Import der Werte
                 # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden
                 if self.visum.Net.Zones.Count < 1500:
                     matrix_instance.SetValues(matrix_cfl)
-                    logging.info(f'{name_matrix}'+self.translator.translate("log_matrix_read_into_visum"))
+                    logging.info(f'{name_matrix}: was read into Visum.')
                 else:
                     matrix_instance.Open(path_mat_file, ReadAdditive=False)
-                    logging.info(f'{name_matrix}'+
-                        self.translator.translate("log_matrix_mtx_read_into_visum"))
+                    logging.info(f'{name_matrix}: was read into Visum.')
 
             else:
-                logging.info(self.translator.translate("log_visum_not_open_matrices_exported")+f'{path_mat}')
+                logging.info(f'Visum is not running. Matrices were exported as files to: {path_mat}')
 
     ## Creates the infrastructure objects in preparation for exporting the infrastructure in the form of dictionaries for nodes, lines, and line types.
     # Called if an object is not present in the dictionaries during export.
@@ -714,7 +708,7 @@ class DirectDistanceCalculator:
 
         # Test: there is a number for each link
         if len(self.dict_export_links_vfs) != len(df_edges["No"].drop_duplicates()):
-            logging.error(self.translator.translate("error_link_numbering_mismatch"))
+            logging.error("Link numbering does not match the number of links.")
 
         df_edges.loc[:, "Name"] = df_edges["No"]
         df_edges["No"].replace(self.dict_export_links_vfs, inplace=True)
@@ -751,7 +745,7 @@ class DirectDistanceCalculator:
             self.extract_net()
 
         if len(self.edges) < 1:
-            logging.info(self.translator.translate("log_no_links_to_export"))
+            logging.info("No links to export, aborting.")
             return
 
         df_nodes = self.zones.copy()
@@ -821,9 +815,9 @@ class DirectDistanceCalculator:
             self.visum.IO.LoadNet(path_net, ReadAdditive=True)
 
             if self.visum.Net.Links.Count < len(df_edges):
-                logging.warning(self.translator.translate("warn_net_file_import_error"))
+                logging.warning("Error importing the network file.")
 
-        logging.info(self.translator.translate("log_net") +f'{len(list_cfl)}' + self.translator.translate("file_exported_to_visum"))
+        logging.info(f'The network file of {len(list_cfl)} CFLs has been exported to Visum.')
 
     ## Exports the connections and the number of connections as zone UDAs to Visum
     #  @param cfl The cfl (connection function level) for which the connections should be exported
@@ -831,8 +825,8 @@ class DirectDistanceCalculator:
     def export_zones_uda_connections(self, cfl):
         # Create UDA if not exists
 
-        str_no_conn = f"RIN_Anz_Verbindungen_{cfl}".replace(" ", "")
-        str_conn = f"RIN_Verbindungen_{cfl}".replace(" ", "")
+        str_no_conn = f"RIN_No.of_Connections_{cfl}".replace(" ", "")
+        str_conn = f"RIN_Connections_{cfl}".replace(" ", "")
 
         try:
             self.visum.Net.Zones.AddUserDefinedAttribute(str_no_conn,
@@ -870,7 +864,7 @@ class DirectDistanceCalculator:
 
     ## Filters the links of the inserted link types in Visum.
     #  @return No return value. The Visum instance is modified.
-    def filter_links_vfs(self):
+    def filter_links_cfl(self):
         filter = self.visum.Filters.LinkFilter()
         filter.Init()
         filter.AddCondition("OP_NONE", False, "TypeNo", "ContainedIn",
@@ -896,6 +890,6 @@ class DirectDistanceCalculator:
     #  @return No return value. The Visum instance is modified.
     def delete_added_links(self):
         # Attention: Does NOT delete link types
-        self.filter_links_vfs()
+        self.filter_links_cfl()
         self.visum.Net.Links.RemoveAll(OnlyActive=True)
         self.visum.Filters.LinkFilter().Init()
