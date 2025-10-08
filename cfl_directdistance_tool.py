@@ -786,12 +786,12 @@ class DirectDistanceCalculator:
             df_conn["TSYSSET"] = ",".join(list_ivtsys_net)
 
         # Write .net file
-        with open(path_net, mode="w", newline="\n") as f:
+        with open(path_net, mode="w", newline="\n", encoding="latin-1") as f:
             header = '''$VISION
 * Universität Stuttgart Fakultät 2 Bau+Umweltingenieurwissenschaften Stuttgart
 * 08/23/22
-* * Table: Version block
-* $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
+* Table: Version block
+$VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 13;Net;ENG;KM
 
 '''
@@ -807,7 +807,7 @@ class DirectDistanceCalculator:
         # If Visum instance is provided: load the .net file
         if self.visum is not None:
             # Conflict management
-            controller = self.visum.IO.CreateAddNetReadController()
+            # controller = self.visum.IO.CreateAddNetReadController()
 
             if links_additive is not True:
                 self.visum.Net.Links.RemoveAll(OnlyActive=True)
