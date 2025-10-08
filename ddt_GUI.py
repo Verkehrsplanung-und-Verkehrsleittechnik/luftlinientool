@@ -128,12 +128,20 @@ class DirectDistanceToolFrame(wx.Frame):
         self.menu.Append(14, self.translator.translate('menu_set_defaults'))
         self.menu.AppendSeparator()
         self.menu.Append(15, self.translator.translate('menu_info'))
+        self.menu.AppendSeparator()
+        self.menu.Append(16, self.translator.translate('toolbar_filter_inserted_links'))
+        self.menu.Append(17, self.translator.translate('toolbar_delete_inserted_links'))
 
         self.menu.AppendSeparator()
         # put the menu on the menubar
         self.menu_bar.Append(self.menu, self.translator.translate('options_tab'))
         self.SetMenuBar(self.menu_bar)
-        self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS)
+        self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS | wx.TB_NODIVIDER)
+
+        # settings toolbar
+        self.toolbar.SetMargins((0, 0))
+        self.toolbar.SetToolPacking(0)
+        self.toolbar.SetToolSeparation(0)
 
         # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
         self.toolbar.AddTool(100, self.translator.translate('language_choice_title'), wx.Bitmap())
@@ -144,7 +152,12 @@ class DirectDistanceToolFrame(wx.Frame):
         self.toolbar.AddTool(105, self.translator.translate('menu_info'), wx.Bitmap())
         self.toolbar.AddTool(106, self.translator.translate('toolbar_filter_inserted_links'), wx.Bitmap())
         self.toolbar.AddTool(107, self.translator.translate('toolbar_delete_inserted_links'), wx.Bitmap())
+        self.toolbar.AddStretchableSpace()
         self.toolbar.Realize()
+
+        # adjust size of toolbar
+        self.toolbar.SetSize(self.toolbar.GetBestSize())
+        self.toolbar.Fit()
 
         # # # create toolbar
         # # toolbar = self.CreateToolBar()
@@ -171,6 +184,8 @@ class DirectDistanceToolFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.event_info, id=15)
         self.Bind(wx.EVT_MENU, self.event_reset, id=13)
         self.Bind(wx.EVT_MENU, self.event_set_default, id=14)
+        self.Bind(wx.EVT_MENU, self.event_filter, id=16)
+        self.Bind(wx.EVT_MENU, self.event_delete_links, id=17)
 
         self.toolbar.Bind(wx.EVT_TOOL, self.on_choose_language, id=100)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
