@@ -307,6 +307,14 @@ class DirectDistanceToolFrame(wx.Frame):
     #  and updates the status bar to indicate completion.
     #  @param event The event object.
     def event_calculate(self, event):
+
+        if self.dd_calculator is None:
+            logging.warning("There is no calculator instance defined")
+            wx.MessageBox(self.translator.translate('error_no_calculator_instance'), 'Info', wx.OK | wx.ICON_INFORMATION)
+            return
+
+
+
         # Procedure
         # 1. Update the specified parameters if something has been changed
         # 2. Calculate
