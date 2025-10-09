@@ -1,4 +1,8 @@
 {
+  "name_tool_short": {
+    "en": "DDT",
+    "de": "LLT"
+  },
   "file_selection": {
     "en": "Choose a VISUM model",
     "de": "Wähle ein Visumnetz"
@@ -221,7 +225,7 @@
   },
   "label_attr_Destination": {
     "en": "Attribute Destination",
-    "de": "Attribut ziel"
+    "de": "Attribut Ziel"
   },
   "dialog_language_select_title": {
     "en": "Select Language",
@@ -243,7 +247,7 @@
     "en": "zones: Attr. Centrality",
     "de": "Bezirke: Attr. Zentralität"
   },
-  "CFL": {
+  "cfl": {
     "en": "CFL",
     "de": "VFS"
   },
@@ -258,5 +262,9 @@
     "documentation_code": {
     "en": "code documentation",
     "de": "Dokumentation Code"
+  },
+  "connections": {
+    "en": "connections",
+    "de": "Verbindungen"
   }
 }

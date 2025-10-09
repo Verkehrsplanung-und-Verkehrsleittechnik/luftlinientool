@@ -10,10 +10,8 @@ from pathlib import Path
 from math import radians
 import win32com.client as com
 import webbrowser
-from language_management import Translator  # Added import
+from language_management import Translator
 
-
-# todo update immediately in GUI event after change, no repeated update here
 
 # ====== general, useful functions =====
 
@@ -164,7 +162,7 @@ class DirectDistanceCalculator:
     # Note: For triangulation, the air-line connections are determined using the Euclidean distance.
     # Delaunay triangulation only works with a projection of Lat/Lon coordinates.
     # @param path_output Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed.
-    # @param translator Optional Translator instance for multilingual logging.
+    # @param translator Optional Translator instance for multilingual export.
     def __init__(self, source,
                  attr_cfl: str = "TypeNo",
                  dict_cfl: dict = {"cfl_0": 0, "cfl_1": 1, "cfl_2": 2, "cfl_3": 3, "cfl_4": 4, "cfl_5": 5},
@@ -205,19 +203,23 @@ class DirectDistanceCalculator:
 
         ## List of VFS to be processed
         self.cfl = dict_cfl
+
         ## Dictionary to hold display names for CFLs for export
-        self.cfl_labels = {}
+        self.cfl_labels = dict(zip(self.cfl.keys(), self.cfl.keys()))   # default
 
         ## Distance calculation
         self.formula_dist = formula_distance
 
         ## Specification of the neighborhood degree to which equal-ranking connections should be followed
-        # (formerly exchange function)
-        self.deg_neighbourhood_cfl = dict()
-        ## Specification of how many (higher-ranking) suppliers should be connected
-        self.num_suppliers_cfl = dict()
+        # (formerly 'exchange function')
+        # @type dict
+        self.deg_neighbourhood_cfl = None
 
-        # Goal: dict with VFS: value
+        ## Specification of how many (higher-ranking) suppliers should be connected
+        # @type dict
+        self.num_suppliers_cfl = None
+
+        # fill self.deg_neighbourhood
         if isinstance(max_distance, int):
             # Conversion to dict with scalar for each VFS
             self.deg_neighbourhood_cfl = dict(zip(self.cfl.keys(), max_distance * np.ones(len(self.cfl), dtype=int)))
@@ -226,7 +228,7 @@ class DirectDistanceCalculator:
         else:
             raise TypeError("Parameter type not implemented.")
 
-        # Goal: dict with VFS: value
+        # fill self.num_suppliers_cfl
         if isinstance(no_suppliers, int):
             # Conversion to dict with scalar for each VFS
             self.num_suppliers_cfl = dict(
@@ -564,13 +566,17 @@ class DirectDistanceCalculator:
                 continue
 
             matrix_cfl = self.matrices_cfl[cfl]
+
+            # Get the user-facing, translated label for the matrix name
+            cfl_label = self.cfl_labels.get(cfl, cfl)  # Fallback to the key if no label is found
+
             # Benennung in der Matrix in Visum bzw. Datei
             if self.num_suppliers_cfl[cfl] < 1:
                 # Term mit Versorgungsfkt wird weggelassen
-                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
                 # Term mit Versorgungsfkt wird hinzugefügt
-                name_matrix = f"RIN_{cfl}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
+                name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
 
             # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
             path_mat = self.path_output or Path.cwd() / 'mtx'
@@ -736,7 +742,8 @@ class DirectDistanceCalculator:
         if list_cfl is None:
             list_cfl = self.cfl.keys()
 
-        path_net = path_net / f"{'_'.join(list_cfl)}.net"
+        list_labels = [self.cfl_labels[key] for key in list_cfl]
+        path_net = path_net / f"{self.translator.translate('name_tool_short')}_{'_'.join(list_labels)}.net"
 
         # Check: Extract_net notwendig?
         # Erstelle Streckenliste
@@ -757,7 +764,7 @@ class DirectDistanceCalculator:
 
         # Überarbeiten
         df_nodes = df_nodes.astype({'No': int, 'TypeNo': int})
-        df_nodes.loc[:, 'Name'] = 'LLT ' + df_nodes['No'].astype(int).astype(str) + ' ' + df_nodes['Name']
+        df_nodes.loc[:, 'Name'] = self.translator.translate("name_tool_short") + df_nodes['No'].astype(int).astype(str) + ' ' + df_nodes['Name']
         df_nodes["CODE"] = df_nodes["No"].astype(int)
         df_nodes["No"].replace(self.dict_export_zone2node, inplace=True)
         df_nodes = df_nodes[['No', 'Name', 'XCoord', 'YCoord', 'TypeNo', 'CODE']]
@@ -797,7 +804,6 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 13;Net;ENG;KM
 
 '''
-
             f.write(header)
             write_object_to_net("Node", df_nodes, f)
             write_object_to_net("Link type", df_linktypes, f)
@@ -827,8 +833,8 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
     def export_zones_uda_connections(self, cfl):
         # Create UDA if not exists
 
-        str_no_conn = f"RIN_No.of_Connections_{cfl}".replace(" ", "")
-        str_conn = f"RIN_Connections_{cfl}".replace(" ", "")
+        str_no_conn = f'RIN_#_{self.translator.translate("connections")}_{self.cfl_labels[cfl]}'.replace(" ", "")
+        str_conn = f'RIN_connections_{self.cfl_labels[cfl]}'.replace(" ", "")
 
         try:
             self.visum.Net.Zones.AddUserDefinedAttribute(str_no_conn,
@@ -888,10 +894,23 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
 
         filter.UseFilter = True
 
-    ## Deletes the links of the VFS.
+    ## Deletes the cfl links inserted in Visum.
     #  @return No return value. The Visum instance is modified.
     def delete_added_links(self):
         # Attention: Does NOT delete link types
         self.filter_links_cfl()
         self.visum.Net.Links.RemoveAll(OnlyActive=True)
         self.visum.Filters.LinkFilter().Init()
+
+    ## Updates cfl labels for neat export names
+    #  @return No return value. self.cfl_labels is modified
+    def update_label_cfl(self):
+        # implemented for keys 'cfl_x_optional_text'
+        # if other keys are used -> return key as backup value
+        self.cfl_labels = {}
+        for key in self.cfl:
+            if '_' in key:
+                parts = key.split('_')
+                self.cfl_labels[key] = f"{self.translator.translate(parts[0])} {'_'.join(parts[1:])}"
+            else:
+                self.cfl_labels[key] = key

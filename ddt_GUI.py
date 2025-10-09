@@ -172,6 +172,7 @@ class DirectDistanceToolFrame(wx.Frame):
         sizer.Add(self.notebook, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
 
+
     ## Binds event handlers to UI elements.
     # Sets up all event bindings for menu items, toolbar buttons, and other UI elements.
     def __bind_events__(self):
@@ -195,6 +196,7 @@ class DirectDistanceToolFrame(wx.Frame):
         self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_filter, id=106)
         self.toolbar.Bind(wx.EVT_TOOL, self.event_delete_links, id=107)
+
 
     ## Sets the values and ranges for the CFL buttons.
     #  Configures the range and initial values for the CFL value buttons based on the maximum value of the selected attribute.
@@ -232,6 +234,9 @@ class DirectDistanceToolFrame(wx.Frame):
                 self.translator.update_selected_language(selected_language)
                 # Update the GUI texts (Step 3)
                 self.refresh_gui_text()
+
+                if self.dd_calculator is not None:
+                    self.dd_calculator.update_label_cfl()
 
         dlg.Destroy()  # Important: Destroy the dialog after it has been closed.
 
@@ -313,8 +318,6 @@ class DirectDistanceToolFrame(wx.Frame):
             wx.MessageBox(self.translator.translate('error_no_calculator_instance'), 'Info', wx.OK | wx.ICON_INFORMATION)
             return
 
-
-
         # Procedure
         # 1. Update the specified parameters if something has been changed
         # 2. Calculate
@@ -347,7 +350,8 @@ class DirectDistanceToolFrame(wx.Frame):
             # Init Calculator instance
             self.dd_calculator = llt.DirectDistanceCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                               no_suppliers=1, attr_orig=self.attr_origin,
-                                                              attr_dest=self.attr_destination)
+                                                              attr_dest=self.attr_destination,
+                                                              translator=translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
@@ -456,8 +460,8 @@ class DirectDistanceToolFrame(wx.Frame):
             self.dd_calculator.cfl = dict_cfl_values
             self.dd_calculator.formula_dist = self.attr_dist_fcn
 
-            # Store current translated labels for user-friendly export names
-            self.dd_calculator.cfl_labels = {level: btn.GetLabel() for level, btn in self.button_cfl_active.items()}
+            # Update/Assign labels for user-friendly export names
+            self.dd_calculator.update_label_cfl()
 
             logging.info("Current Settings \n" +
                          f'zones: Attr. Centrality: {self.dd_calculator.attr_central_level}' + "\n" +
@@ -590,7 +594,7 @@ class MainTab(wx.Panel):
         self.gridbagsizer1.Add(self.static_text_cfl_label,
                           pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
 
-        str_cfl = self.translator.translate('CFL')
+        str_cfl = self.translator.translate('cfl')
 
         self.button_cfl_active = {"cfl_0": wx.CheckBox(self, -1, f"{str_cfl} 0"), # Reverted to 'VFS 0'
                                   "cfl_1": wx.CheckBox(self, -1, f"{str_cfl} 1"),
@@ -749,7 +753,7 @@ class MainTab(wx.Panel):
 
         # Update CheckBox labels (iterate over existing objects)
         for key, checkbox in self.button_cfl_active.items():
-            str_cfl = self.translator.translate('CFL')
+            str_cfl = self.translator.translate('cfl')
             no_cfl = int(key.split('_')[1])
             # The keys are 'VFS 0', 'VFS 1', etc., so we translate these keys directly
             checkbox.SetLabel(f"{str_cfl} {no_cfl}")

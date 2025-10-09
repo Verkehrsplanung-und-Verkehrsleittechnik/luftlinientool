@@ -1,3 +1,6 @@
+
+
+
 import logging
 from pathlib import Path
 import pandas as pd
@@ -18,6 +21,7 @@ class Translator:
 
         self.update_selected_language(language)
 
+
     ## @brief Loads translations from the Excel file.
     def load_translations(self):
         if self.excel_path.suffix == ".json":
@@ -37,6 +41,7 @@ class Translator:
     def translate(self, key):
         return self.translations.get(self._selected_language, {}).get(key, key)
 
+
     ## @brief Updates the selected language.
     # @param language The language code to set as the selected language.
     def update_selected_language(self, language):
@@ -45,7 +50,6 @@ class Translator:
         else:
             logging.error(f"Language {language} not found in translations.")
 
-        # todo: add further adjustements here if necessary
 
     ## @brief Getter method for the selected language (optional, but good practice).
     # @return The currently selected language code.
