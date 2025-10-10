@@ -3,10 +3,10 @@
 
 # from VisumOverlay import *
 import logging
+from pathlib import Path
+import cfl_directdistance_tool as llt
 
 if __name__ == '__main__':
-    from pathlib import Path
-    import cfl_directdistance_tool as llt
 
     # Parameter passing
     path_source = Path().cwd() / "Version"
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     if source.suffix == ".ver":
         Visum = llt.open_visum(source)
         # ltt1 = llt.DirectDistanceCalculator(Visum, attr_orig="Quelle", attr_dest="Ziel", no_suppliers=1, max_distance=1)
-        llt1 = llt.DirectDistanceCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=1,
+        llt1 = llt.DirectDistanceCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=2,
                                             no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
     else:
         print("not implemented")
