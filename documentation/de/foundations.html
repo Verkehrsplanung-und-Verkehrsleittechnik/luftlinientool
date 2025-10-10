@@ -74,13 +74,26 @@
     <li>Kann auch Verbindungen besserer Funktionsstufen ermitteln (Bezirke der Verbindung mit Stufe &gt; VFS).</li>
   </ul>
 
-  <h3>Berücksichtigung n-nächste Nachbarn</h3>
-  <ul>
-    <li>Berechnung Erreichbarkeitsmatrix der Adjazenzmatrix A in n Schritten:
-      <br><em>E<sub>n</sub> = A<sup>n</sup></em>
-    </li>
-    <li>Update der Adjazenzmatrix = Erreichbarkeitsmatrix.</li>
-  </ul>
+<h3>Berücksichtigung n-nächste Nachbarn</h3>
+<ul>
+  <li>Berechnung Erreichbarkeitsmatrix der Adjazenzmatrix A in n Schritten:
+    <br><em>
+      \(E_n = \sum_{k=1}^{n} A^k\)
+    </em>
+  </li>
+  <li>Binarisierung der Matrix:
+    <br><em>
+      \(E_n^\text{bin} = \text{bin}(E_n)\)
+      <br>
+      \((E_n^\text{bin})_{ij} = \begin{cases}
+      1, & \text{wenn}~(E_n)_{ij} > 0~\text{und}~i \neq j \\
+      0, & \text{sonst}
+      \end{cases}\)
+    </em>
+  </li>
+  <li>Setzen der Hauptdiagonale auf Null.</li>
+  <li>Update der Adjazenzmatrix = binarisierte Erreichbarkeitsmatrix.</li>
+</ul>
 
   <h3>Verbindungen mit Versorgungszentren</h3>
   <ul>

@@ -72,18 +72,27 @@
         <li>It can also identify connections to higher function levels (zones of connection level > CFL).</li>
     </ul>
 
-    <h3>Consideration of n-Nearest Neighbors</h3>
-    <ul>
-        <li>Compute the reachability matrix of adjacency matrix <em>A</em> in <em>n</em> steps:</li>
-    </ul>
-
-    <div class="equation">
-        <em>E<sub>n</sub> = A<sup>n</sup></em>
-    </div>
-
-    <ul>
-        <li>Update the adjacency matrix to be the reachability matrix.</li>
-    </ul>
+<h3>Consideration of n-Nearest Neighbors</h3>
+<ul>
+    <li>Compute the reachability matrix of the adjacency matrix <em>A</em> for <em>n</em> steps:
+        <br>
+        <em>
+            \(E_n = \sum_{k=1}^{n} A^k\)
+        </em>
+    </li>
+    <li>Binarize the matrix:
+        <br>
+        <em>
+            \(E_n^\text{bin} = \text{bin}(E_n)\)<br>
+            \((E_n^\text{bin})_{ij} = \begin{cases}
+            1, & \text{if}~(E_n)_{ij} > 0~\text{and}~i \neq j \\
+            0, & \text{otherwise}
+            \end{cases}\)
+        </em>
+    </li>
+    <li>Set the main diagonal to zero.</li>
+    <li>Update the adjacency matrix to be the binarized reachability matrix.</li>
+</ul>
 
     <h3>Connections to Supply Centers</h3>
     <ul>

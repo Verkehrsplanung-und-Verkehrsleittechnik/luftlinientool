@@ -352,8 +352,15 @@ class DirectDistanceCalculator:
     # @return matrix: Adjacency matrix for the reachable neighbours within the max-steps
     def calculate_reachability_max_steps(self, max_steps, cfl):
 
-        matrix = np.linalg.matrix_power(self.matrices_cfl[cfl], max_steps)
+        # Summiere alle Potenzen von 1 bis max_steps
+        matrix = sum(np.linalg.matrix_power(self.matrices_cfl[cfl], k)
+                     for k in range(1, max_steps + 1))
+
         np.fill_diagonal(matrix, 0)
+
+        # Boolean casting for values greater than zero (binarisation).
+        # For an adjacency/reachability matrix, it is only relevant whether there is a connection, not how many.
+        matrix = (matrix > 0).astype(int)
 
         return matrix
 
