@@ -701,7 +701,7 @@ class MainTab(wx.Panel):
 
         # Button Liste Distanzfkt
         self.cb_dist_fcn = wx.ComboBox(self, size=(200, -1),
-                                       choices=["euclidean", "haversine"],
+                                       choices=["euclidean"], #, "haversine"], actual triangulation method for projections only
                                        style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
 
         self.cb_dist_fcn.Label = 'attr_dist_fcn'
