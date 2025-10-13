@@ -44,19 +44,19 @@
     </style>
 </head>
 <body>
-    <h1 id="luftlinientool2022">Luftlinientool2022</h1>
-    <p>Erstellen von Luftlinienverbindungen für gegebene Bezirke anhand der RIN.</p>
+    <h1 id="luftlinientool2022">Luftlinientool (LLT) / Direct-Line Network Tool (DLNT)</h1>
+    <p>Erstellen von Luftlinienverbindungen für gegebene Verkehrszellen (= Bezirke) eines Verkehrsmodells in PTV Visum anhand der RIN.</p>
 
     <h2 id="anwendung">Anwendung</h2>
-    <h3 id="anwendung-via-dialog">Anwendung via Dialog</h3>
+    <h3 id="anwendung-via-dialog">Anwendung via graphischer Benutzeroberfläche (GUI)</h3>
     <p>Zwei Möglichkeiten</p>
     <ul>
         <li>Visumversion ist noch geschlossen:<br>
-            GUI extern starten (<em>llt_GUI.py</em> ausführen)
+            GUI extern starten (<em>dlnt_GUI.py</em> ausführen)
         </li>
         <li>Visumversion ist bereits geöffnet:
             <ul>
-                <li>Das Ausführen der GUI (<em>llt_GUI.py</em>) in das Skriptmenü integrieren</li>
+                <li>Das Ausführen der GUI (<em>dlnt_GUI.py</em>) in das Skriptmenü integrieren</li>
                 <li>Skript via Skriptmenü starten</li>
             </ul>
             <p>Hinweis: Wenn die GUI mehrmals gestarten &amp; beendet wird, erscheint eine Fehlermeldung. Diese kann ignoriert werden, die Funktionalität ist trotzdem gegeben.</p>
@@ -64,14 +64,14 @@
     </ul>
 
     <h3 id="aufruf-via-code">Aufruf via Code</h3>
-    <p>Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse <strong>DirectDistanceCalculator</strong> erstellt werden.<br>
+    <p>Das Luftlinientool kann auch ohne GUI angewendet werden. Dazu muss als Codeausführung eine Instanz der Klasse <strong>DirectLineNetworkCalculator</strong> erstellt werden.<br>
     Danach kann auf die Methoden der Instanz (Import, Berechnung, Export) zugegriffen werden.<br>
-    Ein Beispiel ist unter <em>Bsp_Aufruf_ohne_GUI.py</em> zu sehen.</p>
+    Ein Beispiel ist unter <em>example_application_wo_gui.py</em> zu sehen.</p>
 
-    <h3 id="auszufuehrende-schritte">auszuführende Schritte</h3>
+    <h2 id="auszufuehrende-schritte">Notwendige Verfahrensschritte</h2>
     <ol>
         <li>Parameter setzen (welche VFS, Attributswerte etc.)</li>
-        <li>Luftlinienkalkulatorobjekt initialisieren
+        <li>Eine Instanz des DirectLineNetworkCalculator initialisieren
             <ul>
                 <li>Code: Aufruf Konstruktor mit Parameterübergabe</li>
                 <li>GUI: "Daten einlesen" in Toolbar ausführen</li>
@@ -83,28 +83,31 @@
                 <li>GUI: "Berechnung Luftlinien-Netz" in Toolbar ausführen</li>
             </ul>
         </li>
-        <li>Ergebnisse in gewünschter Form nach Visum exportieren
+        <li>Ergebnisse in gewünschter Form in das Modell exportieren
             <ul>
                 <li>Code: Aufruf der <code>export_matrix</code>/<code>export_net</code> Methode</li>
-                <li>GUI: Die entsprechenden Buttons (Mtx/Net) in der Spalte "anlegen in Visum als" verwenden.<br>
-                Alternativ überträgt der Button <em>"Import nach Visum alle VFS Strecken + Mtx"</em> die kombinierten Ergebnisse aller VFS.</li>
+                <li>GUI: Die entsprechenden Buttons (Mtx/Net) in der Spalte "Export nach Visum als" verwenden.<br>
+                Alternativ überträgt der Button <em>"Export nach Visum alle VFS: Strecken und Matrizen"</em> die kombinierten Ergebnisse aller Verbindungsfunktionsstufen.</li>
             </ul>
         </li>
     </ol>
 
-    <p><strong>Anmerkungen:</strong></p>
+    <h3>Anmerkungen</h3>
     <ul>
-        <li>Bei der GUI werden aktuelle Berechnungen zurückgesetzt, wenn die Auswahl eines der Bezirksattribute geändert wird. Dabei wird eine neue Instanz des LLT Kalkulators erstellt.</li>
-        <li>Werden Bezirkswerte in Visum geändert, werden diese nicht automatisch im LLT Kalkulator geändert. Deshalb muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.</li>
+        <li>Bei der GUI werden aktuelle Berechnungen zurückgesetzt, wenn die Auswahl eines der Bezirksattribute geändert wird.
+            Dabei wird eine neue Instanz des DirectLineNetworkCalculator erstellt.</li>
+        <li>Werden Bezirkswerte in Visum geändert, werden diese nicht automatisch im DirectLineNetworkCalculator geändert.
+            Deshalb muss der Verfahrensablauf ab Schritt 2 wieder ausgeführt werden.</li>
         <li>Die initialen Parameterwerte können in der GUI über das Tool "Defaultwerte" wieder aufgerufen werden.</li>
         <li>"Ergebnisse initialisieren" ermöglicht das Löschen bereits vorhandener Ergebnisse.</li>
-        <li>Schritt 3 verwendet die aktuell in der GUI eingegebenen Parameter. Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren").</li>
+        <li>Schritt 3 verwendet die aktuell in der GUI eingegebenen/in der DirectLineNetworkCalculator-Instanz definierten Parameter.
+            Vor der Rechnung mit neuen Parametern empfiehlt sich das Löschen der vorhandenen Ergebnisse ("Ergebnisse initialisieren").</li>
     </ul>
 
     <h2 id="vorraussetzung">Voraussetzung</h2>
-    <p>Netz mit kategorisierten Bezirken:</p>
+    <p>Verkehrsmodell in PTV Visum mit kategorisierten Bezirken:</p>
     <ul>
-        <li>Attribut für die Zentralität (Bezirke): je kleiner die Zahl, desto größer ist die Zentralität des Bezirks
+        <li>Attribut für die Zentralität der Verkehrszellen (Visum: Bezirke): je <strong>kleiner </strong> die Zahl, desto größer ist die Zentralität des Bezirks
             <p>Bsp.: Angabe der Zentralität über die Typnummer</p>
             <ul>
                 <li>0 ... Metropolregion</li>

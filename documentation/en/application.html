@@ -44,75 +44,86 @@
     </style>
 </head>
 <body>
-    <h1>Application</h1>
+    <h1>Direct-Line Network Tool (DLNT) </h1>
+    <p>Calculation of direct-line networks based on traffic cells and their centrality according to the German guidelines for integrated network design (RIN).</p>
 
-    <h2>Application via Dialog</h2>
+    <h2>Application</h2>
+
+    <h3>Application using graphical user interface (GUI)</h3>
 
     <p>Two possibilities</p>
     <ul>
-        <li>Visum version is still closed:<br>
-        GUI start externally (<span class="code-ref"><a href="#" class="hyperlink">llt_GUI.py</a></span> execute)</li>
-        <li>Visum version is already open:
+        <li>No running Visum model:<br>
+        Start GUI from extern, running (execute <em>dlnt_GUI.py</em>)
+        <li>Running Visum model:<br>
             <ul class="nested-list">
-                <li>Integrate execution of the GUI (<span class="code-ref"><a href="#" class="hyperlink">llt_GUI.py</a></span>) into the script menu</li>
+                <li>Integrate execution of the GUI (<em>dlnt_GUI.py</em>) into the script menu</li>
                 <li>Start script via script menu<br>
-                Note: If the GUI is started & closed multiple times, an error message will appear. This can be ignored; the functionality is still intact.</li>
             </ul>
         </li>
     </ul>
 
-    <h2>Call via Code</h2>
+    <h3>Command-based application</h3>
 
-    <p>The Direct Distance Tool can also be used without the GUI. For this, an instance of the class directdistanceCalculator must be created as a code execution. After that, the methods of the instance (Import, Calculation, Export) can be accessed. An example can be seen under <span class="code-ref"><a href="#" class="hyperlink">Bsp_Aufruf_ohne_GUI.py</a></span>.</p>
+    <p>The direct-line network tool can also be used without the GUI. For this, an instance of the class <strong>DirectLineNetworkCalculator</strong> must be initiated.
+        After that, the methods of the instance (Import, Calculation, Export) can be accessed.
+        An example can be found in <em>example_application_wo_gui.py</em>.</p>
 
-    <p class="bold">Steps to execute</p>
+    <h2> Required procedural steps </h2>
     <ol>
         <li>Set parameters (which CFL, attribute values, etc.)</li>
         <li>Initialize Direct Distance Calculator object
-            <p>Code: Call constructor with parameter passing</p>
-            <p>GUI: Execute "Read data" in toolbar</p>
+            <ul>
+                <li>Code: Calling the constructor with a parameter assignment</li>
+                <li>GUI: Execute "Read data" in toolbar</li>
+            </ul>
         </li>
-        <li>Calculate/create direct distance connections
-            <p>Code: Call calculate_main method</p>
-            <p>GUI: Execute "Direct Distance Network Calculation" in toolbar</p>
+        <li>Calculate direct-line connections
+            <ul>
+                <li>Code: Call  <code>calculate_main</code> method</li>
+                <li>GUI: Execute 'Perform Calculation' in the toolbar</li>
+            </ul>
         </li>
-        <li>Export results to Visum in desired format
-            <p>Code: Call export_matrix / export_net method</p>
-            <p>GUI: Use the corresponding buttons (Mtx/Net) in the column "create in Visum as". Alternatively, the button "Import to Visum all CFL routes + Mtx" transfers the combined results of all CFL.</p>
+        <li>Export results to modell in desired format
+            <ul>
+                <li>Code: Call of <code>export_matrix</code> or <code>export_net</code> methods</li>
+                <li>GUI: Use the corresponding buttons <em>Mtx</em> or <em>Net</em> of the column 'Export to Visum as'.<br>
+                Alternatively, the button <em>"Export to Visum all CFL: all links and matrices"</em> exports the combined results of all connectivity function levels.</li>
+            </ul>
         </li>
     </ol>
 
-    <div class="note-section">
-        <p>Notes:</p>
+    <h3>Notes:</h3>
         <ul>
-            <li>In the GUI, current calculations are reset if one of the zone attribute selections is changed. A new instance of the Direct Distance Calculator is created.</li>
-            <li>If zone values are changed in Visum, they are not automatically updated in the Direct Distance Calculator. Therefore, the procedure must be repeated from step 2.</li>
-            <li>Initial parameter values can be recalled in the GUI via the tool "Default values"</li>
-            <li>"Initialize results" enables deletion of already existing results</li>
-            <li>Step 3 uses the parameters currently entered in the GUI. Before calculating with new parameters, it is recommended to delete existing results ("Initialize results").</li>
+            <li>In the GUI, current calculations are reset if one of the zone attribute selections is changed. A new instance of the DirectLineNetworkCalculator is created.</li>
+            <li>If zone values are changed in Visum, they are not automatically updated in the DirectLineNetworkCalculator instance.
+                Therefore, the procedure must be repeated from step 2.</li>
+            <li>Initial parameter values can be set in the GUI using the button "Default Values"</li>
+            <li>"Reset Calculation" deletes all already existing results</li>
+            <li>Step 3 uses the parameters currently entered in the GUI/set in the DirectLineNetworkCalculator instance.
+                Before calculating with new parameters, it is recommended to delete existing results ("Reset Calculation").</li>
         </ul>
-    </div>
 
     <h2>Requirement</h2>
 
-    <p>Network with categorized zones:</p>
+    <p>transport modell in PTV Visum including categorized zones:</p>
     <ul>
-        <li>Attribute for centrality (zones): the smaller the number, the greater the centrality of the zone
+        <li>Attribute for centrality of traffic cells: the <strong> smaller </strong> the number, the greater the centrality of the zone
             <div class="example-section">
                 <p>Example: Indication of centrality via the type number</p>
                 <ul>
                     <li>0 ... Metropolitan region</li>
-                    <li>1 ... Major centrality</li>
-                    <li>2 ... Medium centrality</li>
-                    <li>3 ... Basic centrality</li>
+                    <li>1 ... Higher-order centres</li>
+                    <li>2 ... Middle-order centres</li>
+                    <li>3 ... Lower-order centres</li>
                     <li>4 ... Place without central function</li>
-                    <li>5 ... Subdivision</li>
+                    <li>5 ... Suburb</li>
                 </ul>
             </div>
         </li>
-        <li>(optional) active zone filter</li>
-        <li>(optional) Indication of an attribute defining which zone should be used as a source {0=No, 1=Yes}</li>
-        <li>(optional) Indication of an attribute defining which zone should be used as a target {0=No, 1=Yes}</li>
+        <li>(optional) Active zone filter</li>
+        <li>(optional) Specification of an attribute defining which zone should be used as an origin {0=No, 1=Yes}</li>
+        <li>(optional) Specification of an attribute defining which zone should be used as a destination {0=No, 1=Yes}</li>
     </ul>
 </body>
 
