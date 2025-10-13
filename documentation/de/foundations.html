@@ -48,30 +48,34 @@
 
   <h2>Ermittlung der Verbindungen für eine Verbindungsfunktionsstufe <em>VFS</em></h2>
   <ol>
-    <li>Initialisierung und Filterung von Bezirken</li>
-    <li>Bestimmung der Dreiecksverbindungen zwischen den Bezirken durch Delaunay-Triangulation.</li>
+    <li>Initialisierung und Filterung der relevanten Verkehrszellen</li>
+    <li>Ermittlung der Luftlinien-Verbindungen zwischen den Verkehrszellen durch Delaunay-Triangulation.</li>
     <li>Berücksichtigung der <em>n</em>-nächsten Nachbarn.</li>
     <li>Sicherstellung der Verbindung zu Versorgungszentren.</li>
-    <li>Filtern der Bezirke und Verbindungen.</li>
+    <li>Filtern der Verkehrszellen und Verbindungen.</li>
     <li>Erstellung einer symmetrischen Adjazenzmatrix, die alle Verbindungen korrekt abbildet.</li>
   </ol>
 
   <p>Umsetzung in der Funktion
     <a href="#calculate_vfs">calculate_vfs(self, vfs)</a> der Klasse
-    <a href="#LuftlinienCalculator">DirectDistanceCalculator</a>.
+    <a href="#LuftlinienCalculator">DirectLineNetworkCalculator</a>.
   </p>
 
-  <h3>Initialisierung und Filterung von Bezirken</h3>
+  <h3>Initialisierung und Filterung der relevanten Verkehrszellen</h3>
   <ul>
-    <li>Zunächst werden die Bezirke mit Stufe ≥ VFS gefiltert, um nur die Bezirke zu berücksichtigen, die für die aktuelle Verbindungsfunktionsstufe <em>VFS</em> relevant sind. Bezirke, die inaktiv sind oder keine Verbindungsanforderungen erfüllen, werden ausgeschlossen.</li>
-    <li>Eine Überprüfung erfolgt, um sicherzustellen, dass keine Bezirke identische Koordinaten haben, da dies bei der Delaunay-Triangulation zu Problemen führen könnte.</li>
+    <li>Zunächst werden die Verkehrszellen mit einer Zentralität ≥ <em>VFS</em>  gefiltert, um nur die Verkehrszellen zu berücksichtigen, die für die aktuelle Verbindungsfunktionsstufe <em>VFS</em> relevant sind.
+        Verkehrszellen, die inaktiv sind oder keine Verbindungsanforderungen erfüllen, werden ausgeschlossen.</li>
+    <li>Es erfolgt eine Überprüfung, um sicherzustellen, dass keine Verkehrszellen identische Koordinaten haben.</li>
   </ul>
 
   <h3>Delaunay-Triangulation</h3>
   <ul>
-    <li>Bei genügend aktiven Bezirken wird eine Delaunay-Triangulation durchgeführt, um die Bezirke zu Dreiecken zu verbinden. Diese Dreiecke repräsentieren die Nachbarschaften zwischen den Bezirken.</li>
+    <li>Bei genügend aktiven Verkehrszellen wird eine Delaunay-Triangulation durchgeführt, um die Verkehrszellen zu Dreiecken zu verbinden.
+        Diese Dreiecke repräsentieren die Nachbarschaften zwischen den Verkehrszellen.</li>
+      <li>Die Delaunay-Triangulation verbindet zweidimensionale Punkte so, dass innerhalb des Umkreises der resultierenden Dreiecke keine weiteren Punkte enthalten sind.
+          Hinweis: Es werden nicht die Kantenlängen minimiert, sondern die Delaunay-Triangulation entspricht einer Maximierung des Innenwinkels über alle Dreiecke.</li>
     <li>Die resultierenden Nachbarschaftsverbindungen werden in einer symmetrischen Adjazenzmatrix gespeichert.</li>
-    <li>Kann auch Verbindungen besserer Funktionsstufen ermitteln (Bezirke der Verbindung mit Stufe &gt; VFS).</li>
+    <li>Es können auch Verbindungen besserer Funktionsstufen ermittelt werden (Verkehrszellen mit Zentralität &gt; <em>VFS</em> ).</li>
   </ul>
 
 <h3>Berücksichtigung n-nächste Nachbarn</h3>
@@ -91,20 +95,20 @@
       \end{cases}\)
     </em>
   </li>
-  <li>Setzen der Hauptdiagonale auf Null.</li>
-  <li>Update der Adjazenzmatrix = binarisierte Erreichbarkeitsmatrix.</li>
+  <li>Setzen der Hauptdiagonale auf null.</li>
+  <li>Update Adjazenzmatrix = binarisierte Erreichbarkeitsmatrix.</li>
 </ul>
 
   <h3>Verbindungen mit Versorgungszentren</h3>
   <ul>
-    <li>Es wird überprüft, ob jeder Bezirk mit einer ausreichenden Anzahl an Versorgungszentren verbunden ist.</li>
+    <li>Es wird überprüft, ob jede Verkehrszelle mit einer ausreichenden Anzahl an Versorgungszentren verbunden ist.</li>
     <li>Wenn dies nicht der Fall ist, werden die nächstgelegenen Versorgungszentren ermittelt und Verbindungen hergestellt.</li>
   </ul>
 
   <h3>Aktive und inaktive Verbindungen</h3>
   <ul>
-    <li>Nur aktive Bezirke werden als Quelle und Ziel von Verbindungen berücksichtigt.</li>
-    <li>Der Filter „istQuelle“ definiert, welcher Bezirk als Quelle verwendet wird; „istZiel“ definiert die Ziel-Bezirke. Aus Symmetriegründen gilt für die Relationen od = do. Dennoch sind „istZiel“-Bezirke kein Teil der Dreiecke, sondern werden von den „istQuelle“-Bezirken erreicht.</li>
+    <li>Nur aktive Verkehrszellen werden als Quelle und Ziel von Verbindungen berücksichtigt.</li>
+    <li>Der Filter „istQuelle“ definiert, welche Verkehrszelle als Quelle verwendet wird; „istZiel“ definiert die Ziel-Verkehrszellen. Aus Symmetriegründen gilt für die Relationen od = do. Dennoch sind „istZiel“-Verkehrszellen kein Teil der Dreiecke, sondern werden von den „istQuelle“-Verkehrszellen erreicht.</li>
     <li>Umsetzung: Auf die Adjazenzmatrizen wird eine Filtermaske gelegt. Diese ist das Ergebnis des dyadischen Produkts von „istQuelle“ und „istZiel“ und anschließender Symmetrisierung.</li>
   </ul>
 
@@ -113,21 +117,25 @@
     <code>[1, 1, 1, 1, 0]^T</code>. Damit folgt:
   </p>
 
-  <pre>
-M_o ∨ d = o · d^T =
-[1 1 1 1 0
- 1 1 1 1 0
- 0 0 0 0 0
- 0 0 0 0 0
- 1 1 1 1 0]
+    <div class="align-block">
+        <p><em>M<sub>o ∨ d</sub></em> = <em>o · d<sup>T</sup></em> = </p>
+        <table>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        </table>
 
-M_symmetrisch = M_o ∨ d + (M_o ∨ d)^T =
-[1 1 1 1 1
- 1 1 1 1 1
- 1 1 0 0 1
- 1 1 0 0 1
- 1 1 1 1 0]
-  </pre>
+        <p><em>M<sub>symmetrisch</sub></em> = <em>M<sub>o ∨ d</sub></em> + <em>M<sub>o ∨ d</sub><sup>T</sup></em> = </p>
+        <table>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        </table>
+    </div>
 
   <h2>Export der Luftlinieninfrastruktur der VFS</h2>
   <p>Der Export der ermittelten Luftlinien der spezifizierten Verbindungsfunktionsstufen als eigenständige Infrastruktur (Knoten, Streckentypen, Strecken, Anbindungen) ermöglicht die Veranschaulichung der Ergebnisse oder die Verwendung des resultierenden Dreiecksnetzes.</p>
@@ -144,7 +152,7 @@ M_symmetrisch = M_o ∨ d + (M_o ∨ d)^T =
       Bei Bedarf werden die benötigten Infrastrukturobjekte (Knoten, Streckentypen, Strecken, Anbindungen) unter Berücksichtigung aller berechneten Adjazenzmatrizen aktualisiert und als Attribute der Instanz des Luftlinienkalkulators gespeichert.
       Die Umsetzung erfolgt in der Funktion
       <a href="#extract_net">extract_net</a> der Klasse
-      <a href="#LuftlinienCalculator">DirectDistanceCalculator</a>.
+      <a href="#LuftlinienCalculator">DirectLineNetworkCalculator</a>.
       Die für Visum relevante Nummerierung der Objekte berücksichtigt dabei die vorhandenen Objekte in der aktiven Visuminstanz.
     </li>
     <li>

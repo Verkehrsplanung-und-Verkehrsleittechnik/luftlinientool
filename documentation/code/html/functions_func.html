@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DirectDistanceTool: Class Members - Functions</title>
+<title>Direct-Line Network Tool: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -16,13 +16,11 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(function() { init_search(); });
+/* @license-end */
 </script>
-<script type="text/javascript" async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -32,10 +30,22 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">DirectDistanceTool<span id="projectnumber">&#160;2.1</span>
+   <div id="projectname">Direct-Line Network Tool<span id="projectnumber">&#160;2.1</span>
    </div>
-   <div id="projectbrief">Generation of direct distance networks based on connectivity function levels of traffic zones</div>
+   <div id="projectbrief">Generation of direct-line connections based on connectivity function levels of traffic cells</div>
   </td>
+    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect"                onmouseover="return searchBox.OnSearchSelectShow()"                onmouseout="return searchBox.OnSearchSelectHide()">&#160;</span>
+          <input type="text" id="MSearchField" value="" placeholder="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td>
  </tr>
  </tbody>
 </table>
@@ -52,17 +62,6 @@ var searchBox = new SearchBox("searchBox", "search/",'.html');
 $(function() { codefold.init(0); });
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search',false);
-  $(function() { init_search(); });
-});
-/* @license-end */
-</script>
-<div id="main-nav"></div>
 </div><!-- top -->
 <div id="doc-content">
 <script type="text/javascript">
@@ -95,96 +94,97 @@ $(function(){ initResizable(false); });
 <div class="textblock">Here is a list of all documented functions with links to the class documentation for each member:</div>
 
 <h3><a id="index__5F" name="index__5F"></a>- _ -</h3><ul>
-<li>__bind_events__()&#160;:&#160;<a class="el" href="a00038.html#a6254cf5f9569aed9ec22260677bdfaf4">ddt_GUI.DirectDistanceToolFrame</a>, <a class="el" href="a00042.html#a2a55c8e777682ebec0b24e88dff27193">ddt_GUI.MainTab</a></li>
-<li>__del__()&#160;:&#160;<a class="el" href="a00046.html#a31b8c8eaa1025df155bbfcd02b2c2b5a">ddt_GUI.LogTab</a></li>
-<li>__init__()&#160;:&#160;<a class="el" href="a00034.html#a7d50b6d34f28754d2d9930f1ca19ea41">cfl_directdistance_tool.DirectDistanceCalculator</a>, <a class="el" href="a00038.html#a1e37a5185833ef819e3c2b11288063b3">ddt_GUI.DirectDistanceToolFrame</a>, <a class="el" href="a00054.html#ad574d51905cf9f82f1474ea9d7bc14e8">ddt_GUI.HelpPopUp</a>, <a class="el" href="a00046.html#a95b5e6f86c44e06433bf0f040dd0357b">ddt_GUI.LogTab</a>, <a class="el" href="a00042.html#afcc054a6940f44e9b8db84c08016b9bb">ddt_GUI.MainTab</a>, <a class="el" href="a00050.html#ae83fdcfc6c727e98b65eacaa85ec42a6">ddt_GUI.WxTextCtrlHandler</a>, <a class="el" href="a00058.html#a078c3ef7b622e68b54c4e29ce423667f">language_management.Translator</a></li>
-<li>__set_layout__()&#160;:&#160;<a class="el" href="a00038.html#a59a99bbcf5ea1494bba7a0213d935dff">ddt_GUI.DirectDistanceToolFrame</a>, <a class="el" href="a00042.html#adab4cd5e2c2d386617d7838421f0a7f3">ddt_GUI.MainTab</a></li>
-<li>__set_properties__()&#160;:&#160;<a class="el" href="a00038.html#ab4b470e911d08b929aa2fa8f10e4016b">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>__set_values_cfl_buttons__()&#160;:&#160;<a class="el" href="a00038.html#ab6d25fb1e62c318217330334e3c48119">ddt_GUI.DirectDistanceToolFrame</a></li>
+<li>__bind_events__()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#aa07ddcd37690563691ced324facbfd83">dlnt_GUI.DirectLineNetworkToolFrame</a>, <a class="el" href="classdlnt___g_u_i_1_1_main_tab.html#a7d3bbd3d3c0043f1414f6273547086eb">dlnt_GUI.MainTab</a></li>
+<li>__del__()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_log_tab.html#aa0a85f32493e1dabd83fc1e4a51638c0">dlnt_GUI.LogTab</a></li>
+<li>__init__()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#ab46806af02c6ef26a81ef65f41886305">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a>, <a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#acadda7ac61c9ea998f5d49a883c3ce13">dlnt_GUI.DirectLineNetworkToolFrame</a>, <a class="el" href="classdlnt___g_u_i_1_1_help_pop_up.html#abb557d2d4e1c102c2ee615e5eabfe055">dlnt_GUI.HelpPopUp</a>, <a class="el" href="classdlnt___g_u_i_1_1_log_tab.html#a065d68ef74a5422c2cb64a07031c115c">dlnt_GUI.LogTab</a>, <a class="el" href="classdlnt___g_u_i_1_1_main_tab.html#ac8401ab5b2fdf1c23d212e5b9d3007b9">dlnt_GUI.MainTab</a>, <a class="el" href="classdlnt___g_u_i_1_1_wx_text_ctrl_handler.html#a278ee09d572969470a3b763f0d391be8">dlnt_GUI.WxTextCtrlHandler</a>, <a class="el" href="classlanguage__management_1_1_translator.html#a4f27558213feb3f337ce4c09d1fcc89c">language_management.Translator</a></li>
+<li>__set_layout__()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#af89bb23acc593c03eef3f0957bc40dce">dlnt_GUI.DirectLineNetworkToolFrame</a>, <a class="el" href="classdlnt___g_u_i_1_1_main_tab.html#a87113023648ca24cf9a16121912abcb0">dlnt_GUI.MainTab</a></li>
+<li>__set_properties__()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#aab8f08732d1e8f8ea7d1be9d01b91e37">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>__set_values_cfl_buttons__()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a30e23af02a78508c49f7bd097444d0e1">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
 </ul>
 
 
 <h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
-<li>adj_matrix_to_links()&#160;:&#160;<a class="el" href="a00034.html#a8d3e15ddd5284460788d8f95afe734dc">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>adj_matrix_to_set_of_connected_zones()&#160;:&#160;<a class="el" href="a00034.html#ac3796b99802bbbb7b2852d79b2c7bd3c">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>adj_matrix_to_links()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a2bc754b308b0d6c1a561aa4e8a9b93d0">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>adj_matrix_to_set_of_connected_zones()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a49fdb5f58e1c6e121fc7f7e904cc0d9b">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_c" name="index_c"></a>- c -</h3><ul>
-<li>calculate_cfl()&#160;:&#160;<a class="el" href="a00034.html#a883d2362b26c8c650e3a32f7927d0f8a">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>calculate_main()&#160;:&#160;<a class="el" href="a00034.html#ac0021250d0fb341d4d49a56fa7f45b3a">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>calculate_reachability_max_steps()&#160;:&#160;<a class="el" href="a00034.html#ab377cdf82e86a6766b19a0fa08648cc1">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>calculate_cfl()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a4174fdc35304a64c907ea5ab4f1ab61d">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>calculate_main()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a37e89efb1c30a95eba1e8da7bfbb7b46">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>calculate_reachability_max_steps()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a240ad84a0a1993cbbdf343d933a41a4b">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
-<li>delete_added_links()&#160;:&#160;<a class="el" href="a00034.html#a5e287004b4cd685a8dc7f7b928fb3f3f">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>delete_unused_nodes()&#160;:&#160;<a class="el" href="a00034.html#ae297f09c116c4baf2d89209aa73d6bce">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>delete_added_links()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a40442722b22672342250e0765d687ffc">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>delete_unused_nodes()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a99d53e69ca54d2dd891ba4a72b735eaa">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
-<li>emit()&#160;:&#160;<a class="el" href="a00050.html#aaec08c887e776a7c385ec3d059a8242b">ddt_GUI.WxTextCtrlHandler</a></li>
-<li>event_calculate()&#160;:&#160;<a class="el" href="a00038.html#a7e63c23b1a467aff5c3e3a11fd47e6ad">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_choose_attr()&#160;:&#160;<a class="el" href="a00038.html#a94f8e8c92982558f0310b10ce8de92e2">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_delete_links()&#160;:&#160;<a class="el" href="a00038.html#afcbe50cd38cbb2a29bfdfd117979f190">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_export_master()&#160;:&#160;<a class="el" href="a00038.html#a79f37944a1b19adc45347847f68bf67e">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_export_mtx()&#160;:&#160;<a class="el" href="a00038.html#a87e527271074f29e40a6719261b8b97d">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_export_net()&#160;:&#160;<a class="el" href="a00038.html#a4c1e41d82bb2d44809f17bb0f4ca7235">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_export_results()&#160;:&#160;<a class="el" href="a00038.html#af4df191cc5bc69afab2e74c93fa2a102">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_filter()&#160;:&#160;<a class="el" href="a00038.html#ae16e73cde8414f5cc9c88daff655be94">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_import_data()&#160;:&#160;<a class="el" href="a00038.html#abed14c66ccf3dafb9cab070906b6823b">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_info()&#160;:&#160;<a class="el" href="a00038.html#a0d52b9ce95f3205c00d14decd0c576fa">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_quit_button()&#160;:&#160;<a class="el" href="a00038.html#a6b0ce164d094abba0661208b11e2655a">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_reset()&#160;:&#160;<a class="el" href="a00038.html#a42ebbc8cbbd6277542c973161f966a01">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>event_set_default()&#160;:&#160;<a class="el" href="a00038.html#a9cd78f11610dbe71d807f9fe694e3471">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>export_matrix()&#160;:&#160;<a class="el" href="a00034.html#ad8cda517d7f7a1b43be71602bc1f3246">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>export_net()&#160;:&#160;<a class="el" href="a00034.html#a24e522fea9a4a03a0b490f0584a3b30c">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>export_zones_uda_connections()&#160;:&#160;<a class="el" href="a00034.html#a6ea80f3e1a5c2ec90d1a58a905c30ef5">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>extract_net()&#160;:&#160;<a class="el" href="a00034.html#a1fd7b969ce91f5670db7c2662b3096ee">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>emit()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_wx_text_ctrl_handler.html#a1f9ff85c4fcb257b6b1c47e87e775414">dlnt_GUI.WxTextCtrlHandler</a></li>
+<li>event_calculate()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#ab588dc0c2d9acd844dc24ff8dbb17fc6">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_choose_attr()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#af57ad307ac4411a9b4b0110c2328bb8a">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_delete_links()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a98192efb199f0f28169daafc654fb8e2">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_export_master()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#af74bac051ddace2a3d6533fcdb3ac435">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_export_mtx()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a3b598a8d94dd1aad36dfe4a9a13ec412">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_export_net()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#acfa82e1d9320b0a1134d8b8726ee6110">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_export_results()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a33d5b0f4e3bfe61cca41d3eda238272a">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_filter()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#abb63a196f229ad4d4528861890a68798">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_import_data()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#aacb26dcde60211768667f148f36e198d">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_info()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a4d20d299d3c042a62665babff2ebed5e">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_quit_button()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a7a2bb7d8fa0703be2707d066bbd678f9">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_reset()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a9b9d923e63228ae8d8823c2b88b923a5">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>event_set_default()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a832e36f9dbf5efa32c6c31dab005c560">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>export_matrix()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a3ec5a2a480ffd76bebe15073b5e30315">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>export_net()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a1eee5cf5c6203dd3ce9f06ea35121066">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>export_zones_uda_connections()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a980080a2dc9ed25239b0cf439b44e124">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>extract_net()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#aad034669891afc10cd510e0f01d50b93">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_f" name="index_f"></a>- f -</h3><ul>
-<li>filter_links_vfs()&#160;:&#160;<a class="el" href="a00034.html#accbf121406d0a4bea7c06907cee6db7b">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
-<li>filter_zones_source_targets()&#160;:&#160;<a class="el" href="a00034.html#ab66146a3fe8fd91d50fdfe2d446b46c6">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>filter_links_cfl()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a6b92c2f70319f4341e9cd94a96f694ed">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>filter_zones_origin_destination()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#ab165ce895cd4ab4c91fd2d97b1930858">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_g" name="index_g"></a>- g -</h3><ul>
-<li>get_selected_language()&#160;:&#160;<a class="el" href="a00058.html#af724903beab1119a9724b6654d3d875e">language_management.Translator</a></li>
+<li>get_selected_language()&#160;:&#160;<a class="el" href="classlanguage__management_1_1_translator.html#af724903beab1119a9724b6654d3d875e">language_management.Translator</a></li>
 </ul>
 
 
 <h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
-<li>init_results()&#160;:&#160;<a class="el" href="a00034.html#a2dd7435da9bc943517d5490afb673460">cfl_directdistance_tool.DirectDistanceCalculator</a></li>
+<li>init_results()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#ab6a7992ca9a3c1ffbb10ca5fba748ea1">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
 </ul>
 
 
 <h3><a id="index_l" name="index_l"></a>- l -</h3><ul>
-<li>load_translations()&#160;:&#160;<a class="el" href="a00058.html#a19490c9995b91f30f3ef610f1db1692e">language_management.Translator</a></li>
+<li>load_translations()&#160;:&#160;<a class="el" href="classlanguage__management_1_1_translator.html#a19490c9995b91f30f3ef610f1db1692e">language_management.Translator</a></li>
 </ul>
 
 
 <h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
-<li>on_choose_language()&#160;:&#160;<a class="el" href="a00038.html#ac3bb9ee86c0d08e3462433ed9eef30a2">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>on_close()&#160;:&#160;<a class="el" href="a00046.html#a52766d8baa4bb6e7f889656c089407fc">ddt_GUI.LogTab</a></li>
+<li>on_choose_language()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a8654c2dfd4f07f2fd36cb55503bbfec5">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>on_close()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_log_tab.html#ab8f560fcdbdb62baa1fc467c1ce026a6">dlnt_GUI.LogTab</a></li>
 </ul>
 
 
 <h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
-<li>refresh_gui_text()&#160;:&#160;<a class="el" href="a00038.html#ae7c491231bf58fe820e72db859a76001">ddt_GUI.DirectDistanceToolFrame</a>, <a class="el" href="a00046.html#a97cb9e1530a4eb5018da9f393b68b6bf">ddt_GUI.LogTab</a>, <a class="el" href="a00042.html#aec213c4ca9fa20cb81f4e98682aeb399">ddt_GUI.MainTab</a></li>
+<li>refresh_gui_text()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#a94b2fac9182fc61d298703fc7ab684bc">dlnt_GUI.DirectLineNetworkToolFrame</a>, <a class="el" href="classdlnt___g_u_i_1_1_log_tab.html#a36e070dc98b84b7bd9c41abc2a2b1808">dlnt_GUI.LogTab</a>, <a class="el" href="classdlnt___g_u_i_1_1_main_tab.html#aa32aa687ededa0f42bfee46ae1d0c923">dlnt_GUI.MainTab</a></li>
 </ul>
 
 
 <h3><a id="index_t" name="index_t"></a>- t -</h3><ul>
-<li>translate()&#160;:&#160;<a class="el" href="a00058.html#a65635ea25e07cc74bfac033c5414f298">language_management.Translator</a></li>
+<li>translate()&#160;:&#160;<a class="el" href="classlanguage__management_1_1_translator.html#a65635ea25e07cc74bfac033c5414f298">language_management.Translator</a></li>
 </ul>
 
 
 <h3><a id="index_u" name="index_u"></a>- u -</h3><ul>
-<li>update_param_cfl()&#160;:&#160;<a class="el" href="a00038.html#a7b02aa8b351bffb7c80d417bcb7e0e44">ddt_GUI.DirectDistanceToolFrame</a></li>
-<li>update_selected_language()&#160;:&#160;<a class="el" href="a00058.html#a416279e75fa6ea5bb9229dd83bc94553">language_management.Translator</a></li>
+<li>update_label_cfl()&#160;:&#160;<a class="el" href="classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a457a38fa8db75bc95b5fa0228beddb19">cfl_directlinenetwork_tool.DirectLineNetworkCalculator</a></li>
+<li>update_param_cfl()&#160;:&#160;<a class="el" href="classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html#ade9ee607215ad5b4635571d99894e88a">dlnt_GUI.DirectLineNetworkToolFrame</a></li>
+<li>update_selected_language()&#160;:&#160;<a class="el" href="classlanguage__management_1_1_translator.html#a416279e75fa6ea5bb9229dd83bc94553">language_management.Translator</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

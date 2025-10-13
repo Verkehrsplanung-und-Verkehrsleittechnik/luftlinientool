@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DirectDistanceTool: language_management.Translator Class Reference</title>
+<title>Direct-Line Network Tool: language_management.Translator Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,9 +32,9 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">DirectDistanceTool<span id="projectnumber">&#160;2.1</span>
+   <div id="projectname">Direct-Line Network Tool<span id="projectnumber">&#160;2.1</span>
    </div>
-   <div id="projectbrief">Generation of direct distance networks based on connectivity function levels of traffic zones</div>
+   <div id="projectbrief">Generation of direct-line connections based on connectivity function levels of traffic cells</div>
   </td>
  </tr>
  </tbody>
@@ -91,7 +91,7 @@ $(function(){ initResizable(false); });
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>language_management</b></li><li class="navelem"><a class="el" href="a00058.html">Translator</a></li>  </ul>
+<li class="navelem"><a class="el" href="a00028.html">language_management</a></li><li class="navelem"><a class="el" href="a00058.html">Translator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div id="doc-content">
@@ -110,9 +110,9 @@ $(function(){ initResizable(false); });
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a078c3ef7b622e68b54c4e29ce423667f" id="r_a078c3ef7b622e68b54c4e29ce423667f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a078c3ef7b622e68b54c4e29ce423667f">__init__</a> (self, excel_path=Path.cwd()/&quot;Translations.json&quot;, str language=&quot;en&quot;)</td></tr>
-<tr class="memdesc:a078c3ef7b622e68b54c4e29ce423667f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the translator with the specified language.  <br /></td></tr>
-<tr class="separator:a078c3ef7b622e68b54c4e29ce423667f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f27558213feb3f337ce4c09d1fcc89c" id="r_a4f27558213feb3f337ce4c09d1fcc89c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f27558213feb3f337ce4c09d1fcc89c">__init__</a> (self, dict_path=Path.cwd()/&quot;Translations.json&quot;, str language=&quot;en&quot;)</td></tr>
+<tr class="memdesc:a4f27558213feb3f337ce4c09d1fcc89c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the translator with the specified language.  <br /></td></tr>
+<tr class="separator:a4f27558213feb3f337ce4c09d1fcc89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a19490c9995b91f30f3ef610f1db1692e" id="r_a19490c9995b91f30f3ef610f1db1692e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a19490c9995b91f30f3ef610f1db1692e">load_translations</a> (self)</td></tr>
 <tr class="memdesc:a19490c9995b91f30f3ef610f1db1692e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads translations from the Excel file.  <br /></td></tr>
 <tr class="separator:a19490c9995b91f30f3ef610f1db1692e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,7 +130,7 @@ Public Member Functions</h2></td></tr>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aee504dc38f9c86b36c801edf4cc5b3be" id="r_aee504dc38f9c86b36c801edf4cc5b3be"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee504dc38f9c86b36c801edf4cc5b3be">translations</a> = dict()</td></tr>
 <tr class="separator:aee504dc38f9c86b36c801edf4cc5b3be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a838c9356c269fb088c835e536ebd2602" id="r_a838c9356c269fb088c835e536ebd2602"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a838c9356c269fb088c835e536ebd2602">excel_path</a> = excel_path</td></tr>
+<tr class="memitem:a838c9356c269fb088c835e536ebd2602" id="r_a838c9356c269fb088c835e536ebd2602"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a838c9356c269fb088c835e536ebd2602">excel_path</a> = dict_path</td></tr>
 <tr class="separator:a838c9356c269fb088c835e536ebd2602"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
@@ -141,10 +141,10 @@ Protected Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Translation class to allow the user to choose the language. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00007">7</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00031">31</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a078c3ef7b622e68b54c4e29ce423667f" name="a078c3ef7b622e68b54c4e29ce423667f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a078c3ef7b622e68b54c4e29ce423667f">&#9670;&#160;</a></span>__init__()</h2>
+<a id="a4f27558213feb3f337ce4c09d1fcc89c" name="a4f27558213feb3f337ce4c09d1fcc89c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f27558213feb3f337ce4c09d1fcc89c">&#9670;&#160;</a></span>__init__()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -157,7 +157,7 @@ Protected Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>excel_path</em></span><span class="paramdefsep"> = </span><span class="paramdefval">Path.cwd()&#160;/&#160;&quot;Translations.json&quot;</span>, </td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>dict_path</em></span><span class="paramdefsep"> = </span><span class="paramdefval">Path.cwd()&#160;/&#160;&quot;Translations.json&quot;</span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -176,7 +176,7 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00011">11</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00035">35</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -199,7 +199,7 @@ Protected Attributes</h2></td></tr>
 <p>Getter method for the selected language (optional, but good practice). </p>
 <dl class="section return"><dt>Returns</dt><dd>The currently selected language code. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00052">52</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00077">77</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -220,7 +220,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Loads translations from the Excel file. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00022">22</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00047">47</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -252,7 +252,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The translated text or the original key if no translation is found. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00037">37</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00062">62</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -283,7 +283,7 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00042">42</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00068">68</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -308,7 +308,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00017">17</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00041">41</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -319,12 +319,12 @@ Protected Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">language_management.Translator.excel_path = excel_path</td>
+          <td class="memname">language_management.Translator.excel_path = dict_path</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00014">14</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00038">38</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>
@@ -340,7 +340,7 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00013">13</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00011_source.html#l00037">37</a> of file <a class="el" href="a00011_source.html">language_management.py</a>.</p>
 
 </div>
 </div>

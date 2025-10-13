@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DirectDistanceTool: cfl_directdistance_tool.DirectDistanceCalculator Class Reference</title>
+<title>Direct-Line Network Tool: cfl_directlinenetwork_tool.DirectLineNetworkCalculator Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,9 +32,9 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">DirectDistanceTool<span id="projectnumber">&#160;2.1</span>
+   <div id="projectname">Direct-Line Network Tool<span id="projectnumber">&#160;2.1</span>
    </div>
-   <div id="projectbrief">Generation of direct distance networks based on connectivity function levels of traffic zones</div>
+   <div id="projectbrief">Generation of direct-line connections based on connectivity function levels of traffic cells</div>
   </td>
  </tr>
  </tbody>
@@ -91,7 +91,7 @@ $(function(){ initResizable(false); });
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>cfl_directdistance_tool</b></li><li class="navelem"><a class="el" href="a00034.html">DirectDistanceCalculator</a></li>  </ul>
+<li class="navelem"><b>cfl_directlinenetwork_tool</b></li><li class="navelem"><a class="el" href="a00034.html">DirectLineNetworkCalculator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div id="doc-content">
@@ -100,134 +100,154 @@ $(function(){ initResizable(false); });
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="a00031.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">cfl_directdistance_tool.DirectDistanceCalculator Class Reference</div></div>
+  <div class="headertitle"><div class="title">cfl_directlinenetwork_tool.DirectLineNetworkCalculator Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>The class contains attributes and calculation methods to determine the VFS between zones.  
+<p>The class contains attributes and calculation methods to do a triangulation for traffic cells and to determine the centrality function level (CFL) of the connections.  
  <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7d50b6d34f28754d2d9930f1ca19ea41" id="r_a7d50b6d34f28754d2d9930f1ca19ea41"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7d50b6d34f28754d2d9930f1ca19ea41">__init__</a> (self, source, str attr_cfl=&quot;TypeNo&quot;, dict dict_cfl={&quot;VFS 0&quot;:0, &quot;VFS 1&quot;:1, &quot;VFS 2&quot;:2, &quot;VFS 3&quot;:3, &quot;VFS 4&quot;:4, &quot;VFS 5&quot;:5}, max_distance=1, no_suppliers=0, attr_orig=None, attr_dest=None, bool use_filter=False, str formula_distance=&quot;euclidean&quot;, <a class="el" href="#a9a871a45dc4b1e8b5f33ba7f57509fdf">path_output</a>=None, <a class="el" href="a00058.html">Translator</a> <a class="el" href="#a8ac97644bc775a59ff2c8e418599c30f">translator</a>=None)</td></tr>
-<tr class="memdesc:a7d50b6d34f28754d2d9930f1ca19ea41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:a7d50b6d34f28754d2d9930f1ca19ea41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d3e15ddd5284460788d8f95afe734dc" id="r_a8d3e15ddd5284460788d8f95afe734dc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8d3e15ddd5284460788d8f95afe734dc">adj_matrix_to_links</a> (self, list_cfl=None)</td></tr>
-<tr class="memdesc:a8d3e15ddd5284460788d8f95afe734dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates the adjacency matrices of the desired CFL into an edge list.  <br /></td></tr>
-<tr class="separator:a8d3e15ddd5284460788d8f95afe734dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac3796b99802bbbb7b2852d79b2c7bd3c" id="r_ac3796b99802bbbb7b2852d79b2c7bd3c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac3796b99802bbbb7b2852d79b2c7bd3c">adj_matrix_to_set_of_connected_zones</a> (self, <a class="el" href="#a87c2dd8c4471eccad4a7c5e8d6d03539">cfl</a>, use_zone_names=True)</td></tr>
-<tr class="memdesc:ac3796b99802bbbb7b2852d79b2c7bd3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the adjacency matrix into a list of connected zones per zone.  <br /></td></tr>
-<tr class="separator:ac3796b99802bbbb7b2852d79b2c7bd3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab377cdf82e86a6766b19a0fa08648cc1" id="r_ab377cdf82e86a6766b19a0fa08648cc1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab377cdf82e86a6766b19a0fa08648cc1">calculate_reachability_max_steps</a> (self, max_steps, <a class="el" href="#a87c2dd8c4471eccad4a7c5e8d6d03539">cfl</a>)</td></tr>
-<tr class="memdesc:ab377cdf82e86a6766b19a0fa08648cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates which neighbours can be reached within n steps.  <br /></td></tr>
-<tr class="separator:ab377cdf82e86a6766b19a0fa08648cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0021250d0fb341d4d49a56fa7f45b3a" id="r_ac0021250d0fb341d4d49a56fa7f45b3a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac0021250d0fb341d4d49a56fa7f45b3a">calculate_main</a> (self)</td></tr>
-<tr class="memdesc:ac0021250d0fb341d4d49a56fa7f45b3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the adjacency matrix for each stored cfl of the instance.  <br /></td></tr>
-<tr class="separator:ac0021250d0fb341d4d49a56fa7f45b3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a883d2362b26c8c650e3a32f7927d0f8a" id="r_a883d2362b26c8c650e3a32f7927d0f8a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a883d2362b26c8c650e3a32f7927d0f8a">calculate_cfl</a> (self, <a class="el" href="#a87c2dd8c4471eccad4a7c5e8d6d03539">cfl</a>)</td></tr>
-<tr class="memdesc:a883d2362b26c8c650e3a32f7927d0f8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the connections of a CFL.  <br /></td></tr>
-<tr class="separator:a883d2362b26c8c650e3a32f7927d0f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae297f09c116c4baf2d89209aa73d6bce" id="r_ae297f09c116c4baf2d89209aa73d6bce"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae297f09c116c4baf2d89209aa73d6bce">delete_unused_nodes</a> (self)</td></tr>
-<tr class="memdesc:ae297f09c116c4baf2d89209aa73d6bce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes nodes in Visum that do not connect any links.  <br /></td></tr>
-<tr class="separator:ae297f09c116c4baf2d89209aa73d6bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8cda517d7f7a1b43be71602bc1f3246" id="r_ad8cda517d7f7a1b43be71602bc1f3246"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8cda517d7f7a1b43be71602bc1f3246">export_matrix</a> (self, list_cfl=None)</td></tr>
-<tr class="memdesc:ad8cda517d7f7a1b43be71602bc1f3246"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked) or as .mtx file.  <br /></td></tr>
-<tr class="separator:ad8cda517d7f7a1b43be71602bc1f3246"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1fd7b969ce91f5670db7c2662b3096ee" id="r_a1fd7b969ce91f5670db7c2662b3096ee"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1fd7b969ce91f5670db7c2662b3096ee">extract_net</a> (self)</td></tr>
-<tr class="memdesc:a1fd7b969ce91f5670db7c2662b3096ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the infrastructure objects in preparation for exporting the infrastructure in the form of dictionaries for nodes, lines, and line types.  <br /></td></tr>
-<tr class="separator:a1fd7b969ce91f5670db7c2662b3096ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24e522fea9a4a03a0b490f0584a3b30c" id="r_a24e522fea9a4a03a0b490f0584a3b30c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a24e522fea9a4a03a0b490f0584a3b30c">export_net</a> (self, links_additive=True, list_cfl=None, create_connectors=True)</td></tr>
-<tr class="memdesc:a24e522fea9a4a03a0b490f0584a3b30c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports a net file if a visum instance exists, the net file is loaded in Visum.  <br /></td></tr>
-<tr class="separator:a24e522fea9a4a03a0b490f0584a3b30c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ea80f3e1a5c2ec90d1a58a905c30ef5" id="r_a6ea80f3e1a5c2ec90d1a58a905c30ef5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ea80f3e1a5c2ec90d1a58a905c30ef5">export_zones_uda_connections</a> (self, <a class="el" href="#a87c2dd8c4471eccad4a7c5e8d6d03539">cfl</a>)</td></tr>
-<tr class="memdesc:a6ea80f3e1a5c2ec90d1a58a905c30ef5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the connections and the number of connections as zone UDAs to Visum.  <br /></td></tr>
-<tr class="separator:a6ea80f3e1a5c2ec90d1a58a905c30ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2dd7435da9bc943517d5490afb673460" id="r_a2dd7435da9bc943517d5490afb673460"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2dd7435da9bc943517d5490afb673460">init_results</a> (self)</td></tr>
-<tr class="memdesc:a2dd7435da9bc943517d5490afb673460"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the adjacency matrices.  <br /></td></tr>
-<tr class="separator:a2dd7435da9bc943517d5490afb673460"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accbf121406d0a4bea7c06907cee6db7b" id="r_accbf121406d0a4bea7c06907cee6db7b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#accbf121406d0a4bea7c06907cee6db7b">filter_links_vfs</a> (self)</td></tr>
-<tr class="memdesc:accbf121406d0a4bea7c06907cee6db7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters the links of the inserted link types in Visum.  <br /></td></tr>
-<tr class="separator:accbf121406d0a4bea7c06907cee6db7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab66146a3fe8fd91d50fdfe2d446b46c6" id="r_ab66146a3fe8fd91d50fdfe2d446b46c6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab66146a3fe8fd91d50fdfe2d446b46c6">filter_zones_source_targets</a> (self, bool filterFromZones=True)</td></tr>
-<tr class="memdesc:ab66146a3fe8fd91d50fdfe2d446b46c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters the zones for which the given attribute is greater than 0.  <br /></td></tr>
-<tr class="separator:ab66146a3fe8fd91d50fdfe2d446b46c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e287004b4cd685a8dc7f7b928fb3f3f" id="r_a5e287004b4cd685a8dc7f7b928fb3f3f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e287004b4cd685a8dc7f7b928fb3f3f">delete_added_links</a> (self)</td></tr>
-<tr class="memdesc:a5e287004b4cd685a8dc7f7b928fb3f3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes the links of the VFS.  <br /></td></tr>
-<tr class="separator:a5e287004b4cd685a8dc7f7b928fb3f3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab46806af02c6ef26a81ef65f41886305" id="r_ab46806af02c6ef26a81ef65f41886305"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab46806af02c6ef26a81ef65f41886305">__init__</a> (self, source, str attr_cfl=&quot;TypeNo&quot;, dict dict_cfl={&quot;cfl_0&quot;:0, &quot;cfl_1&quot;:1, &quot;cfl_2&quot;:2, &quot;cfl_3&quot;:3, &quot;cfl_4&quot;:4, &quot;cfl_5&quot;:5}, max_distance=1, no_suppliers=0, attr_orig=None, attr_dest=None, bool use_filter=False, str formula_distance=&quot;euclidean&quot;, <a class="el" href="#add8fd7acf647c7437b09c49eea9f170a">path_output</a>=None, <a class="el" href="a00058.html">Translator</a> <a class="el" href="#a36f45bbff8f0f32e24a24e024bef118e">translator</a>=None)</td></tr>
+<tr class="memdesc:ab46806af02c6ef26a81ef65f41886305"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:ab46806af02c6ef26a81ef65f41886305"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bc754b308b0d6c1a561aa4e8a9b93d0" id="r_a2bc754b308b0d6c1a561aa4e8a9b93d0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bc754b308b0d6c1a561aa4e8a9b93d0">adj_matrix_to_links</a> (self, list_cfl=None)</td></tr>
+<tr class="memdesc:a2bc754b308b0d6c1a561aa4e8a9b93d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates the adjacency matrices of the desired CFL into an edge list.  <br /></td></tr>
+<tr class="separator:a2bc754b308b0d6c1a561aa4e8a9b93d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49fdb5f58e1c6e121fc7f7e904cc0d9b" id="r_a49fdb5f58e1c6e121fc7f7e904cc0d9b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a49fdb5f58e1c6e121fc7f7e904cc0d9b">adj_matrix_to_set_of_connected_zones</a> (self, <a class="el" href="#aadf0a3823f157bad978a6d0f6dae113b">cfl</a>, use_zone_names=True)</td></tr>
+<tr class="memdesc:a49fdb5f58e1c6e121fc7f7e904cc0d9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the adjacency matrix into a list of connected zones per zone.  <br /></td></tr>
+<tr class="separator:a49fdb5f58e1c6e121fc7f7e904cc0d9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a240ad84a0a1993cbbdf343d933a41a4b" id="r_a240ad84a0a1993cbbdf343d933a41a4b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a240ad84a0a1993cbbdf343d933a41a4b">calculate_reachability_max_steps</a> (self, max_steps, <a class="el" href="#aadf0a3823f157bad978a6d0f6dae113b">cfl</a>)</td></tr>
+<tr class="memdesc:a240ad84a0a1993cbbdf343d933a41a4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates which neighbours can be reached within n steps.  <br /></td></tr>
+<tr class="separator:a240ad84a0a1993cbbdf343d933a41a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37e89efb1c30a95eba1e8da7bfbb7b46" id="r_a37e89efb1c30a95eba1e8da7bfbb7b46"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37e89efb1c30a95eba1e8da7bfbb7b46">calculate_main</a> (self)</td></tr>
+<tr class="memdesc:a37e89efb1c30a95eba1e8da7bfbb7b46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the adjacency matrix for each stored cfl of the instance.  <br /></td></tr>
+<tr class="separator:a37e89efb1c30a95eba1e8da7bfbb7b46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4174fdc35304a64c907ea5ab4f1ab61d" id="r_a4174fdc35304a64c907ea5ab4f1ab61d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4174fdc35304a64c907ea5ab4f1ab61d">calculate_cfl</a> (self, <a class="el" href="#aadf0a3823f157bad978a6d0f6dae113b">cfl</a>)</td></tr>
+<tr class="memdesc:a4174fdc35304a64c907ea5ab4f1ab61d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the connections of a Connectivity Function Level (CFL).  <br /></td></tr>
+<tr class="separator:a4174fdc35304a64c907ea5ab4f1ab61d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99d53e69ca54d2dd891ba4a72b735eaa" id="r_a99d53e69ca54d2dd891ba4a72b735eaa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a99d53e69ca54d2dd891ba4a72b735eaa">delete_unused_nodes</a> (self)</td></tr>
+<tr class="memdesc:a99d53e69ca54d2dd891ba4a72b735eaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes nodes in Visum that do not connect any links.  <br /></td></tr>
+<tr class="separator:a99d53e69ca54d2dd891ba4a72b735eaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ec5a2a480ffd76bebe15073b5e30315" id="r_a3ec5a2a480ffd76bebe15073b5e30315"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3ec5a2a480ffd76bebe15073b5e30315">export_matrix</a> (self, list_cfl=None)</td></tr>
+<tr class="memdesc:a3ec5a2a480ffd76bebe15073b5e30315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked) or as .mtx file.  <br /></td></tr>
+<tr class="separator:a3ec5a2a480ffd76bebe15073b5e30315"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad034669891afc10cd510e0f01d50b93" id="r_aad034669891afc10cd510e0f01d50b93"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad034669891afc10cd510e0f01d50b93">extract_net</a> (self)</td></tr>
+<tr class="memdesc:aad034669891afc10cd510e0f01d50b93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the infrastructure objects in preparation for exporting the infrastructure in the form of dictionaries for nodes, lines, and line types.  <br /></td></tr>
+<tr class="separator:aad034669891afc10cd510e0f01d50b93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eee5cf5c6203dd3ce9f06ea35121066" id="r_a1eee5cf5c6203dd3ce9f06ea35121066"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1eee5cf5c6203dd3ce9f06ea35121066">export_net</a> (self, links_additive=True, list_cfl=None, create_connectors=True)</td></tr>
+<tr class="memdesc:a1eee5cf5c6203dd3ce9f06ea35121066"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports a net file if a visum instance exists, the net file is loaded in Visum.  <br /></td></tr>
+<tr class="separator:a1eee5cf5c6203dd3ce9f06ea35121066"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a980080a2dc9ed25239b0cf439b44e124" id="r_a980080a2dc9ed25239b0cf439b44e124"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a980080a2dc9ed25239b0cf439b44e124">export_zones_uda_connections</a> (self, <a class="el" href="#aadf0a3823f157bad978a6d0f6dae113b">cfl</a>)</td></tr>
+<tr class="memdesc:a980080a2dc9ed25239b0cf439b44e124"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the connections and the number of connections as zone UDAs to Visum.  <br /></td></tr>
+<tr class="separator:a980080a2dc9ed25239b0cf439b44e124"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6a7992ca9a3c1ffbb10ca5fba748ea1" id="r_ab6a7992ca9a3c1ffbb10ca5fba748ea1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6a7992ca9a3c1ffbb10ca5fba748ea1">init_results</a> (self)</td></tr>
+<tr class="memdesc:ab6a7992ca9a3c1ffbb10ca5fba748ea1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the adjacency matrices.  <br /></td></tr>
+<tr class="separator:ab6a7992ca9a3c1ffbb10ca5fba748ea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b92c2f70319f4341e9cd94a96f694ed" id="r_a6b92c2f70319f4341e9cd94a96f694ed"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6b92c2f70319f4341e9cd94a96f694ed">filter_links_cfl</a> (self)</td></tr>
+<tr class="memdesc:a6b92c2f70319f4341e9cd94a96f694ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters the links of the inserted link types in Visum.  <br /></td></tr>
+<tr class="separator:a6b92c2f70319f4341e9cd94a96f694ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab165ce895cd4ab4c91fd2d97b1930858" id="r_ab165ce895cd4ab4c91fd2d97b1930858"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab165ce895cd4ab4c91fd2d97b1930858">filter_zones_origin_destination</a> (self, bool filterFromZones=True)</td></tr>
+<tr class="memdesc:ab165ce895cd4ab4c91fd2d97b1930858"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters the zones for which the given attribute is greater than 0.  <br /></td></tr>
+<tr class="separator:ab165ce895cd4ab4c91fd2d97b1930858"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40442722b22672342250e0765d687ffc" id="r_a40442722b22672342250e0765d687ffc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40442722b22672342250e0765d687ffc">delete_added_links</a> (self)</td></tr>
+<tr class="memdesc:a40442722b22672342250e0765d687ffc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes the cfl links inserted in Visum.  <br /></td></tr>
+<tr class="separator:a40442722b22672342250e0765d687ffc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a457a38fa8db75bc95b5fa0228beddb19" id="r_a457a38fa8db75bc95b5fa0228beddb19"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a457a38fa8db75bc95b5fa0228beddb19">update_label_cfl</a> (self)</td></tr>
+<tr class="memdesc:a457a38fa8db75bc95b5fa0228beddb19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates cfl labels for neat export names.  <br /></td></tr>
+<tr class="separator:a457a38fa8db75bc95b5fa0228beddb19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a8ac97644bc775a59ff2c8e418599c30f" id="r_a8ac97644bc775a59ff2c8e418599c30f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8ac97644bc775a59ff2c8e418599c30f">translator</a> = <a class="el" href="a00058.html">Translator</a>()</td></tr>
-<tr class="memdesc:a8ac97644bc775a59ff2c8e418599c30f"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="a00058.html" title="Translation class to allow the user to choose the language.">Translator</a> instance for logging.  <br /></td></tr>
-<tr class="separator:a8ac97644bc775a59ff2c8e418599c30f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29f855a1fe7b1c13ad7fd7f28eb319b8" id="r_a29f855a1fe7b1c13ad7fd7f28eb319b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a29f855a1fe7b1c13ad7fd7f28eb319b8">debug_mode</a> = False</td></tr>
-<tr class="memdesc:a29f855a1fe7b1c13ad7fd7f28eb319b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug mode flag.  <br /></td></tr>
-<tr class="separator:a29f855a1fe7b1c13ad7fd7f28eb319b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab422afec9017d3e398e1c68c8fa40049" id="r_ab422afec9017d3e398e1c68c8fa40049"><td class="memItemLeft" align="right" valign="top">list&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab422afec9017d3e398e1c68c8fa40049">attr_zones</a> = [&quot;No&quot;, &quot;Name&quot;, &quot;XCoord&quot;, &quot;YCoord&quot;]</td></tr>
-<tr class="memdesc:ab422afec9017d3e398e1c68c8fa40049"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relevant zone attributes.  <br /></td></tr>
-<tr class="separator:ab422afec9017d3e398e1c68c8fa40049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd2b2072fc1bc1e04d6eb2627ca1379a" id="r_afd2b2072fc1bc1e04d6eb2627ca1379a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd2b2072fc1bc1e04d6eb2627ca1379a">attr_central_level</a> = attr_cfl</td></tr>
-<tr class="memdesc:afd2b2072fc1bc1e04d6eb2627ca1379a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Centrality attribute.  <br /></td></tr>
-<tr class="separator:afd2b2072fc1bc1e04d6eb2627ca1379a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a871a45dc4b1e8b5f33ba7f57509fdf" id="r_a9a871a45dc4b1e8b5f33ba7f57509fdf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a871a45dc4b1e8b5f33ba7f57509fdf">path_output</a> = path_output</td></tr>
-<tr class="memdesc:a9a871a45dc4b1e8b5f33ba7f57509fdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output directory.  <br /></td></tr>
-<tr class="separator:a9a871a45dc4b1e8b5f33ba7f57509fdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87c2dd8c4471eccad4a7c5e8d6d03539" id="r_a87c2dd8c4471eccad4a7c5e8d6d03539"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a87c2dd8c4471eccad4a7c5e8d6d03539">cfl</a> = dict_cfl</td></tr>
-<tr class="memdesc:a87c2dd8c4471eccad4a7c5e8d6d03539"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of VFS to be processed.  <br /></td></tr>
-<tr class="separator:a87c2dd8c4471eccad4a7c5e8d6d03539"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea0341b0c994f2548e58cf13f269f470" id="r_aea0341b0c994f2548e58cf13f269f470"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aea0341b0c994f2548e58cf13f269f470">formula_dist</a> = formula_distance</td></tr>
-<tr class="memdesc:aea0341b0c994f2548e58cf13f269f470"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance calculation.  <br /></td></tr>
-<tr class="separator:aea0341b0c994f2548e58cf13f269f470"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2e6ec31329d698bbd52dce9a7e1653a" id="r_ad2e6ec31329d698bbd52dce9a7e1653a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2e6ec31329d698bbd52dce9a7e1653a">deg_neighbourhood_cfl</a> = dict()</td></tr>
-<tr class="memdesc:ad2e6ec31329d698bbd52dce9a7e1653a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specification of the neighborhood degree to which equal-ranking connections should be followed (formerly exchange function)  <br /></td></tr>
-<tr class="separator:ad2e6ec31329d698bbd52dce9a7e1653a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad57443f2315a68471b2491411bdcfdd" id="r_aad57443f2315a68471b2491411bdcfdd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad57443f2315a68471b2491411bdcfdd">num_suppliers_cfl</a> = dict()</td></tr>
-<tr class="memdesc:aad57443f2315a68471b2491411bdcfdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specification of how many (higher-ranking) suppliers should be connected.  <br /></td></tr>
-<tr class="separator:aad57443f2315a68471b2491411bdcfdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cfa6f41694444b4e48ca93401a98aca" id="r_a8cfa6f41694444b4e48ca93401a98aca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8cfa6f41694444b4e48ca93401a98aca">visum</a> = source</td></tr>
-<tr class="memdesc:a8cfa6f41694444b4e48ca93401a98aca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visum instance.  <br /></td></tr>
-<tr class="separator:a8cfa6f41694444b4e48ca93401a98aca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af15c537a97665a873d8a0118d132e236" id="r_af15c537a97665a873d8a0118d132e236"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af15c537a97665a873d8a0118d132e236">zones</a></td></tr>
-<tr class="memdesc:af15c537a97665a873d8a0118d132e236"><td class="mdescLeft">&#160;</td><td class="mdescRight">Table with zone data.  <br /></td></tr>
-<tr class="separator:af15c537a97665a873d8a0118d132e236"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa904c6d60c4a8ec10a62400c43b0e48" id="r_afa904c6d60c4a8ec10a62400c43b0e48"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa904c6d60c4a8ec10a62400c43b0e48">attr_is_from_zone</a> = attr_orig</td></tr>
-<tr class="memdesc:afa904c6d60c4a8ec10a62400c43b0e48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source filter attribute.  <br /></td></tr>
-<tr class="separator:afa904c6d60c4a8ec10a62400c43b0e48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac24969937a26af5ada47913fcada89f" id="r_aac24969937a26af5ada47913fcada89f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac24969937a26af5ada47913fcada89f">attr_is_to_zone</a> = attr_dest</td></tr>
-<tr class="memdesc:aac24969937a26af5ada47913fcada89f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destination filter attribute.  <br /></td></tr>
-<tr class="separator:aac24969937a26af5ada47913fcada89f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73b54bad2e3026ced058b2850db27f5c" id="r_a73b54bad2e3026ced058b2850db27f5c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a73b54bad2e3026ced058b2850db27f5c">language</a> = self.visum.GetCurrentLanguage()</td></tr>
-<tr class="memdesc:a73b54bad2e3026ced058b2850db27f5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set language of Visum instance.  <br /></td></tr>
-<tr class="separator:a73b54bad2e3026ced058b2850db27f5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae92f7a76b92c3cd7593338c63dbc827c" id="r_ae92f7a76b92c3cd7593338c63dbc827c"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae92f7a76b92c3cd7593338c63dbc827c">dict_export_zone2node</a> = {}</td></tr>
-<tr class="memdesc:ae92f7a76b92c3cd7593338c63dbc827c"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookupTable Infrastructure: Node number assigned to the zone.  <br /></td></tr>
-<tr class="separator:ae92f7a76b92c3cd7593338c63dbc827c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac618766816b81bbfdb871cc57dadc8ec" id="r_ac618766816b81bbfdb871cc57dadc8ec"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac618766816b81bbfdb871cc57dadc8ec">dict_export_links_vfs</a> = {}</td></tr>
-<tr class="memdesc:ac618766816b81bbfdb871cc57dadc8ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookUpTable Infrastructure: Mapping internal link number to Visum link number.  <br /></td></tr>
-<tr class="separator:ac618766816b81bbfdb871cc57dadc8ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afed55474940903b9ff92690afb8001a5" id="r_afed55474940903b9ff92690afb8001a5"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afed55474940903b9ff92690afb8001a5">dict_export_linktypes</a> = {}</td></tr>
-<tr class="memdesc:afed55474940903b9ff92690afb8001a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookUpTable Infrastructure: Mapping connection function level - Visum link type.  <br /></td></tr>
-<tr class="separator:afed55474940903b9ff92690afb8001a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab77b9055773bbe8954e559f951a27ddb" id="r_ab77b9055773bbe8954e559f951a27ddb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab77b9055773bbe8954e559f951a27ddb">edges</a> = pd.DataFrame()</td></tr>
-<tr class="memdesc:ab77b9055773bbe8954e559f951a27ddb"><td class="mdescLeft">&#160;</td><td class="mdescRight">DataFrame with the link data of the air-line connections.  <br /></td></tr>
-<tr class="separator:ab77b9055773bbe8954e559f951a27ddb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47fa86f17ed806b7b01d9817431d390d" id="r_a47fa86f17ed806b7b01d9817431d390d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47fa86f17ed806b7b01d9817431d390d">matrices_cfl</a> = dict_cfl</td></tr>
-<tr class="memdesc:a47fa86f17ed806b7b01d9817431d390d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dictionary with the resulting adjacency matrices of the connection function levels.  <br /></td></tr>
-<tr class="separator:a47fa86f17ed806b7b01d9817431d390d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36f45bbff8f0f32e24a24e024bef118e" id="r_a36f45bbff8f0f32e24a24e024bef118e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36f45bbff8f0f32e24a24e024bef118e">translator</a> = <a class="el" href="a00058.html">Translator</a>()</td></tr>
+<tr class="memdesc:a36f45bbff8f0f32e24a24e024bef118e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="a00058.html" title="Translation class to allow the user to choose the language.">Translator</a> instance for logging.  <br /></td></tr>
+<tr class="separator:a36f45bbff8f0f32e24a24e024bef118e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa70f4aa0f44a88a0d7e329ed82796da6" id="r_aa70f4aa0f44a88a0d7e329ed82796da6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa70f4aa0f44a88a0d7e329ed82796da6">debug_mode</a> = False</td></tr>
+<tr class="memdesc:aa70f4aa0f44a88a0d7e329ed82796da6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug mode flag.  <br /></td></tr>
+<tr class="separator:aa70f4aa0f44a88a0d7e329ed82796da6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd808c019a09d227431c922fe82252df" id="r_acd808c019a09d227431c922fe82252df"><td class="memItemLeft" align="right" valign="top">list&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd808c019a09d227431c922fe82252df">attr_zones</a> = [&quot;No&quot;, &quot;Name&quot;, &quot;XCoord&quot;, &quot;YCoord&quot;]</td></tr>
+<tr class="memdesc:acd808c019a09d227431c922fe82252df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required zone attributes.  <br /></td></tr>
+<tr class="separator:acd808c019a09d227431c922fe82252df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b829fec80d7c7026a86d1ce63e08a90" id="r_a1b829fec80d7c7026a86d1ce63e08a90"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b829fec80d7c7026a86d1ce63e08a90">attr_central_level</a> = attr_cfl</td></tr>
+<tr class="memdesc:a1b829fec80d7c7026a86d1ce63e08a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Centrality attribute.  <br /></td></tr>
+<tr class="separator:a1b829fec80d7c7026a86d1ce63e08a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add8fd7acf647c7437b09c49eea9f170a" id="r_add8fd7acf647c7437b09c49eea9f170a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add8fd7acf647c7437b09c49eea9f170a">path_output</a> = path_output</td></tr>
+<tr class="memdesc:add8fd7acf647c7437b09c49eea9f170a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output directory.  <br /></td></tr>
+<tr class="separator:add8fd7acf647c7437b09c49eea9f170a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadf0a3823f157bad978a6d0f6dae113b" id="r_aadf0a3823f157bad978a6d0f6dae113b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aadf0a3823f157bad978a6d0f6dae113b">cfl</a> = dict_cfl</td></tr>
+<tr class="memdesc:aadf0a3823f157bad978a6d0f6dae113b"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of VFS to be processed.  <br /></td></tr>
+<tr class="separator:aadf0a3823f157bad978a6d0f6dae113b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a4cc5e7a9d3677653250a1de0db0135" id="r_a5a4cc5e7a9d3677653250a1de0db0135"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a4cc5e7a9d3677653250a1de0db0135">cfl_labels</a> = dict(zip(self.cfl.keys(), self.cfl.keys()))</td></tr>
+<tr class="memdesc:a5a4cc5e7a9d3677653250a1de0db0135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dictionary to hold display names for CFLs for export.  <br /></td></tr>
+<tr class="separator:a5a4cc5e7a9d3677653250a1de0db0135"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7e15ccf20629b1a049f7cf9bb18da28" id="r_ae7e15ccf20629b1a049f7cf9bb18da28"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7e15ccf20629b1a049f7cf9bb18da28">formula_dist</a> = formula_distance</td></tr>
+<tr class="memdesc:ae7e15ccf20629b1a049f7cf9bb18da28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance calculation.  <br /></td></tr>
+<tr class="separator:ae7e15ccf20629b1a049f7cf9bb18da28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4a5909a9e1cf15e9cecbbeb46294551" id="r_ae4a5909a9e1cf15e9cecbbeb46294551"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae4a5909a9e1cf15e9cecbbeb46294551">deg_neighbourhood_cfl</a> = None</td></tr>
+<tr class="memdesc:ae4a5909a9e1cf15e9cecbbeb46294551"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specification of the neighborhood degree to which equal-ranking connections should be followed (formerly 'exchange function') @type dict.  <br /></td></tr>
+<tr class="separator:ae4a5909a9e1cf15e9cecbbeb46294551"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0824f4afe4b6ba8a4e72b6250032730a" id="r_a0824f4afe4b6ba8a4e72b6250032730a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0824f4afe4b6ba8a4e72b6250032730a">num_suppliers_cfl</a> = None</td></tr>
+<tr class="memdesc:a0824f4afe4b6ba8a4e72b6250032730a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specification of how many (higher-ranking) suppliers should be connected @type dict.  <br /></td></tr>
+<tr class="separator:a0824f4afe4b6ba8a4e72b6250032730a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3cbbbcf0ec802f76319cc797dab8cef" id="r_aa3cbbbcf0ec802f76319cc797dab8cef"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3cbbbcf0ec802f76319cc797dab8cef">visum</a> = source</td></tr>
+<tr class="memdesc:aa3cbbbcf0ec802f76319cc797dab8cef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visum instance.  <br /></td></tr>
+<tr class="separator:aa3cbbbcf0ec802f76319cc797dab8cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b56a5bc24981f5e515fbda2c61c3103" id="r_a2b56a5bc24981f5e515fbda2c61c3103"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b56a5bc24981f5e515fbda2c61c3103">zones</a></td></tr>
+<tr class="memdesc:a2b56a5bc24981f5e515fbda2c61c3103"><td class="mdescLeft">&#160;</td><td class="mdescRight">Table with zone data.  <br /></td></tr>
+<tr class="separator:a2b56a5bc24981f5e515fbda2c61c3103"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a768f2a57f39a0e04f8759bf9d322e62f" id="r_a768f2a57f39a0e04f8759bf9d322e62f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a768f2a57f39a0e04f8759bf9d322e62f">attr_is_from_zone</a> = attr_orig</td></tr>
+<tr class="memdesc:a768f2a57f39a0e04f8759bf9d322e62f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source filter attribute.  <br /></td></tr>
+<tr class="separator:a768f2a57f39a0e04f8759bf9d322e62f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c56728ec15e344b8ba4629d89a71ff" id="r_a81c56728ec15e344b8ba4629d89a71ff"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81c56728ec15e344b8ba4629d89a71ff">attr_is_to_zone</a> = attr_dest</td></tr>
+<tr class="memdesc:a81c56728ec15e344b8ba4629d89a71ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destination filter attribute.  <br /></td></tr>
+<tr class="separator:a81c56728ec15e344b8ba4629d89a71ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa741cc01d4055898d5e7887b1aedb1aa" id="r_aa741cc01d4055898d5e7887b1aedb1aa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa741cc01d4055898d5e7887b1aedb1aa">language</a> = self.visum.GetCurrentLanguage()</td></tr>
+<tr class="memdesc:aa741cc01d4055898d5e7887b1aedb1aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set language of Visum instance.  <br /></td></tr>
+<tr class="separator:aa741cc01d4055898d5e7887b1aedb1aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a9396db78db02af138cb0bd65c1ecc3" id="r_a5a9396db78db02af138cb0bd65c1ecc3"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a9396db78db02af138cb0bd65c1ecc3">dict_export_zone2node</a> = {}</td></tr>
+<tr class="memdesc:a5a9396db78db02af138cb0bd65c1ecc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookupTable Infrastructure: Node number assigned to the zone.  <br /></td></tr>
+<tr class="separator:a5a9396db78db02af138cb0bd65c1ecc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f246bd4765139bf1b633faf03b31639" id="r_a7f246bd4765139bf1b633faf03b31639"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f246bd4765139bf1b633faf03b31639">dict_export_links_vfs</a> = {}</td></tr>
+<tr class="memdesc:a7f246bd4765139bf1b633faf03b31639"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookUpTable Infrastructure: Mapping internal link number to Visum link number.  <br /></td></tr>
+<tr class="separator:a7f246bd4765139bf1b633faf03b31639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaef05ba2c12b4bea5834ba6fc9191438" id="r_aaef05ba2c12b4bea5834ba6fc9191438"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaef05ba2c12b4bea5834ba6fc9191438">dict_export_linktypes</a> = {}</td></tr>
+<tr class="memdesc:aaef05ba2c12b4bea5834ba6fc9191438"><td class="mdescLeft">&#160;</td><td class="mdescRight">LookUpTable Infrastructure: Mapping connection function level - Visum link type.  <br /></td></tr>
+<tr class="separator:aaef05ba2c12b4bea5834ba6fc9191438"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44c9403dffb9121b971464dc9161a2fa" id="r_a44c9403dffb9121b971464dc9161a2fa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44c9403dffb9121b971464dc9161a2fa">edges</a> = pd.DataFrame()</td></tr>
+<tr class="memdesc:a44c9403dffb9121b971464dc9161a2fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">DataFrame with the link data of the air-line connections.  <br /></td></tr>
+<tr class="separator:a44c9403dffb9121b971464dc9161a2fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7798c248257ae6a08c820a78c75f0cc9" id="r_a7798c248257ae6a08c820a78c75f0cc9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7798c248257ae6a08c820a78c75f0cc9">matrices_cfl</a> = dict_cfl</td></tr>
+<tr class="memdesc:a7798c248257ae6a08c820a78c75f0cc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dictionary with the resulting adjacency matrices of the connection function levels.  <br /></td></tr>
+<tr class="separator:a7798c248257ae6a08c820a78c75f0cc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The class contains attributes and calculation methods to determine the VFS between zones. </p>
+<div class="textblock"><p>The class contains attributes and calculation methods to do a triangulation for traffic cells and to determine the centrality function level (CFL) of the connections. </p>
+<p>This class provides functionality to:</p><ul>
+<li>Calculate connections between zones based on their centrality levels</li>
+<li>Export results in various formats to a PTV Visum model</li>
+</ul>
+<p>The calculations consider:</p><ul>
+<li>Zone hierarchies (centrality levels)</li>
+<li>Connections to neighbours up to a maximum distance</li>
+<li>Number of supplier connections</li>
+<li>Zone filters for origins and destinations</li>
+</ul>
+<p>Example usage: </p><div class="fragment"><div class="line">calculator = DirectLineNetworkCalculator(visum_instance)</div>
+<div class="line">calculator.calculate_main()</div>
+<div class="line">calculator.export_net()</div>
+</div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="#a37e89efb1c30a95eba1e8da7bfbb7b46" title="Calculates the adjacency matrix for each stored cfl of the instance.">calculate_main()</a> for the primary calculation method </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00156">156</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00184">184</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a7d50b6d34f28754d2d9930f1ca19ea41" name="a7d50b6d34f28754d2d9930f1ca19ea41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d50b6d34f28754d2d9930f1ca19ea41">&#9670;&#160;</a></span>__init__()</h2>
+<a id="ab46806af02c6ef26a81ef65f41886305" name="ab46806af02c6ef26a81ef65f41886305"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab46806af02c6ef26a81ef65f41886305">&#9670;&#160;</a></span>__init__()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.__init__ </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.__init__ </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -244,7 +264,7 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">dict </td>          <td class="paramname"><span class="paramname"><em>dict_cfl</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{&quot;VFS&#160;0&quot;:&#160;0,&#160;&quot;VFS&#160;1&quot;:&#160;1,&#160;&quot;VFS&#160;2&quot;:&#160;2,&#160;&quot;VFS&#160;3&quot;:&#160;3,&#160;&quot;VFS&#160;4&quot;:&#160;4,&#160;&quot;VFS&#160;5&quot;:&#160;5}</span>, </td>
+          <td class="paramtype">dict </td>          <td class="paramname"><span class="paramname"><em>dict_cfl</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{&quot;cfl_0&quot;:&#160;0,&#160;&quot;cfl_1&quot;:&#160;1,&#160;&quot;cfl_2&quot;:&#160;2,&#160;&quot;cfl_3&quot;:&#160;3,&#160;&quot;cfl_4&quot;:&#160;4,&#160;&quot;cfl_5&quot;:&#160;5}</span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -292,34 +312,34 @@ Public Attributes</h2></td></tr>
 <p>Constructor. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">source</td><td>Filename (str) or Visum instance </td></tr>
-    <tr><td class="paramname">attr_cfl</td><td>Name of the zone attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo </td></tr>
-    <tr><td class="paramname">dict_cfl</td><td>Dictionary containing the attribute values for the respective VFS </td></tr>
-    <tr><td class="paramname">max_distance</td><td>Specification of the distance up to which neighbors will be connected </td></tr>
-    <tr><td class="paramname">no_suppliers</td><td>Specification of how many higher-ranking centers a zone should be connected to </td></tr>
-    <tr><td class="paramname">attr_orig</td><td>Name of the attribute that indicates whether the zone is considered as a source. Default: None </td></tr>
-    <tr><td class="paramname">attr_dest</td><td>Name of the attribute that indicates whether the zone is considered as a destination. Default: None </td></tr>
-    <tr><td class="paramname">use_filter</td><td>Indicates whether only active zones are considered. Can only be used if source = Visum instance </td></tr>
-    <tr><td class="paramname">formula_distance</td><td>Defines the distance function for determining the supply centers. Note: For triangulation, the air-line connections are determined using the Euclidean distance. Delaunay triangulation only works with a projection of Lat/Lon coordinates. </td></tr>
-    <tr><td class="paramname">path_output</td><td>Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed. </td></tr>
-    <tr><td class="paramname">translator</td><td>Optional <a class="el" href="a00058.html" title="Translation class to allow the user to choose the language.">Translator</a> instance for multilingual logging. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">origin</td><td>Filename (str) or Visum instance </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">attr_cfl</td><td>Name of the zone attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">dict_cfl</td><td>Dictionary containing the attribute values for the respective VFS </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_distance</td><td>Specification of the distance up to which neighbors will be connected </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">no_suppliers</td><td>Specification of how many higher-ranking centers a zone should be connected to </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">attr_orig</td><td>Name of the attribute that indicates whether the zone is considered as a origin. Default: None </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">attr_dest</td><td>Name of the attribute that indicates whether the zone is considered as a destination. Default: None </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">use_filter</td><td>Indicates whether only active zones are considered. Can only be used if source = Visum instance </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">formula_distance</td><td>Defines the distance function for determining the supply centers. Note: For triangulation, the air-line connections are determined using the Euclidean distance. Delaunay triangulation only works with a projection of Lat/Lon coordinates. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">path_output</td><td>Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">translator</td><td>Optional <a class="el" href="a00058.html" title="Translation class to allow the user to choose the language.">Translator</a> instance for multilingual export. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00172">172</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00200">200</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a8d3e15ddd5284460788d8f95afe734dc" name="a8d3e15ddd5284460788d8f95afe734dc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8d3e15ddd5284460788d8f95afe734dc">&#9670;&#160;</a></span>adj_matrix_to_links()</h2>
+<a id="a2bc754b308b0d6c1a561aa4e8a9b93d0" name="a2bc754b308b0d6c1a561aa4e8a9b93d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bc754b308b0d6c1a561aa4e8a9b93d0">&#9670;&#160;</a></span>adj_matrix_to_links()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.adj_matrix_to_links </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.adj_matrix_to_links </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -340,18 +360,18 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>df_edges: DataFrame with all edges and their CFL. Attention: Duplicates are not removed </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00297">297</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00330">330</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ac3796b99802bbbb7b2852d79b2c7bd3c" name="ac3796b99802bbbb7b2852d79b2c7bd3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3796b99802bbbb7b2852d79b2c7bd3c">&#9670;&#160;</a></span>adj_matrix_to_set_of_connected_zones()</h2>
+<a id="a49fdb5f58e1c6e121fc7f7e904cc0d9b" name="a49fdb5f58e1c6e121fc7f7e904cc0d9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49fdb5f58e1c6e121fc7f7e904cc0d9b">&#9670;&#160;</a></span>adj_matrix_to_set_of_connected_zones()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.adj_matrix_to_set_of_connected_zones </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.adj_matrix_to_set_of_connected_zones </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -378,18 +398,18 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>df_set_zones: DataFrame with list object per zone and a column containing the number </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00333">333</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00369">369</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a883d2362b26c8c650e3a32f7927d0f8a" name="a883d2362b26c8c650e3a32f7927d0f8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a883d2362b26c8c650e3a32f7927d0f8a">&#9670;&#160;</a></span>calculate_cfl()</h2>
+<a id="a4174fdc35304a64c907ea5ab4f1ab61d" name="a4174fdc35304a64c907ea5ab4f1ab61d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4174fdc35304a64c907ea5ab4f1ab61d">&#9670;&#160;</a></span>calculate_cfl()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.calculate_cfl </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.calculate_cfl </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -401,26 +421,44 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Calculates the connections of a CFL. </p>
+<p>Calculates the connections of a Connectivity Function Level (CFL). </p>
+<p>This method determines all valid connections between zones for a specific CFL by:</p><ul>
+<li>Filtering zones based on their centrality/hierarchy</li>
+<li>Calculating distances between eligible zones</li>
+<li>Applying maximum distance constraints</li>
+<li>Considering neighborhood relationships</li>
+<li>Determining supplier-customer relationships</li>
+<li>Creating adjacency matrices for the connections</li>
+</ul>
+<p>The calculation process follows these steps:</p><ol type="1">
+<li>Identify origin and destination zones based on CFL</li>
+<li>Calculate distances between all potential zone pairs</li>
+<li>Apply distance thresholds and neighborhood constraints</li>
+<li>Ensure the required number of supplier connections</li>
+<li>Generate the final connection matrix</li>
+</ol>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">cfl</td><td>the connection function level for which connections are determined </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">cfl</td><td>The connection function level for which connections are determined. Higher levels typically represent more important central places. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>None - Results are stored in the internal matrices_cfl dictionary </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a37e89efb1c30a95eba1e8da7bfbb7b46" title="Calculates the adjacency matrix for each stored cfl of the instance.">calculate_main()</a> for the overall calculation workflow </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The results can be exported using <a class="el" href="#a3ec5a2a480ffd76bebe15073b5e30315" title="Exports the desired adjacency matrices either directly to Visum (if Visum instance is linked) or as ....">export_matrix()</a> or <a class="el" href="#a1eee5cf5c6203dd3ce9f06ea35121066" title="Exports a net file if a visum instance exists, the net file is loaded in Visum.">export_net()</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00377">377</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00445">445</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ac0021250d0fb341d4d49a56fa7f45b3a" name="ac0021250d0fb341d4d49a56fa7f45b3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0021250d0fb341d4d49a56fa7f45b3a">&#9670;&#160;</a></span>calculate_main()</h2>
+<a id="a37e89efb1c30a95eba1e8da7bfbb7b46" name="a37e89efb1c30a95eba1e8da7bfbb7b46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37e89efb1c30a95eba1e8da7bfbb7b46">&#9670;&#160;</a></span>calculate_main()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.calculate_main </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.calculate_main </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -429,20 +467,25 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Calculates the adjacency matrix for each stored cfl of the instance. </p>
-<dl class="section return"><dt>Returns</dt><dd>No return. The results are saved internally. </dd></dl>
+<p>This is the main calculation method that:</p><ol type="1">
+<li>Initializes the result matrices</li>
+<li>Iterates through all cConnectivity function levels (cfl)</li>
+<li>Calculates the connections for each cfl <dl class="section return"><dt>Returns</dt><dd>None - Results are stored in internal matrices </dd></dl>
+</li>
+</ol>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00362">362</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00411">411</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ab377cdf82e86a6766b19a0fa08648cc1" name="ab377cdf82e86a6766b19a0fa08648cc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab377cdf82e86a6766b19a0fa08648cc1">&#9670;&#160;</a></span>calculate_reachability_max_steps()</h2>
+<a id="a240ad84a0a1993cbbdf343d933a41a4b" name="a240ad84a0a1993cbbdf343d933a41a4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a240ad84a0a1993cbbdf343d933a41a4b">&#9670;&#160;</a></span>calculate_reachability_max_steps()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.calculate_reachability_max_steps </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.calculate_reachability_max_steps </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -469,18 +512,18 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>matrix: Adjacency matrix for the reachable neighbours within the max-steps </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00353">353</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00391">391</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a5e287004b4cd685a8dc7f7b928fb3f3f" name="a5e287004b4cd685a8dc7f7b928fb3f3f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5e287004b4cd685a8dc7f7b928fb3f3f">&#9670;&#160;</a></span>delete_added_links()</h2>
+<a id="a40442722b22672342250e0765d687ffc" name="a40442722b22672342250e0765d687ffc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40442722b22672342250e0765d687ffc">&#9670;&#160;</a></span>delete_added_links()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.delete_added_links </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.delete_added_links </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -488,21 +531,21 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Deletes the links of the VFS. </p>
+<p>Deletes the cfl links inserted in Visum. </p>
 <dl class="section return"><dt>Returns</dt><dd>No return value. The Visum instance is modified. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00897">897</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00971">971</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ae297f09c116c4baf2d89209aa73d6bce" name="ae297f09c116c4baf2d89209aa73d6bce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae297f09c116c4baf2d89209aa73d6bce">&#9670;&#160;</a></span>delete_unused_nodes()</h2>
+<a id="a99d53e69ca54d2dd891ba4a72b735eaa" name="a99d53e69ca54d2dd891ba4a72b735eaa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99d53e69ca54d2dd891ba4a72b735eaa">&#9670;&#160;</a></span>delete_unused_nodes()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.delete_unused_nodes </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.delete_unused_nodes </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -513,18 +556,18 @@ Public Attributes</h2></td></tr>
 <p>Deletes nodes in Visum that do not connect any links. </p>
 <p>All nodes without links are filtered &amp; the active nodes are deleted. The filter is then reset. </p><dl class="section return"><dt>Returns</dt><dd>No return. The visum instance is changed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00527">527</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00598">598</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ad8cda517d7f7a1b43be71602bc1f3246" name="ad8cda517d7f7a1b43be71602bc1f3246"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8cda517d7f7a1b43be71602bc1f3246">&#9670;&#160;</a></span>export_matrix()</h2>
+<a id="a3ec5a2a480ffd76bebe15073b5e30315" name="a3ec5a2a480ffd76bebe15073b5e30315"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ec5a2a480ffd76bebe15073b5e30315">&#9670;&#160;</a></span>export_matrix()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.export_matrix </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.export_matrix </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -540,23 +583,23 @@ Public Attributes</h2></td></tr>
 <p>Existing matrices are overwritten. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">visum</td><td>optional visum instance. Default None </td></tr>
-    <tr><td class="paramname">list_vfs</td><td>optional set of CFL. Default: None (all of the object) </td></tr>
+    <tr><td class="paramname">list_cfl</td><td>optional set of CFL. Default: None (all of the object) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00555">555</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00624">624</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a24e522fea9a4a03a0b490f0584a3b30c" name="a24e522fea9a4a03a0b490f0584a3b30c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a24e522fea9a4a03a0b490f0584a3b30c">&#9670;&#160;</a></span>export_net()</h2>
+<a id="a1eee5cf5c6203dd3ce9f06ea35121066" name="a1eee5cf5c6203dd3ce9f06ea35121066"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1eee5cf5c6203dd3ce9f06ea35121066">&#9670;&#160;</a></span>export_net()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.export_net </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.export_net </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -589,18 +632,18 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>: None </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00730">730</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00804">804</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a6ea80f3e1a5c2ec90d1a58a905c30ef5" name="a6ea80f3e1a5c2ec90d1a58a905c30ef5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6ea80f3e1a5c2ec90d1a58a905c30ef5">&#9670;&#160;</a></span>export_zones_uda_connections()</h2>
+<a id="a980080a2dc9ed25239b0cf439b44e124" name="a980080a2dc9ed25239b0cf439b44e124"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a980080a2dc9ed25239b0cf439b44e124">&#9670;&#160;</a></span>export_zones_uda_connections()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.export_zones_uda_connections </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.export_zones_uda_connections </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -621,18 +664,18 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>No return value. The Visum instance is modified. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00831">831</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00905">905</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a1fd7b969ce91f5670db7c2662b3096ee" name="a1fd7b969ce91f5670db7c2662b3096ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1fd7b969ce91f5670db7c2662b3096ee">&#9670;&#160;</a></span>extract_net()</h2>
+<a id="aad034669891afc10cd510e0f01d50b93" name="aad034669891afc10cd510e0f01d50b93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad034669891afc10cd510e0f01d50b93">&#9670;&#160;</a></span>extract_net()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.extract_net </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.extract_net </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -643,18 +686,18 @@ Public Attributes</h2></td></tr>
 <p>Creates the infrastructure objects in preparation for exporting the infrastructure in the form of dictionaries for nodes, lines, and line types. </p>
 <p>Called if an object is not present in the dictionaries during export. Prevents the multiple creation of lines and nodes. </p><dl class="section return"><dt>Returns</dt><dd>No return. The results are stored internally. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00666">666</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00740">740</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="accbf121406d0a4bea7c06907cee6db7b" name="accbf121406d0a4bea7c06907cee6db7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#accbf121406d0a4bea7c06907cee6db7b">&#9670;&#160;</a></span>filter_links_vfs()</h2>
+<a id="a6b92c2f70319f4341e9cd94a96f694ed" name="a6b92c2f70319f4341e9cd94a96f694ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b92c2f70319f4341e9cd94a96f694ed">&#9670;&#160;</a></span>filter_links_cfl()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.filter_links_vfs </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.filter_links_cfl </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -665,18 +708,18 @@ Public Attributes</h2></td></tr>
 <p>Filters the links of the inserted link types in Visum. </p>
 <dl class="section return"><dt>Returns</dt><dd>No return value. The Visum instance is modified. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00873">873</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00947">947</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ab66146a3fe8fd91d50fdfe2d446b46c6" name="ab66146a3fe8fd91d50fdfe2d446b46c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab66146a3fe8fd91d50fdfe2d446b46c6">&#9670;&#160;</a></span>filter_zones_source_targets()</h2>
+<a id="ab165ce895cd4ab4c91fd2d97b1930858" name="ab165ce895cd4ab4c91fd2d97b1930858"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab165ce895cd4ab4c91fd2d97b1930858">&#9670;&#160;</a></span>filter_zones_origin_destination()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.filter_zones_source_targets </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.filter_zones_origin_destination </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span>, </td>
         </tr>
@@ -691,24 +734,24 @@ Public Attributes</h2></td></tr>
 <p>Filters the zones for which the given attribute is greater than 0. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">filterFromZones</td><td>Boolean flag to determine whether to filter source zones (True) or destination zones (False). Default: True </td></tr>
+    <tr><td class="paramname">filterFromZones</td><td>Boolean flag to determine whether to filter origin zones (True) or destination zones (False). Default: True </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>No return value. The Visum instance is modified. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00883">883</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00957">957</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a2dd7435da9bc943517d5490afb673460" name="a2dd7435da9bc943517d5490afb673460"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2dd7435da9bc943517d5490afb673460">&#9670;&#160;</a></span>init_results()</h2>
+<a id="ab6a7992ca9a3c1ffbb10ca5fba748ea1" name="ab6a7992ca9a3c1ffbb10ca5fba748ea1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6a7992ca9a3c1ffbb10ca5fba748ea1">&#9670;&#160;</a></span>init_results()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.init_results </td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.init_results </td>
           <td>(</td>
           <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
           <td></td>
@@ -719,109 +762,149 @@ Public Attributes</h2></td></tr>
 <p>Initializes the adjacency matrices. </p>
 <dl class="section return"><dt>Returns</dt><dd>No return value. The results are stored internally. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00863">863</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00937">937</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="afd2b2072fc1bc1e04d6eb2627ca1379a" name="afd2b2072fc1bc1e04d6eb2627ca1379a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd2b2072fc1bc1e04d6eb2627ca1379a">&#9670;&#160;</a></span>attr_central_level</h2>
+<a id="a457a38fa8db75bc95b5fa0228beddb19" name="a457a38fa8db75bc95b5fa0228beddb19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a457a38fa8db75bc95b5fa0228beddb19">&#9670;&#160;</a></span>update_label_cfl()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.attr_central_level = attr_cfl</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.update_label_cfl </td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>self</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates cfl labels for neat export names. </p>
+<dl class="section return"><dt>Returns</dt><dd>No return value. self.cfl_labels is modified </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00979">979</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a1b829fec80d7c7026a86d1ce63e08a90" name="a1b829fec80d7c7026a86d1ce63e08a90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b829fec80d7c7026a86d1ce63e08a90">&#9670;&#160;</a></span>attr_central_level</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.attr_central_level = attr_cfl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Centrality attribute. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00200">200</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00227">227</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="afa904c6d60c4a8ec10a62400c43b0e48" name="afa904c6d60c4a8ec10a62400c43b0e48"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa904c6d60c4a8ec10a62400c43b0e48">&#9670;&#160;</a></span>attr_is_from_zone</h2>
+<a id="a768f2a57f39a0e04f8759bf9d322e62f" name="a768f2a57f39a0e04f8759bf9d322e62f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a768f2a57f39a0e04f8759bf9d322e62f">&#9670;&#160;</a></span>attr_is_from_zone</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.attr_is_from_zone = attr_orig</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.attr_is_from_zone = attr_orig</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Source filter attribute. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00272">272</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00305">305</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="aac24969937a26af5ada47913fcada89f" name="aac24969937a26af5ada47913fcada89f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac24969937a26af5ada47913fcada89f">&#9670;&#160;</a></span>attr_is_to_zone</h2>
+<a id="a81c56728ec15e344b8ba4629d89a71ff" name="a81c56728ec15e344b8ba4629d89a71ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81c56728ec15e344b8ba4629d89a71ff">&#9670;&#160;</a></span>attr_is_to_zone</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.attr_is_to_zone = attr_dest</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.attr_is_to_zone = attr_dest</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Destination filter attribute. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00274">274</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00307">307</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ab422afec9017d3e398e1c68c8fa40049" name="ab422afec9017d3e398e1c68c8fa40049"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab422afec9017d3e398e1c68c8fa40049">&#9670;&#160;</a></span>attr_zones</h2>
+<a id="acd808c019a09d227431c922fe82252df" name="acd808c019a09d227431c922fe82252df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd808c019a09d227431c922fe82252df">&#9670;&#160;</a></span>attr_zones</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">list cfl_directdistance_tool.DirectDistanceCalculator.attr_zones = [&quot;No&quot;, &quot;Name&quot;, &quot;XCoord&quot;, &quot;YCoord&quot;]</td>
+          <td class="memname">list cfl_directlinenetwork_tool.DirectLineNetworkCalculator.attr_zones = [&quot;No&quot;, &quot;Name&quot;, &quot;XCoord&quot;, &quot;YCoord&quot;]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Relevant zone attributes. </p>
+<p>Required zone attributes. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00198">198</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00225">225</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a87c2dd8c4471eccad4a7c5e8d6d03539" name="a87c2dd8c4471eccad4a7c5e8d6d03539"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87c2dd8c4471eccad4a7c5e8d6d03539">&#9670;&#160;</a></span>cfl</h2>
+<a id="aadf0a3823f157bad978a6d0f6dae113b" name="aadf0a3823f157bad978a6d0f6dae113b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadf0a3823f157bad978a6d0f6dae113b">&#9670;&#160;</a></span>cfl</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.cfl = dict_cfl</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.cfl = dict_cfl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>List of VFS to be processed. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00211">211</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00238">238</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a29f855a1fe7b1c13ad7fd7f28eb319b8" name="a29f855a1fe7b1c13ad7fd7f28eb319b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a29f855a1fe7b1c13ad7fd7f28eb319b8">&#9670;&#160;</a></span>debug_mode</h2>
+<a id="a5a4cc5e7a9d3677653250a1de0db0135" name="a5a4cc5e7a9d3677653250a1de0db0135"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a4cc5e7a9d3677653250a1de0db0135">&#9670;&#160;</a></span>cfl_labels</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool cfl_directdistance_tool.DirectDistanceCalculator.debug_mode = False</td>
+          <td class="memname">dict cfl_directlinenetwork_tool.DirectLineNetworkCalculator.cfl_labels = dict(zip(self.cfl.keys(), self.cfl.keys()))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dictionary to hold display names for CFLs for export. </p>
+
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00241">241</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
+
+</div>
+</div>
+<a id="aa70f4aa0f44a88a0d7e329ed82796da6" name="aa70f4aa0f44a88a0d7e329ed82796da6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa70f4aa0f44a88a0d7e329ed82796da6">&#9670;&#160;</a></span>debug_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool cfl_directlinenetwork_tool.DirectLineNetworkCalculator.debug_mode = False</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -829,234 +912,234 @@ Public Attributes</h2></td></tr>
 <p>Debug mode flag. </p>
 <p>Enables the execution of intermediate analyses that are not considered in the normal program flow </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00192">192</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00220">220</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ad2e6ec31329d698bbd52dce9a7e1653a" name="ad2e6ec31329d698bbd52dce9a7e1653a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2e6ec31329d698bbd52dce9a7e1653a">&#9670;&#160;</a></span>deg_neighbourhood_cfl</h2>
+<a id="ae4a5909a9e1cf15e9cecbbeb46294551" name="ae4a5909a9e1cf15e9cecbbeb46294551"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4a5909a9e1cf15e9cecbbeb46294551">&#9670;&#160;</a></span>deg_neighbourhood_cfl</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.deg_neighbourhood_cfl = dict()</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.deg_neighbourhood_cfl = None</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Specification of the neighborhood degree to which equal-ranking connections should be followed (formerly exchange function) </p>
+<p>Specification of the neighborhood degree to which equal-ranking connections should be followed (formerly 'exchange function') @type dict. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00218">218</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00249">249</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ac618766816b81bbfdb871cc57dadc8ec" name="ac618766816b81bbfdb871cc57dadc8ec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac618766816b81bbfdb871cc57dadc8ec">&#9670;&#160;</a></span>dict_export_links_vfs</h2>
+<a id="a7f246bd4765139bf1b633faf03b31639" name="a7f246bd4765139bf1b633faf03b31639"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f246bd4765139bf1b633faf03b31639">&#9670;&#160;</a></span>dict_export_links_vfs</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.dict_export_links_vfs = {}</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.dict_export_links_vfs = {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>LookUpTable Infrastructure: Mapping internal link number to Visum link number. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00287">287</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00320">320</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="afed55474940903b9ff92690afb8001a5" name="afed55474940903b9ff92690afb8001a5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afed55474940903b9ff92690afb8001a5">&#9670;&#160;</a></span>dict_export_linktypes</h2>
+<a id="aaef05ba2c12b4bea5834ba6fc9191438" name="aaef05ba2c12b4bea5834ba6fc9191438"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaef05ba2c12b4bea5834ba6fc9191438">&#9670;&#160;</a></span>dict_export_linktypes</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.dict_export_linktypes = {}</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.dict_export_linktypes = {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>LookUpTable Infrastructure: Mapping connection function level - Visum link type. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00289">289</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00322">322</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ae92f7a76b92c3cd7593338c63dbc827c" name="ae92f7a76b92c3cd7593338c63dbc827c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae92f7a76b92c3cd7593338c63dbc827c">&#9670;&#160;</a></span>dict_export_zone2node</h2>
+<a id="a5a9396db78db02af138cb0bd65c1ecc3" name="a5a9396db78db02af138cb0bd65c1ecc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a9396db78db02af138cb0bd65c1ecc3">&#9670;&#160;</a></span>dict_export_zone2node</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.dict_export_zone2node = {}</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.dict_export_zone2node = {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>LookupTable Infrastructure: Node number assigned to the zone. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00285">285</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00318">318</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="ab77b9055773bbe8954e559f951a27ddb" name="ab77b9055773bbe8954e559f951a27ddb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab77b9055773bbe8954e559f951a27ddb">&#9670;&#160;</a></span>edges</h2>
+<a id="a44c9403dffb9121b971464dc9161a2fa" name="a44c9403dffb9121b971464dc9161a2fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44c9403dffb9121b971464dc9161a2fa">&#9670;&#160;</a></span>edges</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.edges = pd.DataFrame()</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.edges = pd.DataFrame()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>DataFrame with the link data of the air-line connections. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00292">292</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00325">325</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="aea0341b0c994f2548e58cf13f269f470" name="aea0341b0c994f2548e58cf13f269f470"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aea0341b0c994f2548e58cf13f269f470">&#9670;&#160;</a></span>formula_dist</h2>
+<a id="ae7e15ccf20629b1a049f7cf9bb18da28" name="ae7e15ccf20629b1a049f7cf9bb18da28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7e15ccf20629b1a049f7cf9bb18da28">&#9670;&#160;</a></span>formula_dist</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.formula_dist = formula_distance</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.formula_dist = formula_distance</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Distance calculation. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00214">214</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00244">244</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a73b54bad2e3026ced058b2850db27f5c" name="a73b54bad2e3026ced058b2850db27f5c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73b54bad2e3026ced058b2850db27f5c">&#9670;&#160;</a></span>language</h2>
+<a id="aa741cc01d4055898d5e7887b1aedb1aa" name="aa741cc01d4055898d5e7887b1aedb1aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa741cc01d4055898d5e7887b1aedb1aa">&#9670;&#160;</a></span>language</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.language = self.visum.GetCurrentLanguage()</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.language = self.visum.GetCurrentLanguage()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Set language of Visum instance. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00281">281</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00314">314</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a47fa86f17ed806b7b01d9817431d390d" name="a47fa86f17ed806b7b01d9817431d390d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47fa86f17ed806b7b01d9817431d390d">&#9670;&#160;</a></span>matrices_cfl</h2>
+<a id="a7798c248257ae6a08c820a78c75f0cc9" name="a7798c248257ae6a08c820a78c75f0cc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7798c248257ae6a08c820a78c75f0cc9">&#9670;&#160;</a></span>matrices_cfl</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.matrices_cfl = dict_cfl</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.matrices_cfl = dict_cfl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Dictionary with the resulting adjacency matrices of the connection function levels. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00869">869</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00943">943</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="aad57443f2315a68471b2491411bdcfdd" name="aad57443f2315a68471b2491411bdcfdd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad57443f2315a68471b2491411bdcfdd">&#9670;&#160;</a></span>num_suppliers_cfl</h2>
+<a id="a0824f4afe4b6ba8a4e72b6250032730a" name="a0824f4afe4b6ba8a4e72b6250032730a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0824f4afe4b6ba8a4e72b6250032730a">&#9670;&#160;</a></span>num_suppliers_cfl</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.num_suppliers_cfl = dict()</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.num_suppliers_cfl = None</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Specification of how many (higher-ranking) suppliers should be connected. </p>
+<p>Specification of how many (higher-ranking) suppliers should be connected @type dict. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00220">220</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00253">253</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a9a871a45dc4b1e8b5f33ba7f57509fdf" name="a9a871a45dc4b1e8b5f33ba7f57509fdf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a871a45dc4b1e8b5f33ba7f57509fdf">&#9670;&#160;</a></span>path_output</h2>
+<a id="add8fd7acf647c7437b09c49eea9f170a" name="add8fd7acf647c7437b09c49eea9f170a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add8fd7acf647c7437b09c49eea9f170a">&#9670;&#160;</a></span>path_output</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.path_output = path_output</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.path_output = path_output</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Output directory. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00208">208</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00235">235</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a8ac97644bc775a59ff2c8e418599c30f" name="a8ac97644bc775a59ff2c8e418599c30f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ac97644bc775a59ff2c8e418599c30f">&#9670;&#160;</a></span>translator</h2>
+<a id="a36f45bbff8f0f32e24a24e024bef118e" name="a36f45bbff8f0f32e24a24e024bef118e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36f45bbff8f0f32e24a24e024bef118e">&#9670;&#160;</a></span>translator</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.translator = <a class="el" href="a00058.html">Translator</a>()</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.translator = <a class="el" href="a00058.html">Translator</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p><a class="el" href="a00058.html" title="Translation class to allow the user to choose the language.">Translator</a> instance for logging. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00187">187</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00215">215</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="a8cfa6f41694444b4e48ca93401a98aca" name="a8cfa6f41694444b4e48ca93401a98aca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8cfa6f41694444b4e48ca93401a98aca">&#9670;&#160;</a></span>visum</h2>
+<a id="aa3cbbbcf0ec802f76319cc797dab8cef" name="aa3cbbbcf0ec802f76319cc797dab8cef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3cbbbcf0ec802f76319cc797dab8cef">&#9670;&#160;</a></span>visum</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.visum = source</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.visum = source</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Visum instance. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00245">245</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00278">278</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
-<a id="af15c537a97665a873d8a0118d132e236" name="af15c537a97665a873d8a0118d132e236"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af15c537a97665a873d8a0118d132e236">&#9670;&#160;</a></span>zones</h2>
+<a id="a2b56a5bc24981f5e515fbda2c61c3103" name="a2b56a5bc24981f5e515fbda2c61c3103"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b56a5bc24981f5e515fbda2c61c3103">&#9670;&#160;</a></span>zones</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">cfl_directdistance_tool.DirectDistanceCalculator.zones</td>
+          <td class="memname">cfl_directlinenetwork_tool.DirectLineNetworkCalculator.zones</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1065,12 +1148,12 @@ Public Attributes</h2></td></tr>
 </div><!-- fragment -->
 <p>Table with zone data. </p>
 
-<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00248">248</a> of file <a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00002_source.html#l00281">281</a> of file <a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>C:/Users/ac128405/Desktop/Software/Luftlinientool/Luftlinientool2022/<a class="el" href="a00002_source.html">cfl_directdistance_tool.py</a></li>
+<li>C:/Users/ac128405/Desktop/Software/Luftlinientool/Luftlinientool2022/<a class="el" href="a00002_source.html">cfl_directlinenetwork_tool.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

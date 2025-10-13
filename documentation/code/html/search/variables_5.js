@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['language_0',['language',['../a00034.html#a73b54bad2e3026ced058b2850db27f5c',1,'cfl_directdistance_tool::DirectDistanceCalculator']]]
+  ['language_0',['language',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#aa741cc01d4055898d5e7887b1aedb1aa',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]]
 ];

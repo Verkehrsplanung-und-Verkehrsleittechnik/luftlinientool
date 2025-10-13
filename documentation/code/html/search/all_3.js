@@ -1,13 +1,12 @@
 var searchData=
 [
-  ['debug_5fmode_0',['debug_mode',['../a00034.html#a29f855a1fe7b1c13ad7fd7f28eb319b8',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['deg_5fneighbourhood_5fcfl_1',['deg_neighbourhood_cfl',['../a00034.html#ad2e6ec31329d698bbd52dce9a7e1653a',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['delete_5fadded_5flinks_2',['delete_added_links',['../a00034.html#a5e287004b4cd685a8dc7f7b928fb3f3f',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['delete_5funused_5fnodes_3',['delete_unused_nodes',['../a00034.html#ae297f09c116c4baf2d89209aa73d6bce',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['dialog_4',['Application via Dialog',['../C:/Users/ac128405/Desktop/Software/Luftlinientool/Luftlinientool2022/README.md#autotoc_md1',1,'']]],
-  ['dict_5fexport_5flinks_5fvfs_5',['dict_export_links_vfs',['../a00034.html#ac618766816b81bbfdb871cc57dadc8ec',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['dict_5fexport_5flinktypes_6',['dict_export_linktypes',['../a00034.html#afed55474940903b9ff92690afb8001a5',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['dict_5fexport_5fzone2node_7',['dict_export_zone2node',['../a00034.html#ae92f7a76b92c3cd7593338c63dbc827c',1,'cfl_directdistance_tool::DirectDistanceCalculator']]],
-  ['directdistancecalculator_8',['DirectDistanceCalculator',['../a00034.html',1,'cfl_directdistance_tool']]],
-  ['directdistancetoolframe_9',['DirectDistanceToolFrame',['../a00038.html',1,'ddt_GUI']]]
+  ['calculate_5fcfl_0',['calculate_cfl',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a4174fdc35304a64c907ea5ab4f1ab61d',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]],
+  ['calculate_5fdistance_5fcoordinates_5fhaversine_1',['calculate_distance_coordinates_haversine',['../namespacecfl__directlinenetwork__tool.html#a1288ce017b578a980194620ed481b62b',1,'cfl_directlinenetwork_tool']]],
+  ['calculate_5feucl_5fdistance_5fcoordinates_2',['calculate_eucl_distance_coordinates',['../namespacecfl__directlinenetwork__tool.html#ae865493d2e5adb28bdd9484154322f19',1,'cfl_directlinenetwork_tool']]],
+  ['calculate_5fmain_3',['calculate_main',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a37e89efb1c30a95eba1e8da7bfbb7b46',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]],
+  ['calculate_5freachability_5fmax_5fsteps_4',['calculate_reachability_max_steps',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a240ad84a0a1993cbbdf343d933a41a4b',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]],
+  ['cfl_5',['cfl',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#aadf0a3823f157bad978a6d0f6dae113b',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]],
+  ['cfl_5fdirectlinenetwork_5ftool_6',['cfl_directlinenetwork_tool',['../namespacecfl__directlinenetwork__tool.html',1,'']]],
+  ['cfl_5flabels_7',['cfl_labels',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html#a5a4cc5e7a9d3677653250a1de0db0135',1,'cfl_directlinenetwork_tool::DirectLineNetworkCalculator']]],
+  ['command_20based_20application_8',['Command-based application',['../C:/Users/ac128405/Desktop/Software/Luftlinientool/Luftlinientool2022/README.md#autotoc_md2',1,'']]]
 ];

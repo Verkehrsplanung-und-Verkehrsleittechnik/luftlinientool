@@ -1,3 +1,24 @@
+## @package language_management
+# @brief Language management system for the DLNT application
+#
+# This class provides multilingual functionality for the Direct-Line Network Tool.
+# It handles dynamic management and switching of different languages throughout
+# the user interface and all text outputs.
+#
+# Core functionalities:
+# - Language resource file management
+# - Runtime language switching
+# - Fallback mechanism for missing translations
+#
+# Supported languages:
+# - German (default)
+# - English
+#
+# Language file format:
+# - JSON format
+# - Excel format
+#
+# @note Missing translations will fall back to default language
 
 
 
@@ -11,10 +32,10 @@ class Translator:
     ## @brief Initializes the translator with the specified language.
     # @param excel_path Path to the Excel file containing translations. Default: "Translations.xlsx"
     # @param language Language code to use for translations. Default: "en"
-    def __init__(self, excel_path= Path.cwd() / "Translations.json", language: str="en"): #edit the translation excel path here
+    def __init__(self, dict_path= Path.cwd() / "Translations.json", language: str="en"): #edit the translation excel path here
 
         self.translations = dict()
-        self.excel_path = excel_path
+        self.excel_path = dict_path
         self.load_translations()
 
         self._selected_language = None

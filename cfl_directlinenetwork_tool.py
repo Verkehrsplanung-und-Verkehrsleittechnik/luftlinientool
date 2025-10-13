@@ -1,6 +1,21 @@
-## @package cfl_directlinenetwork_tool.py
-# @brief Contains general methods and the DirectLineNetworkCalculator class for calculating air-line connections
+## @package cfl_directlinenetwork_tool
+# @brief Contains general methods and the DirectLineNetworkCalculator class for calculating direct-line connections
 # considering the centrality of zones
+#
+# This tool enables the calculation of air-line network connections between different zones while
+# considering their central place hierarchy. It provides the following main functionalities:
+# - Connection calculations based on centrality levels
+# - Flexible distance calculations (Haversine or Euclidean distance)
+# - Import and export of Visum network data
+# - Support for multilingual outputs
+# - Comprehensive network connection analysis capabilities
+#
+# The tool was developed to assist transport planners in analyzing catchment areas and
+# supply relationships between zones.
+#
+# @author MaS, loosely based on C# Code GS 2009
+# @date 2022
+
 
 import pandas as pd
 import logging
@@ -90,17 +105,16 @@ def calculate_distance_coordinates_haversine(x1, y1, vec_x2, vec_y2):
 
 
 ## Calculation of the distance between coordinates (x, y)
-# Euclidean distance calculation!
-# @param[in] x1 x-coordinate of point 1
-# @param[in] y1 y-coordinate of point 1
-# @param[in] vec_x2 x-coordinate vector of points
-# @param[in] vec_y2 y-coordinate vector of points
-# @return Vector with distances of all points in the point vector to point 1
+# Calculates the Euclidean distance between a reference point and a set of points
+# using the formula: distance = sqrt((x2-x1)^2 + (y2-y1)^2)
+# @param[in] x1 x-coordinate of point 1 (reference point)
+# @param[in] y1 y-coordinate of point 1 (reference point)
+# @param[in] vec_x2 Vector of x-coordinates for comparison points
+# @param[in] vec_y2 Vector of y-coordinates for comparison points
+# @return Vector containing distances from reference point to all comparison points
 def calculate_eucl_distance_coordinates(x1, y1, vec_x2, vec_y2):
     diff_x = vec_x2 - x1
     diff_y = vec_y2 - y1
-
-    # todo Case distinction for negative coordinates
 
     distances = np.sqrt(np.square(diff_x) + np.square(diff_y))
 
@@ -146,23 +160,43 @@ def show_info(path_scripts: Path = Path.cwd()):
 
 # ===== Class definition ======
 ## @class DirectLineNetworkCalculator
-# The class contains attributes and calculation methods to determine the VFS between zones
+# The class contains attributes and calculation methods to do a triangulation for traffic cells and to determine the
+# centrality function level (CFL) of the connections
+#
+# This class provides functionality to:
+# - Calculate connections between zones based on their centrality levels
+# - Export results in various formats to a PTV Visum model
+#
+# The calculations consider:
+# - Zone hierarchies (centrality levels)
+# - Connections to neighbours up to a maximum distance
+# - Number of supplier connections
+# - Zone filters for origins and destinations
+#
+# Example usage:
+# @code
+# calculator = DirectLineNetworkCalculator(visum_instance)
+# calculator.calculate_main()
+# calculator.export_net()
+# @endcode
+#
+# @see calculate_main() for the primary calculation method
 class DirectLineNetworkCalculator:
 
     ## Constructor
-    # @param source Filename (str) or Visum instance
-    # @param attr_cfl Name of the zone attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo
-    # @param dict_cfl Dictionary containing the attribute values for the respective VFS
-    # @param max_distance Specification of the distance up to which neighbors will be connected
-    # @param no_suppliers Specification of how many higher-ranking centers a zone should be connected to
-    # @param attr_orig Name of the attribute that indicates whether the zone is considered as a source. Default: None
-    # @param attr_dest Name of the attribute that indicates whether the zone is considered as a destination. Default: None
-    # @param use_filter Indicates whether only active zones are considered. Can only be used if source = Visum instance
-    # @param formula_distance Defines the distance function for determining the supply centers.
+    # @param[in] origin Filename (str) or Visum instance
+    # @param[in] attr_cfl Name of the zone attribute that contains the categorization in OZ,MZ,UZ ... Default: TypeNo
+    # @param[in] dict_cfl Dictionary containing the attribute values for the respective VFS
+    # @param[in] max_distance Specification of the distance up to which neighbors will be connected
+    # @param[in] no_suppliers Specification of how many higher-ranking centers a zone should be connected to
+    # @param[in] attr_orig Name of the attribute that indicates whether the zone is considered as a origin. Default: None
+    # @param[in] attr_dest Name of the attribute that indicates whether the zone is considered as a destination. Default: None
+    # @param[in] use_filter Indicates whether only active zones are considered. Can only be used if source = Visum instance
+    # @param[in] formula_distance Defines the distance function for determining the supply centers.
     # Note: For triangulation, the air-line connections are determined using the Euclidean distance.
     # Delaunay triangulation only works with a projection of Lat/Lon coordinates.
-    # @param path_output Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed.
-    # @param translator Optional Translator instance for multilingual export.
+    # @param[in] path_output Optional possibility to specify a path for file export. Default: None. Then the current folder is used if needed.
+    # @param[in] translator Optional Translator instance for multilingual export.
     def __init__(self, source,
                  attr_cfl: str = "TypeNo",
                  dict_cfl: dict = {"cfl_0": 0, "cfl_1": 1, "cfl_2": 2, "cfl_3": 3, "cfl_4": 4, "cfl_5": 5},
@@ -185,10 +219,9 @@ class DirectLineNetworkCalculator:
         ## Debug mode flag. Enables the execution of intermediate analyses that are not considered in the normal program flow
         self.debug_mode = False
 
-        # Required zone attributes
         # Processing the input parameters
 
-        ## Relevant zone attributes
+        ## Required zone attributes
         self.attr_zones = ["No", "Name", "XCoord", "YCoord"]
         ## Centrality attribute
         self.attr_central_level = attr_cfl
@@ -300,24 +333,27 @@ class DirectLineNetworkCalculator:
             list_cfl = self.cfl.keys()
 
         list_df_edges = []
+
+        # loop over all CFL
         for cfl in list_cfl:
             if not is_symmetric(self.matrices_cfl[cfl]):
                 logging.warning(f'{cfl}: Adjacency matrix is not symmetric.')
 
+            # unstack matrix to get initial edge list
             df_edges = pd.DataFrame(self.matrices_cfl[cfl]).stack().reset_index()
             df_edges.columns = ["FromNodeNo", "ToNodeNo", "TypeNo"]
 
-            # Filtere Strecken mit True
+            # filtering edges of cfl/type
             df_edges = df_edges.loc[df_edges["TypeNo"] == True, :]
 
-            # setze Attribut VFS
+            # set attribute cfl
             df_edges.loc[:, "TypeNo"] = cfl
 
             list_df_edges.append(df_edges)
 
         df_edges = pd.concat(list_df_edges)
 
-        # Nur eine Strecke zwischen zwei Knoten
+        # only one edge between two zones
         df_edges = df_edges.groupby(["FromNodeNo", "ToNodeNo"]).agg(TypeNo=("TypeNo", min),
                                                                     ListTypeNo=("TypeNo", list)).reset_index()
 
@@ -331,17 +367,19 @@ class DirectLineNetworkCalculator:
     # @param use_zone_names: bool, if true, the zone names are used
     # @return df_set_zones: DataFrame with list object per zone and a column containing the number
     def adj_matrix_to_set_of_connected_zones(self, cfl, use_zone_names=True):
-        # Matrix zu DataFrame
+        # convert matrix to dataframe
         if use_zone_names:
-            # Falls Namen verwendet werden sollen, werden die Zeilen & Spalten benannt
+            # use zone names
             df = pd.DataFrame(self.matrices_cfl[cfl], index=self.zones["Name"], columns=self.zones["Name"])
         else:
             df = pd.DataFrame(self.matrices_cfl[cfl])
 
-        # Erstellt einen DataFrame, der für jede Zeile der Matrix die Spaltennamen enthält, für die der Eintrag True ist
+        # creates a dataframe that contains the zone names for each row of the matrix
+        df_zones = pd.DataFrame(df.index, index=df.index)
         df_set_zones = df.mul(df.columns.tolist()).apply(lambda x: set(zone for zone in x if zone), axis=1).to_frame(
             name="set zones")
-        # Ermittelt die Länge jeder Liste
+
+        # get number of elements in set
         df_set_zones["no zones"] = df_set_zones["set zones"].apply(len)
 
         return df_set_zones
@@ -365,40 +403,64 @@ class DirectLineNetworkCalculator:
         return matrix
 
     ## Calculates the adjacency matrix for each stored cfl of the instance.
-    # @return No return. The results are saved internally.
+    # This is the main calculation method that:
+    # 1. Initializes the result matrices
+    # 2. Iterates through all cConnectivity function levels (cfl)
+    # 3. Calculates the connections for each cfl
+    # @return None - Results are stored in internal matrices
     def calculate_main(self):
-        # Init Ergebnisse
+        # initialize result matrices
         logging.info("Starting calculation for all CFLs.")
         self.init_results()
         logging.info("Adjacency matrices have been initialized.")
 
-        # Schleife über alle cfl
+        # loop over all cfl
         for cfl in self.cfl:
-            # Berechne die Werte für die VFS
+            # calculate adjacency matrix for cfl
             self.calculate_cfl(cfl)
 
         logging.info("The calculation for all CFLs is complete.")
 
-    ## Calculates the connections of a CFL.
-    # @param cfl: the connection function level for which connections are determined
+    ## Calculates the connections of a Connectivity Function Level (CFL).
+    # This method determines all valid connections between zones for a specific CFL by:
+    # - Filtering zones based on their centrality/hierarchy
+    # - Calculating distances between eligible zones
+    # - Applying maximum distance constraints
+    # - Considering neighborhood relationships
+    # - Determining supplier-customer relationships
+    # - Creating adjacency matrices for the connections
+    #
+    # The calculation process follows these steps:
+    # 1. Identify origin and destination zones based on CFL
+    # 2. Calculate distances between all potential zone pairs
+    # 3. Apply distance thresholds and neighborhood constraints
+    # 4. Ensure the required number of supplier connections
+    # 5. Generate the final connection matrix
+    #
+    # @param[in] cfl: The connection function level for which connections are determined.
+    #            Higher levels typically represent more important central places.
+    # @return None - Results are stored in the internal matrices_cfl dictionary
+    # @see calculate_main() for the overall calculation workflow
+    # @note The results can be exported using export_matrix() or export_net()
     def calculate_cfl(self, cfl):
 
-        # Attributswert der Bezirke für die gewählte VFS
+        # attribute value of zones for cfl
         value_vfs = self.cfl[cfl]
 
-        # Attribute der VFS
+        # get attributes of cfl
         k_neighbour = self.deg_neighbourhood_cfl[cfl]
         num_suppliers_cfl = self.num_suppliers_cfl[cfl]
 
-        # Filtere Bezirksdaten, die die Bedingungen erfüllen
-        # Sind Aktiv todo Erweiterung Filterung nach attr_filter
-        # TypNr <= VFS
+        # filter traffic cells/zones based on the following condition:
+        # are active zones
+        # central level <= value cfl
         active_zones = self.zones
         active_zones = active_zones.loc[(active_zones[self.attr_central_level] <= value_vfs)
                                         & (active_zones["IsActive"] > 0),
                        :]
 
-        # Abfangen, falls es Bezirke mit identischen Koordinaten gibt, dann funktioniert DeLauney nicht zuverlässig
+        # check, if there are zones with identical coordinates (creates wrong result in triangulation)
+        # if yes, raise an error
         if len(active_zones) > len(active_zones[["XCoord", "YCoord"]].drop_duplicates()):
             duplicate_zones = active_zones[active_zones.duplicated(subset=["XCoord", "YCoord"], keep=False)]
             duplicate_zones_string = ', '.join(
@@ -417,11 +479,11 @@ class DirectLineNetworkCalculator:
                 zone_orig_idx_triangles = active_zones.index.values[tri.simplices]
                 logging.info(f'{cfl}: {len(zone_orig_idx_triangles)} triangles were created')
 
-                # Adjazenzmatrix ausfüllen
-                # Schleife über Dreiecke
+                # fill adjacency matrix:
+                # loop over all triangles
                 for p1, p2, p3 in zone_orig_idx_triangles:
-                    # die drei Punkte des Dreiecks
-                    # folgende Abhängigkeiten sind einzufügen:
+                    # p1, p2, p3 are points of current triangle
+                    # add the following adjacencies/edges
                     # p1 - p2, p2 - p1, p1 - p3, p3 - p1, p3 - p2, p2 - p3
                     self.matrices_cfl[cfl][p1, p2] = 1
                     self.matrices_cfl[cfl][p1, p3] = 1
@@ -430,24 +492,26 @@ class DirectLineNetworkCalculator:
                     self.matrices_cfl[cfl][p3, p1] = 1
                     self.matrices_cfl[cfl][p3, p2] = 1
 
-            # Nachbarschaften Grad n bestimmen
+            # if more than the neighbours of degree 1 are considered:
             if k_neighbour > 1:
                 logging.info(f'{cfl}: the neighborhood degree must be calculated')
+                # get adjacency matrx based on the reachability matrix in k steps
                 adj_k_steps = self.calculate_reachability_max_steps(k_neighbour, cfl)
+                # set adjacency matrix of cfl to reachability matrix
                 self.matrices_cfl[cfl] = adj_k_steps
 
-            # Verbindungen mit Versorgungsfunktion
+            # connections with supply function
             if num_suppliers_cfl > 0:
-                # Erstelle für jeden Bezirk eine Liste der verbundenen Bezirke
+                # get list of connected traffic cells for each cell
                 df_list_zones = self.adj_matrix_to_set_of_connected_zones(cfl, use_zone_names=False)
 
-                # Tabelle der möglichen Versorgungszentren
+                # dataframe with possible supply centres
                 provider = self.zones.loc[(self.zones[self.attr_central_level] < self.cfl[cfl])
                                           & (self.zones[self.attr_is_from_zone] > 0), :]
-                # Menge der möglichen Versorgungszentren
+                # set of all possible supply centers
                 set_names_provider = set(provider.index)
 
-                # Bestimme für jeden aktiven Bezirk, ob dieser bereits an ein Versorgungszentrum angeschlossen ist
+                # Determine for each active traffic cell whether it is already connected to enough supply centres
                 df_list_zones = df_list_zones.loc[df_list_zones.index.isin(
                     active_zones.loc[active_zones[self.attr_is_from_zone] > 0, :].index), :]
                 df_list_zones["no_provider"] = df_list_zones["set zones"].apply(set_names_provider.intersection).apply(
@@ -455,16 +519,16 @@ class DirectLineNetworkCalculator:
                 df_list_zones["provider"] = (df_list_zones.index.isin(set_names_provider)) \
                                             | (df_list_zones["no_provider"] >= num_suppliers_cfl)
 
-                # Für alle Bezirke, die die Bedingung nich erfüllen: Verbinde die nächsten k Versorgungszentren
+                # For all traffic cell that do not fulfil the condition: Connect the nearest k supply centres
                 for zone in df_list_zones.index[df_list_zones["provider"] < True]:
                     zone_data = self.zones.loc[zone, :]
 
-                    # falls bereits mit einem Versorgungszentrum verbunden -> Lösche das Zentrum aus der Menge der Punkte
+                    # if already connected to a supply centre -> delete the supply centre from the set
                     tmp_set_provider = set_names_provider - df_list_zones.loc[zone, "set zones"]
                     provider_tmp = provider.loc[list(tmp_set_provider), :]
 
-                    # Bestimme die fehlende Anzahl an Versorgungszentren
-                    # Auswahlkriterium: nächstgelegen
+                    # Determine the missing number of supply centres
+                    # Selection criterion: nearest
                     list_idx_provider = get_nearest_points_from_set(x_point=zone_data.loc["XCoord"],
                                                                     y_point=zone_data.loc["YCoord"],
                                                                     n=num_suppliers_cfl - df_list_zones.loc[
@@ -474,48 +538,49 @@ class DirectLineNetworkCalculator:
                                                                     formula=self.formula_dist)
                     self.matrices_cfl[cfl][zone, provider_tmp.index[list_idx_provider]] = 1
                     self.matrices_cfl[cfl][provider_tmp.index[list_idx_provider], zone] = 1
-                    # debugbefehl Entfernungen
-                    # distances = calculate_distance_coordinates(x1=zone_data.loc["XCoord"], y1=zone_data.loc["YCoord"],
-                    #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
-                    #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
 
-            # inaktive origin oder Ziel
+            # debugbefehl distances
+            # distances = calculate_distance_coordinates(x1=zone_data.loc["XCoord"], y1=zone_data.loc["YCoord"],
+            #                                            vec_x2=provider_tmp.loc[:, "XCoord"].values,
+            #                                            vec_y2=provider_tmp.loc[:, "YCoord"].values)
 
-            # Aufbau Maske mit aktiven und inaktiven OD Paaren
-            # origin und Ziel müssen aktiv sein und die transponierte Matrix davon (Symmetrie)
-            # Logik: Filtere OD-Paare mit origin & Ziel aktiv...
+            # inactive origin or destination
+
+            # Structure mask with active and inactive OD pairs
+            # origin and target must be active and the transposed matrix thereof (symmetry)
+            # Logic: Filter OD pairs with origin & target active...
             #
-            #  origin * Ziel  = Matrix
-            # (1 0).T * (1 1) = (1  1
-            #                    0  0)
+            # origin * target = matrix
+            # (1 0).T * (1 1) = (1 1
+            # 0 0)
             #
-            # und symmetrisiere diese
-            # (1  1
-            #  1  0)
+            # and symmetrize this
+            # (1 1
+            # 1 0)
 
-            # Attribute origin und Ziel
+            # origin and destination
             vector_is_from_zone = self.zones[self.attr_is_from_zone].values
             vector_is_to_zone = self.zones[self.attr_is_to_zone].values
-            # über dyadisches Produkt ("outer product") verknüpfen
-            # Logik als Maske über existierende Matrix legen
+            # Link via dyadic product ("outer product")
+            # Place logic as a mask over existing matrix
             idx_active = np.outer(vector_is_from_zone, vector_is_to_zone).astype(bool)
-            # symmetrisieren der Matrix (Bool Oder-Verknüpfung mit transponierter Matrix)
-            # Wo OD-Relation, da DO-Relation
+            # Symmetrize the matrix (Bool OR operation with transposed matrix)
+            # Where OD relation, there DO relation
             idx_active_symm = idx_active + idx_active.T
 
-            # Adjazenzmatrix wird mit Maske multipliziert, um die Werte der aktiven Paare zu enthalten
+            # Adjacency matrix is elementwise-multiplied by mask to contain the values of the active pairs
             self.matrices_cfl[cfl] = self.matrices_cfl[cfl] * idx_active_symm.astype(int)
 
-            # Symmetrietest
+            # check for symmetry
             if np.sum(self.matrices_cfl[cfl] - self.matrices_cfl[cfl].T) > 0:
                 raise ValueError("Error: Matrix is not symmetric")
 
-            # debugzwecke
+            # debug
             if self.debug_mode:
-                # zeigt an, mit welchen Bezirken ein Bezirk verbunden ist (=benachbarte Zentren)
+                # shows which cells a traffic cell is connected to (= neighbouring centres)
                 list_zones = self.adj_matrix_to_set_of_connected_zones(cfl)
 
-                # Zeigt das Ergebnis in Visum an
+                # export resulting infrastructure of triangular network to visum
                 self.export_net(links_additive=False, list_cfl=[cfl])
 
                 logging.info(f'{cfl}: : The result can be viewed in Visum.')
@@ -535,9 +600,7 @@ class DirectLineNetworkCalculator:
             logging.warning("Delete nodes: No Visum instance is linked.")
             return
 
-        # Lösche Punkte ohne Strecke
-
-        # Filter anpassen
+        # filter isolated nodes in Visum model
         self.visum.Filters.NodeFilter().Init()
         self.visum.Filters.NodeFilter().AddCondition("OP_NONE", False, "Count:InLinks", "EqualVal", 0)
         self.visum.Filters.NodeFilter().AddCondition("OP_AND", False, "Count:OutLinks", "EqualVal", 0)
@@ -545,10 +608,10 @@ class DirectLineNetworkCalculator:
 
         n = self.visum.Net.Nodes.CountActive
 
-        # Löschen
+        # delete
         self.visum.Net.Nodes.RemoveAll(OnlyActive=True)
 
-        # Filter initialisieren
+        # reset filter
         self.visum.Filters.NodeFilter().Init()
 
         logging.info(f'{n} isolated nodes were deleted.')
@@ -559,8 +622,9 @@ class DirectLineNetworkCalculator:
     # @param visum: optional visum instance. Default None
     # @param list_cfl: optional set of CFL. Default: None (all of the object)
     def export_matrix(self, list_cfl=None):
-        # Falls Visuminstanz erkannt: erstelle & exportiere Daten direkt in Visum (Für Netze mit <1500 Bezirken über SetValues sonst mithilfe einer mtx-Datei im O-Fromat)
-        # Sonst: Speichere .mtx Datei
+        # If visum instance recognised:
+        # create & export data directly in visa (for networks with <1500 districts via SetValues otherwise using an mtx file in O-Fromat)
+        # Otherwise: Save .mtx file
 
         if list_cfl is None:
             list_cfl = self.cfl.keys()
@@ -577,22 +641,22 @@ class DirectLineNetworkCalculator:
             # Get the user-facing, translated label for the matrix name
             cfl_label = self.cfl_labels.get(cfl, cfl)  # Fallback to the key if no label is found
 
-            # Benennung in der Matrix in Visum bzw. Datei
+            # name of matrix/file
             if self.num_suppliers_cfl[cfl] < 1:
-                # Term mit Versorgungsfkt wird weggelassen
+                # no term regarding supply function
                 name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}"
             else:
-                # Term mit Versorgungsfkt wird hinzugefügt
+                # includes term regarding supply function
                 name_matrix = f"RIN_{cfl_label}_n={self.deg_neighbourhood_cfl[cfl]}_v={self.num_suppliers_cfl[cfl]}"
 
-            # Übernehme oder definiere einen Output-Pfad (eventuell nicht benötigt)
+            # get output directory (not used if matrix is written to Visum directly)
             path_mat = self.path_output or Path.cwd() / 'mtx'
             path_mat.mkdir(parents=True, exist_ok=True)
             path_mat_file = path_mat / f"{name_matrix}.mtx"
 
-            # Erstellen der Matrix in Visum, falls notwendig
+            # Create the matrix in Visum, if necessary
 
-            # Prüfe ob mtx-Datei geschrieben werden muss
+            # Check whether mtx file must be written (if matrix is too large)
             if (self.visum is None) or (self.visum.Net.Zones.Count > 1500):
                 df_mat = pd.DataFrame(matrix_cfl,
                                       columns=self.zones["No"].values.astype(int),
@@ -631,21 +695,21 @@ class DirectLineNetworkCalculator:
                     df_mat_light.to_csv(f, header=False, sep=" ", index=False)
                     logging.info(f'Matrix {name_matrix} is saved to this file: {path_mat_file}')
 
-            # Falls eine Instanz existiert, Inhalte in Visum importieren
+            # If an instance exists, import content into Visum
             if self.visum is not None:
 
-                # Anlegen der Matrizen
+                # chack if matrix has to be created
                 if self.visum.Net.Matrices.Count < 1:
-                    # Erstelle Matrix
+                    # create matrix
                     matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                     matrix_instance.SetAttValue("CODE", name_matrix)
                     matrix_instance.SetAttValue("NAME", name_matrix)
                 else:
-                    # Suche existierende Matrizen mit der Benennung
+                    # search existing matrix with same name
                     matrix_instances = self.visum.Net.Matrices.ItemsByRef(f'''Matrix([CODE]= "{name_matrix}") ''')
                     if matrix_instances.Count < 1:
                         del matrix_instances
-                        # Erstelle Matrix
+                        # create matrix
                         matrix_instance = self.visum.Net.AddMatrix(-1, 2, 3)
                         matrix_instance.SetAttValue("CODE", name_matrix)
                         matrix_instance.SetAttValue("NAME", name_matrix)
@@ -656,8 +720,9 @@ class DirectLineNetworkCalculator:
                         matrix_instance = matrix_instances.Iterator.Item
                         logging.info("Matrix code exists, content will be overwritten.")
 
-                # Import der Werte
-                # Wenn es weniger als 1500 Bezirke gibt kann problemlos mit SetValues gearbeitet werden. Ansonsten muss eine mtx-Datei geschreiben werden
+                # set values
+                # If there are fewer than 1500 zones, you can work with SetValues without any problems.
+                # Otherwise an mtx file must be written
                 if self.visum.Net.Zones.Count < 1500:
                     matrix_instance.SetValues(matrix_cfl)
                     logging.info(f'{name_matrix}: was read into Visum.')
@@ -785,7 +850,7 @@ class DirectLineNetworkCalculator:
         df_linktypes["Rank"] = df_linktypes["No"]
 
         if create_connectors:
-            # Anbindungen vorbereiten von dict_no_nodes
+            # create dataframe with connectors
             df_conn = pd.DataFrame(list(self.dict_export_zone2node.items()), columns=["ZONENO", "NODENO"])
             # Duplicate rows for Directions O/D
             df_conn = pd.concat([df_conn] * 2, ignore_index=True)
@@ -887,9 +952,9 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
         filter.UseFilter = True
 
     ## Filters the zones for which the given attribute is greater than 0.
-    #  @param filterFromZones Boolean flag to determine whether to filter source zones (True) or destination zones (False). Default: True
+    #  @param filterFromZones Boolean flag to determine whether to filter origin zones (True) or destination zones (False). Default: True
     #  @return No return value. The Visum instance is modified.
-    def filter_zones_source_targets(self, filterFromZones: bool = True):
+    def filter_zones_origin_destination(self, filterFromZones: bool = True):
         filter = self.visum.Filters.ZoneFilter()
         filter.Init()
         if filterFromZones:

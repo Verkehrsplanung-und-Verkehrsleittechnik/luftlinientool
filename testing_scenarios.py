@@ -1,6 +1,9 @@
 ## @package testing_scenarios.py
 # @brief Contains methods and a workflow to execute defined test scenarios and present the results in a PPT presentation
 
+# @author MaS
+# @date 2023
+
 from pptx import Presentation
 from pptx.util import Inches, Pt, Cm
 from pptx.enum.shapes import MSO_SHAPE

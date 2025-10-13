@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['directdistancecalculator_0',['DirectDistanceCalculator',['../a00034.html',1,'cfl_directdistance_tool']]],
-  ['directdistancetoolframe_1',['DirectDistanceToolFrame',['../a00038.html',1,'ddt_GUI']]]
+  ['directlinenetworkcalculator_0',['DirectLineNetworkCalculator',['../classcfl__directlinenetwork__tool_1_1_direct_line_network_calculator.html',1,'cfl_directlinenetwork_tool']]],
+  ['directlinenetworktoolframe_1',['DirectLineNetworkToolFrame',['../classdlnt___g_u_i_1_1_direct_line_network_tool_frame.html',1,'dlnt_GUI']]]
 ];

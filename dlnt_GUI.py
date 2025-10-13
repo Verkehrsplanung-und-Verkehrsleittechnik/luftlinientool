@@ -1,3 +1,36 @@
+## @package dlnt_GUI
+# @brief Graphical User Interface for the Direct-Line Network Tool
+#
+# This class provides a graphical interface for the Direct Line Network Tool (DLNT),
+# allowing users to interactively:
+# - Load and zone data from Visum model
+# - Set calculation parameters
+# - Execute network calculations
+# - Export results
+#
+# The GUI consists of:
+# - Main window with toolbar and status bar
+# - Configuration panels for input parameters
+# - Progress indicators for long-running calculations
+# - Result visualization area
+# - Export options dialog
+#
+# Usage example:
+# @code
+# app = wx.App()
+# frame = dlnt_GUI(None, title="Direct Line Network Tool")
+# frame.Show()
+# app.MainLoop()
+# @endcode
+#
+# @author MaS
+# @date 2022
+#
+# @note This GUI is implemented using wxPython framework.
+# see DirectLineNetworkCalculator for the underlying calculation.
+# Not all methods of the calculator class are available in the GUI.
+
+
 import wx
 import wx.html2
 import cfl_directlinenetwork_tool as dlnt
@@ -21,7 +54,8 @@ def get_attr_zones(Visum):
 ## @class DirectLineNetworkToolFrame
 #  @brief Defines the complete window, creates the individual components and connects them with the logic.
 #
-#  The `DirectLineNetworkToolFrame` class is the main window of the application. It creates and manages all UI components,
+#  The `DirectLineNetworkToolFrame` class is the main window of the application.
+#  It creates and manages all UI components,
 #  handles user interactions, and connects the UI with the underlying logic.
 class DirectLineNetworkToolFrame(wx.Frame):
     ## Initializes the main application window.
@@ -31,7 +65,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
 
         self.translator = translator # Pointer to translator
 
-        # ===== Attribute =====
+        # ===== Attributes =====
         self.buttons_value_n_supplier = None
         self.cb_origin = None
         self.cb_destination = None
@@ -218,7 +252,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
 
         # current_selection_index = languages.index(self.translator.get_selected_language())
 
-        # Erstelle den wx.SingleChoiceDialog
+        # Create the wx.SingleChoiceDialogue
         dlg = wx.SingleChoiceDialog(
             self,
             self.translator.translate('language_choice_title'),
@@ -476,14 +510,14 @@ class DirectLineNetworkToolFrame(wx.Frame):
     ## Updates all text elements in the GUI to the current language.
     #  Also triggers refresh_gui_text on child components.
     def refresh_gui_text(self):
-        # 1. Hauptfenstertitel aktualisieren
+        #1 Update main window title
         self.SetTitle(self.translator.translate('app_title'))
 
-        # 2. Notebook-Tab-Titel aktualisieren
+        # 2. update notebook tab title
         self.notebook.SetPageText(0, self.translator.translate('tab_main'))
         self.notebook.SetPageText(1, self.translator.translate('tab_log'))
 
-        # 3. Menüleiste aktualisieren
+        # 3. update menu bar
         self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice_title"))
         self.menu.FindItemById(11).SetItemLabel(self.translator.translate('menu_import_data'))
         self.menu.FindItemById(12).SetItemLabel(self.translator.translate('menu_calculate'))
@@ -494,7 +528,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
         self.menu_bar.SetMenuLabel(0, self.translator.translate('options_tab'))
 
 
-        # 4. Toolbar aktualisieren
+        # 4 Update toolbar
         self.toolbar.FindById(100).SetLabel(self.translator.translate('language_choice_title'))
         self.toolbar.FindById(101).SetLabel(self.translator.translate('menu_import_data'))
         self.toolbar.FindById(102).SetLabel(self.translator.translate('menu_calculate'))
@@ -511,7 +545,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
         # Update the status text
         self.SetStatusText(self.translator.translate('status_set_defaults'))
 
-        # Wichtig: Layout und Refresh erzwingen nach Textänderungen
+        # Important: Force layout and refresh after text changes
         self.Layout()
         self.Refresh()
 
@@ -699,7 +733,7 @@ class MainTab(wx.Panel):
         self.gridbagsizer1.Add(self.btn_export_master,
                           pos=(7, 4), span=(3, 2), flag=wx.EXPAND)
 
-        # Button Liste Distanzfkt
+        # Button list with supported list functions
         self.cb_dist_fcn = wx.ComboBox(self, size=(200, -1),
                                        choices=["euclidean"], #, "haversine"], actual triangulation method for projections only
                                        style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
@@ -712,7 +746,7 @@ class MainTab(wx.Panel):
                           flag=wx.EXPAND)
         self.gridbagsizer1.Add(self.cb_dist_fcn, pos=(8, 1), span=(1, 1), flag=wx.EXPAND)
 
-        # Aufbau Layout
+        # Layout structure
         vbox_outer.Add(self.hbox1, 0, wx.ALL | wx.EXPAND, 1)
         vbox_outer.Add(self.gridbagsizer1, 1, wx.ALL | wx.EXPAND, 6)
         self.SetSizer(vbox_outer)
@@ -833,7 +867,6 @@ class LogTab(wx.Panel):
     ## Destructor for the LogTab class.
     #  Ensures the logger handler is removed when the object is destroyed.
     def __del__(self):
-        """ Destructor, ensure the logger handler is removed """
         self.logger.removeHandler(self.handler)
 
 
