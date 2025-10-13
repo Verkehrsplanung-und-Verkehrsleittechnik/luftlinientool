@@ -1,7 +1,11 @@
 {
   "name_tool_short": {
-    "en": "DDT",
+    "en": "DLNT",
     "de": "LLT"
+  },
+  "title_help": {
+    "en": "Documentation",
+    "de": "Dokumentation"
   },
   "file_selection": {
     "en": "Choose a VISUM model",
@@ -12,8 +16,8 @@
     "de": "Versiondateien"
   },
   "app_title": {
-    "en": "Generation of direct distance networks based on connection function levels",
-    "de": "Erstellen von Verbindungsfunktionsstufen-Luftliniennetzen"
+    "en": "Calculation of direct-line networks based on connectivity function levels",
+    "de": "Ermittlung von Luftliniennetzen basierend auf Verbindungsfunktionsstufen"
   },
   "language_choice_title": {
     "en": "Language Choice",
@@ -24,8 +28,8 @@
     "de": "Wähle die gewünschte Sprache"
   },
   "menu_import_data": {
-    "en": "Import Data (initiates a calculator instance)",
-    "de": "Daten einlesen (initiiert eine Berechnungsinstanz)"
+    "en": "Import Data\n(initiates a calculator instance)",
+    "de": "Daten einlesen\n(initiiert eine Berechnungsinstanz)"
   },
   "menu_calculate": {
     "en": "Perform Calculation",
@@ -47,49 +51,25 @@
     "en": "Options",
     "de": "Auswahl"
   },
-  "main_tab": {
-    "en": "Main",
-    "de": "Main"
-  },
-  "log_tab": {
-    "en": "Log",
-    "de": "Log"
-  },
   "parameter_input_section": {
     "en": "Input Parameter",
     "de": "Parameter Eingaben"
-  },
-  "header_zone_attribute_centrality": {
-    "en": "zone attribute centrality",
-    "de": "Bezirksattribut Zentralität"
-  },
-  "log_messages_tab": {
-    "en": "Log-Messages",
-    "de": "Log-Messages"
   },
   "menu_default_values": {
     "en": "Default Values",
     "de": "Defaultwerte"
   },
   "toolbar_filter_inserted_links": {
-    "en": "Filtering of inserted links",
-    "de": "Filtern der eingefügten Strecken"
+    "en": "Filtering of\ninserted links",
+    "de": "Filtern der\neingefügten Strecken"
   },
   "toolbar_delete_inserted_links": {
-    "en": "Deletion of inserted links",
-    "de": "Löschen der eingefügten Strecken"
+    "en": "Deletion of\ninserted links",
+    "de": "Löschen der\neingefügten Strecken"
   },
   "status_set_defaults": {
     "en": "Set Default Values",
     "de": "Default-Werte hergestellt"
-  },
-  "logging_warning_should_never_happen": {
-    "en": "should never happen",
-    "de": "sollte nie passieren"
-  },
-  "logging_warning_non_visum_files_not_supported": {
-    "en": "Handling of file type is not implemented",
-    "de": "Umgang mit Dateityp ist nicht implementiert"
   },
   "status_attribute_applied_reimport_reset": {
     "en": "Selected parameters are imported, zones are imported, calculations are reset",
@@ -119,23 +99,11 @@
     "en": "The combined Results were imported into Visum",
     "de": "die kombinierten Ergebnisse wurden in Visum importiert"
   },
-  "logging_current_settings": {
-    "en": "Current Settings",
-    "de": "aktuelle Settings"
-  },
   "setting_zone_attribute_centrality": {
-    "en": "zones: Attr. \n Centrality",
-    "de": "Bezirke: Attr. \n Zentralität"
+    "en": "traffic cells attribute\nfor centrality",
+    "de": "Attribut Verkehrszellen\nfür Zentralität"
   },
-  "label_zone_is_origin": {
-    "en": "Attr is Origin",
-    "de": "Attr ist Quelle"
-  },
-  "label_zone_is_destination": {
-    "en": "Attr is Destination",
-    "de": "Attr ist Zeil"
-  },
-  "distance_calculation_Setting": {
+  "distance_calculation_setting": {
     "en": "Distance calculation",
     "de": "Distanzberechnung"
   },
@@ -148,68 +116,53 @@
     "de": "Anzahl Versorger je VFS"
   },
   "setting_zone_attribute_origin": {
-    "en": "Zone attribute \n is Origin",
-    "de": "Bezirksattribut \n ist Quelle"
+    "en": "traffic cells attribute\n'is origin'",
+    "de": "Attribut Verkehrszellen\n\"ist Quelle\""
   },
   "centrality": {
     "en": "Centrality",
     "de": "Zentralität"
   },
-  "isOrigin_Option": {
-    "en": "is Origin",
-    "de": "ist Quelle"
-  },
   "setting_zone_attribute_destination": {
-    "en": "Zone attribute \n is Destination",
-    "de": "Bezirksattribut \n ist Ziel"
+    "en": "traffic cell attribute\n'is destination'",
+    "de": "Attribut Verkehrszellen\n\"ist Ziel\""
   },
   "setting_cfl": {
     "en": "Connectivity Function Level",
     "de": "Verbindungsfunktionsstufe"
   },
-  "setting_attribute_value_CFL": {
+  "setting_attribute_value_cfl": {
     "en": "Attribute value CFL",
     "de": "Attributwert VFS"
   },
-  "setting_interchange_function_&_nearest_neighbour": {
-    "en": "Interchange function \n n-Nearest Neighbour",
-    "de": "Austauschfunktion \n n-naechste Nachbarn"
+  "setting_exchange_function": {
+    "en": "Exchange function\nn-Nearest Neighbour",
+    "de": "Austauschfunktion\nn-naechste Nachbarn"
   },
-  "setting_nearest_neighbour": {
-    "en": "n-Nearest Neighbour",
-    "de": "n-naechste Nachbarn"
+  "setting_supply_function": {
+    "en": "Supply function:\nn supply centers",
+    "de": "Versorgungsfunktion:\nn Versorgungszentren"
   },
-  "setting_supply_function_&_supply_centers": {
-    "en": "Supply function \n n Supply Centers",
-    "de": "Versorgungsfunktion \n n Versorgungszentren"
-  },
-  "setting_supply_centers": {
-    "en": "n Supply Centers",
-    "de": "n Versorgungszentren"
-  },
+
   "setting_create_in_visum": {
-    "en": "Create in Visum as",
-    "de": "anlegen in Visum als"
+    "en": "Export to Visum as:",
+    "de": "Export nach Visum als:"
   },
   "setting_import_to_visum": {
-    "en": "Import to Visum all CFL \n Routes + Mtx",
-    "de": "Import nach Visum alle VFS \n Strecken + Mtx"
+    "en": "Export to Visum all CFL:\nlinks and matrices",
+    "de": "Export nach Visum alle VFS:\nStrecken und Matrizen"
   },
-  "setting_routes_and_matrix": {
-    "en": "Routes + Mtx",
-    "de": "Strecken + Mtx"
-  },
-  "label_distance_Calculation_function": {
-    "en": "Distance calculation Function",
+  "label_distance_calculation_function": {
+    "en": "function for distance calculation",
     "de": "Funktion Distanzberechnung"
   },
-  "Main tab": {
-    "en": "Main tab",
-    "de": "Main tab"
+  "tab_main": {
+    "en": "Anwendung",
+    "de": "Application"
   },
-  "Log tab": {
-    "en": "Log tab",
-    "de": "Log tab"
+  "tab_log": {
+    "en": "Log Messages",
+    "de": "Log-Meldungen"
   },
   "dialog_language_select_message": {
     "en": "Please select your preferred language",
@@ -218,14 +171,6 @@
   "label_attr_cfl": {
     "en": "Attribute CFL",
     "de": "Attribut VFS"
-  },
-  "label_attr_origin": {
-    "en": "Attribute origin",
-    "de": "Attribut origin"
-  },
-  "label_attr_Destination": {
-    "en": "Attribute Destination",
-    "de": "Attribut Ziel"
   },
   "dialog_language_select_title": {
     "en": "Select Language",
@@ -240,11 +185,11 @@
     "de": "Fehler beim Import der Netzdatei."
   },
   "file_exported_to_visum": {
-    "en": " CFLs has been exported to Visum.",
-    "de": " VFS wurde nach Visum exportiert."
+    "en": " Export completed for chosen CFL",
+    "de": " Export abgeschlossen für gewählte VFS."
   },
   "label_attr_zones_centrality": {
-    "en": "zones: Attr. Centrality",
+    "en": "traffic cells attribute centrality",
     "de": "Bezirke: Attr. Zentralität"
   },
   "cfl": {
@@ -256,8 +201,8 @@
     "de": "Anwendung"
   },
     "foundations": {
-    "en": "foundation connection function based direct distance calculation",
-    "de": "Grundlagen Ermittlung von Luftliniennetzen basierend auf Verbindungsfunktionsstufen"
+    "en": "Fundamentals for calculating direct-line networks based on connectivity function levels",
+    "de": "Grundlagen zur Ermittlung von Luftliniennetzen basierend auf Verbindungsfunktionsstufen"
   },
     "documentation_code": {
     "en": "code documentation",

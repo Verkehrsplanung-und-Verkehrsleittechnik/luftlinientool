@@ -7,6 +7,9 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.dml.color import RGBColor
 from pptx.util import Pt
 
+from pathlib import Path
+import cfl_directlinenetwork_tool as dlnt
+
 
 ## @brief Creates a screenshot of the Visum network and saves it as a .jpg file.
 ## @param name_screenshot Name of the screenshot file to be saved.
@@ -81,9 +84,6 @@ def filter_links_vfs(set_linktypes):
 
 
 if __name__ == '__main__':
-    # Load standard libraries
-    from pathlib import Path
-    import cfl_directdistance_tool as llt  # Assumption: luftlinientool is a custom library
 
     # Definition of test scenarios
     dict_scenarios = {
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # Path to the network file and loading the Visum version
     path_source = Path().cwd() / "Version"
     file_source = 'Beispielnetz.ver'
-    Visum = llt.open_visum(path_source / file_source)
+    Visum = dlnt.open_visum(path_source / file_source)
 
     # Initialization of the PowerPoint presentation with layout
     prs = Presentation("Layout.pptx")
@@ -120,17 +120,17 @@ if __name__ == '__main__':
     for scenario, param in dict_scenarios.items():
         try:
             # Initialize the air-line tool and perform calculations
-            llt1 = llt.DirectDistanceCalculator(Visum, attr_cfl=param["attr_cfl"], dict_cfl=dict_vfs,
-                                                max_distance=param["n"], no_suppliers=param["k"],
-                                                attr_orig=param["attr_origin"], attr_dest=param["attr_ziel"])
-            llt1.calculate_main()
+            dln_calculator = dlnt.DirectLineNetworkCalculator(Visum, attr_cfl=param["attr_cfl"], dict_cfl=dict_vfs,
+                                                              max_distance=param["n"], no_suppliers=param["k"],
+                                                              attr_orig=param["attr_origin"], attr_dest=param["attr_ziel"])
+            dln_calculator.calculate_main()
 
             # Loop over the defined VFS and export results
             for vfs in dict_vfs.keys():
                 # Export the network and create screenshots
-                llt1.export_net(links_additive=True, list_cfl=[vfs])
+                dln_calculator.export_net(links_additive=True, list_cfl=[vfs])
                 filter_zones_source(param["attr_origin"])  # Filter zones based on source
-                filter_links_vfs(list(llt1.dict_export_linktypes.values()))  # Filter links based on type
+                filter_links_vfs(list(dln_calculator.dict_export_linktypes.values()))  # Filter links based on type
 
                 # Create screenshot and insert into PowerPoint
                 jpg_path = take_screenshot(f"{vfs}, {scenario}", gpa_path="Links_VFS.gpa")

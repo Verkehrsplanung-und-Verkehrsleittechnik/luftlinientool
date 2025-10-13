@@ -4,7 +4,7 @@
 # from VisumOverlay import *
 import logging
 from pathlib import Path
-import cfl_directdistance_tool as llt
+import cfl_directlinenetwork_tool as dlnt
 
 if __name__ == '__main__':
 
@@ -31,18 +31,18 @@ if __name__ == '__main__':
     source = path_source / file_source
 
     if source.suffix == ".ver":
-        Visum = llt.open_visum(source)
-        # ltt1 = llt.DirectDistanceCalculator(Visum, attr_orig="Quelle", attr_dest="Ziel", no_suppliers=1, max_distance=1)
-        llt1 = llt.DirectDistanceCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=2,
-                                            no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
+        Visum = dlnt.open_visum(source)
+        # dln_calculator = dlnt.DirectLineNetworkCalculator(Visum, attr_orig="Quelle", attr_dest="Ziel", no_suppliers=1, max_distance=1)
+        dln_calculator = dlnt.DirectLineNetworkCalculator(Visum, dict_cfl={"VFS 0": 0, "VFS 1": 1, "VFS 2": 2}, max_distance=2,
+                                                          no_suppliers=0, attr_orig="IstUntersuchungsgebiet", attr_dest="AddVal1")
     else:
         print("not implemented")
 
-    llt1.calculate_main()
-    llt1.export_matrix()
-    llt1.export_net()
-    llt1.export_zones_uda_connections("VFS 1")
+    dln_calculator.calculate_main()
+    dln_calculator.export_matrix()
+    dln_calculator.export_net()
+    dln_calculator.export_zones_uda_connections("VFS 1")
 
-    llt1.delete_unused_nodes()
+    dln_calculator.delete_unused_nodes()
 
     del Visum
