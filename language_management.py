@@ -19,6 +19,7 @@
 # - Excel format
 #
 # @note Missing translations will fall back to default language
+# @author MaS, based on code and ideas from Ali M.
 
 
 
