@@ -144,7 +144,7 @@ def get_nearest_points_from_set(x_point, y_point, array_points, formula, n=None)
         distances = calculate_eucl_distance_coordinates(x1=x_point, y1=y_point, vec_x2=array_points[:, 0],
                                                         vec_y2=array_points[:, 1])
     else:
-        logging.warning("Distance calculation case is not implemented.d")
+        logging.warning("Distance calculation formula is not implemented.")
 
     # Index of the n lowest values
     list_indices = np.argpartition(distances, n)[:n]
@@ -905,7 +905,7 @@ $VERSION:VERSNR;FILETYPE;LANGUAGE;UNIT
     def export_zones_uda_connections(self, cfl):
         # Create UDA if not exists
 
-        str_no_conn = f'RIN_#_{self.translator.translate("connections")}_{self.cfl_labels[cfl]}'.replace(" ", "")
+        str_no_conn = f'RIN_n_{self.translator.translate("connections")}_{self.cfl_labels[cfl]}'.replace(" ", "")
         str_conn = f'RIN_connections_{self.cfl_labels[cfl]}'.replace(" ", "")
 
         try:
