@@ -36,7 +36,64 @@ import wx.html2
 import cfl_directlinenetwork_tool as dlnt
 from pathlib import Path
 import logging
+import json
+import os
 from language_management import Translator
+
+
+# ---------------------------------------------------------------------------
+# Shared config reader  (rin_config.json written by RIN_Matrizen.py)
+# ---------------------------------------------------------------------------
+
+def _load_rin_config(visum=None):
+    """
+    Load rin_config.json from the directory of the open VISUM file.
+    Returns a list of five dicts, each with keys "n" and "v", one per CFL
+    tier (index 0 = CFL 0, …, index 4 = CFL 4).
+
+    Falls back to default values (n=2, v=1 for every tier) if the file is
+    absent or unreadable, so the GUI behaves exactly as before for users who
+    have not yet run RIN_Matrizen.py with the new dialog.
+
+    Parameters
+    ----------
+    visum : optional
+        A live Visum COM object.  Its GetPath(1) gives the directory of the
+        open .ver file – the canonical location for rin_config.json.
+        Falls back to the current working directory when None.
+
+    Returns
+    -------
+    list of dict  – five entries, each {"n": int, "v": int}.
+    """
+    _defaults = [{"n": 2, "v": 1}] * 5
+    try:
+        if visum is not None:
+            ver_path = visum.GetPath(1)
+            search_dir = os.path.dirname(ver_path) if ver_path else os.getcwd()
+        else:
+            search_dir = os.getcwd()
+
+        config_path = os.path.join(search_dir, "rin_config.json")
+        if os.path.isfile(config_path):
+            with open(config_path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+            params = data.get("cfl_params")
+            if isinstance(params, list) and len(params) == 5:
+                result = [
+                    {
+                        "n": int(params[i].get("n", 2)),
+                        "v": int(params[i].get("v", 1)),
+                    }
+                    for i in range(5)
+                ]
+                logging.info(
+                    "dlnt_GUI: loaded per-CFL params from {}".format(config_path))
+                return result
+    except Exception as exc:
+        logging.warning(
+            "dlnt_GUI: could not read rin_config.json – {}".format(exc))
+    return [dict(d) for d in _defaults]
 
 # ===== Helper Functions =====
 ## Loads all Visum zone attributes.
@@ -61,7 +118,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
     ## Initializes the main application window.
     #  @param translator The translator object to handle language localization.
     def __init__(self, translator):
-        super().__init__(parent=None)
+        super().__init__(parent=None, style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
 
         self.translator = translator # Pointer to translator
 
@@ -103,9 +160,29 @@ class DirectLineNetworkToolFrame(wx.Frame):
                 Visum = com.Dispatch(f"Visum.Visum.{version}")
                 logging.info('open visum file: {}'.format(source))
                 Visum.LoadVersion(source)
+                wx.SafeYield()  # let the splash timer fire after the heavy COM load
 
         self.visum = Visum
         self.list_attr = get_attr_zones(self.visum)
+        wx.SafeYield()  # let the splash timer fire after zone-attribute fetch
+
+        # ── Read shared config (written by RIN_Matrizen.py) ──────────────
+        # _rin_cfl_params is a list of five {"n", "v"} dicts, one per CFL tier.
+        # The v values pre-populate the supplier spinners (cfl_0 … cfl_4) so
+        # the user sees the values they entered in the earlier workflow step.
+        # cfl_5 has no matching RIN tier – it keeps the previous default (0).
+        # The user can still override any value in the GUI at any time.
+        _rin_cfl_params = _load_rin_config(self.visum)
+        self._default_no_supplier_per_cfl = {
+            "cfl_0": _rin_cfl_params[0]["v"],
+            "cfl_1": _rin_cfl_params[1]["v"],
+            "cfl_2": _rin_cfl_params[2]["v"],
+            "cfl_3": _rin_cfl_params[3]["v"],
+            "cfl_4": _rin_cfl_params[4]["v"],
+            "cfl_5": self.default_no_supplier,   # no RIN tier – keep existing default
+        }
+        logging.info("dlnt_GUI: per-CFL default suppliers: {}".format(
+            self._default_no_supplier_per_cfl))
 
         self.attr_origin = None
         self.attr_destination = None
@@ -118,13 +195,32 @@ class DirectLineNetworkToolFrame(wx.Frame):
 
         self.Show()
 
+        # Re-apply size and force a full layout pass AFTER Show().
+        # When the script is launched from inside Visum, the process already
+        # has a DPI-awareness context set by Visum before wx starts.  That
+        # causes the SetSize call in __set_properties__ (which runs before
+        # Show) to be silently overridden when the sizer first lays out the
+        # window.  Reapplying size + Layout + SendSizeEvent here, after Show,
+        # ensures the sizer recalculates at the correct pixel dimensions in
+        # every launch context.
+        self.SetSize((1250, 550))
+        self.Layout()
+        self.SendSizeEvent()
+
+        self.Raise()
+        self.SetFocus()
+
+        # Auto-import data on startup
+        self.event_import_data(None)
+
     ## Sets the properties of the main window.
     #  Configures window title, size, and initializes default values.
     def __set_properties__(self):
         self.SetTitle(self.translator.translate('app_title')) # Use self.translator
-        self.SetMinSize((1200, 500))
-        # Set the initial size of the window to be larger
-        self.SetSize((1400, 500)) # Added this line to set the initial window size
+        # Use FromDIP so that pixel values are interpreted correctly regardless
+        # of the DPI context inherited from Visum (or any other host process).
+        self.SetMinSize(self.FromDIP(wx.Size(1200, 550)))
+        self.SetSize(self.FromDIP(wx.Size(1250, 550)))
 
         self.__set_values_cfl_buttons__()
 
@@ -148,62 +244,32 @@ class DirectLineNetworkToolFrame(wx.Frame):
         self.notebook.AddPage(self.tabMain, self.translator.translate('tab_main'))
         self.notebook.AddPage(self.tabLog, self.translator.translate('tab_log'))
 
-        # create a menubar at the top of the user frame
-        self.menu_bar = wx.MenuBar()
-
-        # create a menu ...
-        self.menu = wx.Menu()
-        self.menu.Append(10, self.translator.translate('language_choice_title'))
-        self.menu.AppendSeparator()
-        self.menu.Append(11, self.translator.translate('menu_import_data'))
-        self.menu.Append(12, self.translator.translate('menu_calculate'))
-        self.menu.AppendSeparator()
-        self.menu.Append(13, self.translator.translate('menu_reset_calculations'))
-        self.menu.Append(14, self.translator.translate('menu_set_defaults'))
-        self.menu.AppendSeparator()
-        self.menu.Append(15, self.translator.translate('menu_info'))
-        self.menu.AppendSeparator()
-        self.menu.Append(16, self.translator.translate('toolbar_filter_inserted_links'))
-        self.menu.Append(17, self.translator.translate('toolbar_delete_inserted_links'))
-
-        self.menu.AppendSeparator()
-        # put the menu on the menubar
-        self.menu_bar.Append(self.menu, self.translator.translate('options_tab'))
-        self.SetMenuBar(self.menu_bar)
-        self.toolbar = self.CreateToolBar(style=wx.TB_TEXT | wx.TB_NOICONS | wx.TB_NODIVIDER)
-
-        # settings toolbar
-        self.toolbar.SetMargins((0, 0))
-        self.toolbar.SetToolPacking(0)
-        self.toolbar.SetToolSeparation(0)
-
-        # Workaround keine Bilder zur Verfügung: Leeres Bitmap Objekt
-        self.toolbar.AddTool(100, self.translator.translate('language_choice_title'), wx.Bitmap())
-        self.toolbar.AddTool(101, self.translator.translate('menu_import_data'), wx.Bitmap())
-        self.toolbar.AddTool(102, self.translator.translate('menu_calculate'), wx.Bitmap())
-        self.toolbar.AddTool(103, self.translator.translate('menu_reset_calculations'), wx.Bitmap())
-        self.toolbar.AddTool(104, self.translator.translate('menu_default_values'), wx.Bitmap())
-        self.toolbar.AddTool(105, self.translator.translate('menu_info'), wx.Bitmap())
-        self.toolbar.AddTool(106, self.translator.translate('toolbar_filter_inserted_links'), wx.Bitmap())
-        self.toolbar.AddTool(107, self.translator.translate('toolbar_delete_inserted_links'), wx.Bitmap())
-        self.toolbar.AddStretchableSpace()
-        self.toolbar.Realize()
-
-        # adjust size of toolbar
-        self.toolbar.SetSize(self.toolbar.GetBestSize())
-        self.toolbar.Fit()
-
-        # # # create toolbar
-        # # toolbar = self.CreateToolBar()
-        # # qtool = toolbar.AddTool(wx.ID_ANY, 'Quit', wx.Bitmap('Exit.bmp'))
-        # # toolbar.Realize()
-
         # create a status bar at the bottom of the frame
         self.CreateStatusBar()
 
-        # Set noteboook in a sizer to create the layout
-        sizer = wx.BoxSizer()
+        # ---- Side panel with action buttons ----
+        self.side_panel = wx.Panel(self.panel)
+        side_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        self.btn_side_language = wx.Button(self.side_panel, label=self.translator.translate('language_choice_title'))
+        self.btn_side_reset = wx.Button(self.side_panel, label=self.translator.translate('menu_reset_calculations'))
+        self.btn_side_defaults = wx.Button(self.side_panel, label=self.translator.translate('menu_set_defaults'))
+        self.btn_side_info = wx.Button(self.side_panel, label=self.translator.translate('menu_info'))
+        self.btn_side_filter = wx.Button(self.side_panel, label=self.translator.translate('toolbar_filter_inserted_links'))
+        self.btn_side_delete = wx.Button(self.side_panel, label=self.translator.translate('toolbar_delete_inserted_links'))
+
+        for btn in (self.btn_side_language, self.btn_side_reset,
+                    self.btn_side_defaults, self.btn_side_info, self.btn_side_filter, self.btn_side_delete):
+            btn.SetMinSize((180, 40))
+            side_sizer.Add(btn, 0, wx.EXPAND | wx.ALL, 5)
+
+        side_sizer.AddStretchSpacer()
+        self.side_panel.SetSizer(side_sizer)
+
+        # Set notebook + side panel in a horizontal sizer
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.notebook, 1, wx.EXPAND)
+        sizer.Add(self.side_panel, 0, wx.EXPAND | wx.ALL, 5)
         self.panel.SetSizer(sizer)
 
 
@@ -213,23 +279,14 @@ class DirectLineNetworkToolFrame(wx.Frame):
         # Event Handler
         # bind the menu event to an event handler, share QuitBtn event
         self.Bind(wx.EVT_CLOSE, self.event_quit_button)
-        self.Bind(wx.EVT_MENU, self.on_choose_language, id=10)
-        self.Bind(wx.EVT_MENU, self.event_import_data, id=11)
-        self.Bind(wx.EVT_MENU, self.event_calculate, id=12)
-        self.Bind(wx.EVT_MENU, self.event_info, id=15)
-        self.Bind(wx.EVT_MENU, self.event_reset, id=13)
-        self.Bind(wx.EVT_MENU, self.event_set_default, id=14)
-        self.Bind(wx.EVT_MENU, self.event_filter, id=16)
-        self.Bind(wx.EVT_MENU, self.event_delete_links, id=17)
 
-        self.toolbar.Bind(wx.EVT_TOOL, self.on_choose_language, id=100)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_import_data, id=101)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_calculate, id=102)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_reset, id=103)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_set_default, id=104)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_info, id=105)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_filter, id=106)
-        self.toolbar.Bind(wx.EVT_TOOL, self.event_delete_links, id=107)
+        # Side panel buttons
+        self.btn_side_language.Bind(wx.EVT_BUTTON, self.on_choose_language)
+        self.btn_side_reset.Bind(wx.EVT_BUTTON, self.event_reset)
+        self.btn_side_defaults.Bind(wx.EVT_BUTTON, self.event_set_default)
+        self.btn_side_info.Bind(wx.EVT_BUTTON, self.event_info)
+        self.btn_side_filter.Bind(wx.EVT_BUTTON, self.event_filter)
+        self.btn_side_delete.Bind(wx.EVT_BUTTON, self.event_delete_links)
 
 
     ## Sets the values and ranges for the CFL buttons.
@@ -250,7 +307,8 @@ class DirectLineNetworkToolFrame(wx.Frame):
 
         languages = sorted(list(self.translator.translations.keys()))
 
-        # current_selection_index = languages.index(self.translator.get_selected_language())
+        current_language = self.translator.get_selected_language()
+        current_selection_index = languages.index(current_language) if current_language in languages else 0
 
         # Create the wx.SingleChoiceDialogue
         dlg = wx.SingleChoiceDialog(
@@ -259,6 +317,7 @@ class DirectLineNetworkToolFrame(wx.Frame):
             self.translator.translate('language_choice'),
             choices=languages,
         )
+        dlg.SetSelection(current_selection_index)
 
         if dlg.ShowModal() == wx.ID_OK:
             selected_language = languages[dlg.GetSelection()]
@@ -288,12 +347,12 @@ class DirectLineNetworkToolFrame(wx.Frame):
         self.buttons_value_k_neighbor_cfl['cfl_4'].SetValue(self.default_k_neighbor)
         self.buttons_value_k_neighbor_cfl['cfl_5'].SetValue(self.default_k_neighbor)
 
-        self.buttons_value_n_supplier['cfl_0'].SetValue(self.default_no_supplier) # Reverted to 'cfl_0'
-        self.buttons_value_n_supplier['cfl_1'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['cfl_2'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['cfl_3'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['cfl_4'].SetValue(self.default_no_supplier)
-        self.buttons_value_n_supplier['cfl_5'].SetValue(self.default_no_supplier)
+        # Apply per-CFL supplier defaults from rin_config.json when available,
+        # otherwise fall back to the single global default_no_supplier value.
+        _per_cfl = getattr(self, '_default_no_supplier_per_cfl', None)
+        for key in ('cfl_0', 'cfl_1', 'cfl_2', 'cfl_3', 'cfl_4', 'cfl_5'):
+            v = _per_cfl[key] if _per_cfl is not None else self.default_no_supplier
+            self.buttons_value_n_supplier[key].SetValue(v)
 
         self.cb_cfl.SetValue("TypeNo")
         self.cb_origin.SetValue("None")
@@ -334,7 +393,8 @@ class DirectLineNetworkToolFrame(wx.Frame):
             # Initialize Calculator instance
             self.dln_calculator = dlnt.DirectLineNetworkCalculator(self.visum, attr_cfl=self.attr_cfl, max_distance=1,
                                                                    no_suppliers=1, attr_orig=self.attr_origin,
-                                                                   attr_dest=self.attr_destination)
+                                                                   attr_dest=self.attr_destination,
+                                                                   translator=self.translator)
             # Pass current parameters
             self.update_param_cfl()
         else:
@@ -379,6 +439,13 @@ class DirectLineNetworkToolFrame(wx.Frame):
     def event_import_data(self, event):
         # works so far,
 
+        # Show loading feedback in status bar and busy cursor while data is being imported
+        self.SetStatusText(self.translator.translate('status_loading_data') if
+                           self.translator.translate('status_loading_data') != 'status_loading_data'
+                           else "Loading data, please wait...")
+        wx.BeginBusyCursor()
+        wx.GetApp().Yield()  # Force the status bar update to paint immediately
+
         # Creating a Calculator instance
         if self.visum is not None:
             # Init Calculator instance
@@ -386,10 +453,12 @@ class DirectLineNetworkToolFrame(wx.Frame):
                                                                    no_suppliers=1, attr_orig=self.attr_origin,
                                                                    attr_dest=self.attr_destination,
                                                                    translator=translator)
+            wx.SafeYield()  # let the splash timer fire after the heavy calculator init
             # Pass current parameters
             self.update_param_cfl()
         else:
             logging.warning("Handling of file type is not implemented")
+        wx.EndBusyCursor()
         self.SetStatusText(self.translator.translate('status_data_imported'))
 
     ## Event handler for the Info button.
@@ -460,8 +529,44 @@ class DirectLineNetworkToolFrame(wx.Frame):
             self.dln_calculator.export_matrix()
             self.dln_calculator.export_net(links_additive=True)
             self.dln_calculator.delete_unused_nodes()
+            self.tabMain.mark_exported()
 
         self.SetStatusText(self.translator.translate('status_combined_results_imported'))
+
+    ## Event handler for exporting MTX results for all currently checked CFL levels.
+    #  Iterates over checked CFL checkboxes and exports the matrix for each selected level.
+    #  @param event The event object.
+    def event_export_mtx_selected(self, event):
+        if self.dln_calculator is None:
+            return
+        self.update_param_cfl()
+        selected = [cfl_level for cfl_level, cb in self.button_cfl_active.items() if cb.Value > 0]
+        if not selected:
+            wx.MessageBox(self.translator.translate('error_no_calculator_instance'), 'Info', wx.OK | wx.ICON_INFORMATION)
+            return
+        self.dln_calculator.export_matrix(list_cfl=selected)
+        names = ", ".join(self.button_cfl_active[c].Label for c in selected)
+        self.SetStatusText(f"{names}: {self.translator.translate('status_matrix_loaded_into_visum')}")
+        # Update status labels
+        self.tabMain.mark_exported(selected)
+
+    ## Event handler for exporting Net results for all currently checked CFL levels.
+    #  Iterates over checked CFL checkboxes and exports the network for each selected level.
+    #  @param event The event object.
+    def event_export_net_selected(self, event):
+        if self.dln_calculator is None:
+            return
+        self.update_param_cfl()
+        selected = [cfl_level for cfl_level, cb in self.button_cfl_active.items() if cb.Value > 0]
+        if not selected:
+            wx.MessageBox(self.translator.translate('error_no_calculator_instance'), 'Info', wx.OK | wx.ICON_INFORMATION)
+            return
+        self.dln_calculator.export_net(links_additive=True, list_cfl=selected)
+        self.dln_calculator.delete_unused_nodes()
+        names = ", ".join(self.button_cfl_active[c].Label for c in selected)
+        self.SetStatusText(f"{names}: {self.translator.translate('status_net_exported_imported')}")
+        # Update status labels
+        self.tabMain.mark_exported(selected)
 
     ## Event handler for filtering links.
     #  Applies a filter to show only the links created by the calculator.
@@ -517,26 +622,13 @@ class DirectLineNetworkToolFrame(wx.Frame):
         self.notebook.SetPageText(0, self.translator.translate('tab_main'))
         self.notebook.SetPageText(1, self.translator.translate('tab_log'))
 
-        # 3. update menu bar
-        self.menu.FindItemById(10).SetItemLabel(self.translator.translate("language_choice_title"))
-        self.menu.FindItemById(11).SetItemLabel(self.translator.translate('menu_import_data'))
-        self.menu.FindItemById(12).SetItemLabel(self.translator.translate('menu_calculate'))
-        self.menu.FindItemById(13).SetItemLabel(self.translator.translate('menu_reset_calculations'))
-        self.menu.FindItemById(14).SetItemLabel(self.translator.translate('menu_set_defaults'))
-        self.menu.FindItemById(15).SetItemLabel(self.translator.translate('menu_info'))
-        # Update the menu bar's overall menu label using its index (assuming it's the first menu added, index 0)
-        self.menu_bar.SetMenuLabel(0, self.translator.translate('options_tab'))
-
-
-        # 4 Update toolbar
-        self.toolbar.FindById(100).SetLabel(self.translator.translate('language_choice_title'))
-        self.toolbar.FindById(101).SetLabel(self.translator.translate('menu_import_data'))
-        self.toolbar.FindById(102).SetLabel(self.translator.translate('menu_calculate'))
-        self.toolbar.FindById(103).SetLabel(self.translator.translate('menu_reset_calculations'))
-        self.toolbar.FindById(104).SetLabel(self.translator.translate('menu_default_values'))
-        self.toolbar.FindById(105).SetLabel(self.translator.translate('menu_info'))
-        self.toolbar.FindById(106).SetLabel(self.translator.translate('toolbar_filter_inserted_links'))
-        self.toolbar.FindById(107).SetLabel(self.translator.translate('toolbar_delete_inserted_links'))
+        # 3. Update side panel buttons
+        self.btn_side_language.SetLabel(self.translator.translate('language_choice_title'))
+        self.btn_side_reset.SetLabel(self.translator.translate('menu_reset_calculations'))
+        self.btn_side_defaults.SetLabel(self.translator.translate('menu_set_defaults'))
+        self.btn_side_info.SetLabel(self.translator.translate('menu_info'))
+        self.btn_side_filter.SetLabel(self.translator.translate('toolbar_filter_inserted_links'))
+        self.btn_side_delete.SetLabel(self.translator.translate('toolbar_delete_inserted_links'))
 
         # 5. Unterkomponenten (Tabs) aktualisieren
         self.tabMain.refresh_gui_text()
@@ -577,26 +669,34 @@ class MainTab(wx.Panel):
         self.static_text_visum_as = None
         self.static_text_dist_fcn_label = None
         self.btn_export_master = None # Ensure it's initialized
+        self._box_zone_attrs = None
+        self._box_cfl = None
+        self._box_export = None
+        self.static_text_status_header = None
+        self.status_labels = {}          # {cfl_key: wx.StaticText}
+        self._cfl_status = {}            # {cfl_key: str}  internal state
+        self.btn_calculate = None        # new Calculate button
 
         self.__set_layout__()
         self.__bind_events__()
 
     ## Sets up the layout of the main tab panel.
     #  Creates and arranges all UI components including zone attribute selection,
-    #  connectivity function level parameters, and action buttons.
+    #  connectivity function level parameters, status column, calculate button,
+    #  and a separate export section.
     def __set_layout__(self):
         # Rows with individual elements (vbox_outer)
         # Row 1: zone attribute selection
-        # Row 2: GridbagSizer with everything except Log
-        # Status bar at the bottom
-
+        # Row 2: horizontal sizer with [cfl_vfs_settings box] + [Export_to_Visum box]
         vbox_outer = wx.BoxSizer(wx.VERTICAL)
-        self.hbox1 = wx.BoxSizer(wx.HORIZONTAL) # Make hbox1 an instance attribute
-        self.gridbagsizer1 = wx.GridBagSizer(vgap=10, hgap=50) # Make gridbagsizer1 an instance attribute
+
+        # ---- Box 1: Zone Attribute Selection ----
+        self._box_zone_attrs = wx.StaticBox(self, label=self.translator.translate('zone_attributes'))
+        self.hbox1 = wx.StaticBoxSizer(self._box_zone_attrs, wx.HORIZONTAL)
 
         # Selection of zone attributes
-        self.cb_cfl= wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
-                                 style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        self.cb_cfl = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
+                                  style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
         self.cb_cfl.Label = 'attr_cfl'
         self.TopLevelParent.cb_cfl = self.cb_cfl
 
@@ -606,149 +706,148 @@ class MainTab(wx.Panel):
         self.TopLevelParent.cb_origin = self.cb_origin
 
         self.cb_destination = wx.ComboBox(self, size=(200, -1), choices=self.TopLevelParent.list_attr,
-                                   style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+                                          style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
         self.cb_destination.Label = 'attr_destination'
         self.TopLevelParent.cb_destination = self.cb_destination
 
-        # Store StaticText widgets as instance attributes
         self.static_text_centrality = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_centrality'))
-        self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.EXPAND, 5)
+        self.hbox1.Add(self.static_text_centrality, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         self.hbox1.Add(self.cb_cfl, 0, wx.ALL | wx.EXPAND, 15)
 
         self.static_text_origin = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_origin'))
-        self.hbox1.Add(self.static_text_origin, 0, wx.ALL | wx.EXPAND, 5)
+        self.hbox1.Add(self.static_text_origin, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         self.hbox1.Add(self.cb_origin, 0, wx.ALL | wx.EXPAND, 15)
 
         self.static_text_destination = wx.StaticText(self, -1, self.translator.translate('setting_zone_attribute_destination'))
-        self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.EXPAND, 5)
+        self.hbox1.Add(self.static_text_destination, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         self.hbox1.Add(self.cb_destination, 0, wx.ALL | wx.EXPAND, 15)
 
-        # Header Column 1
-        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('setting_cfl'))
-        self.gridbagsizer1.Add(self.static_text_cfl_label,
-                          pos=(0, 0), flag=wx.TOP | wx.LEFT | wx.BOTTOM, border=5)
+        # ---- Box 2: CFL/VFS Settings (FlexGridSizer for equal-width columns) ----
+        self._box_cfl = wx.StaticBox(self, label=self.translator.translate('cfl_vfs_settings'))
+        self._gridbox_sizer = wx.StaticBoxSizer(self._box_cfl, wx.VERTICAL)
+
+        # Use FlexGridSizer: rows = header(0) + 6 CFL rows = 7 rows
+        # Distance row and Calculate button live BELOW the grid in a shared bottom strip
+        # Columns: 0=CFL, 1=AttrVal, 2=Exchange, 3=Supply, 4=Status
+        NUM_COLS = 5
+        self.gridbagsizer1 = wx.FlexGridSizer(rows=7, cols=NUM_COLS, vgap=6, hgap=8)
+        for col in range(NUM_COLS):
+            self.gridbagsizer1.AddGrowableCol(col, 1)  # all columns grow equally
 
         str_cfl = self.translator.translate('cfl')
 
-        self.button_cfl_active = {"cfl_0": wx.CheckBox(self, -1, f"{str_cfl} 0"), # Reverted to 'VFS 0'
-                                  "cfl_1": wx.CheckBox(self, -1, f"{str_cfl} 1"),
-                                  "cfl_2": wx.CheckBox(self, -1, f"{str_cfl} 2"),
-                                  "cfl_3": wx.CheckBox(self, -1, f"{str_cfl} 3"),
-                                  "cfl_4": wx.CheckBox(self, -1, f"{str_cfl} 4"),
-                                  "cfl_5": wx.CheckBox(self, -1, f"{str_cfl} 5")}
+        # --- Header row ---
+        self.static_text_cfl_label = wx.StaticText(self, -1, self.translator.translate('setting_cfl'))
+        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('setting_attribute_value_CFL'))
+        self.static_text_exchange_fcn = wx.StaticText(self, -1, self.translator.translate('setting_exchange_function'))
+        self.static_text_supply_fcn = wx.StaticText(self, -1, self.translator.translate('setting_supply_function'))
+        self.static_text_status_header = wx.StaticText(self, -1, self.translator.translate('setting_status'))
 
-        tmp_iterator = 1
-        for btn in self.button_cfl_active.values():
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 0), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
+        for hdr in (self.static_text_cfl_label, self.static_text_attr_cfl,
+                    self.static_text_exchange_fcn, self.static_text_supply_fcn,
+                    self.static_text_status_header):
+            hdr.SetFont(hdr.GetFont().Bold())
+            self.gridbagsizer1.Add(hdr, 0, wx.EXPAND | wx.ALL, 4)
 
+        # --- CFL rows (rows 1-6) ---
+        self.button_cfl_active = {
+            "cfl_0": wx.CheckBox(self, -1, f"{str_cfl} 0"),
+            "cfl_1": wx.CheckBox(self, -1, f"{str_cfl} 1"),
+            "cfl_2": wx.CheckBox(self, -1, f"{str_cfl} 2"),
+            "cfl_3": wx.CheckBox(self, -1, f"{str_cfl} 3"),
+            "cfl_4": wx.CheckBox(self, -1, f"{str_cfl} 4"),
+            "cfl_5": wx.CheckBox(self, -1, f"{str_cfl} 5"),
+        }
+        self.buttons_cfl_value = {k: wx.SpinCtrl(self, -1, "") for k in self.button_cfl_active}
+        self.buttons_value_k_neighbor_cfl = {k: wx.SpinCtrl(self, -1, "") for k in self.button_cfl_active}
+        self.buttons_value_n_supplier = {k: wx.SpinCtrl(self, -1, "") for k in self.button_cfl_active}
+
+        # Status labels + internal state
+        _INACTIVE_COLOR = wx.Colour(150, 150, 150)
+        for cfl_key in self.button_cfl_active:
+            self._cfl_status[cfl_key] = 'inactive'
+            lbl = wx.StaticText(self, -1, self.translator.translate('status_inactive'))
+            lbl.SetForegroundColour(_INACTIVE_COLOR)
+            self.status_labels[cfl_key] = lbl
+
+        for cfl_key in self.button_cfl_active:
+            self.gridbagsizer1.Add(self.button_cfl_active[cfl_key],    0, wx.EXPAND | wx.ALL, 3)
+            self.gridbagsizer1.Add(self.buttons_cfl_value[cfl_key],    0, wx.EXPAND | wx.ALL, 3)
+            self.gridbagsizer1.Add(self.buttons_value_k_neighbor_cfl[cfl_key], 0, wx.EXPAND | wx.ALL, 3)
+            self.gridbagsizer1.Add(self.buttons_value_n_supplier[cfl_key],     0, wx.EXPAND | wx.ALL, 3)
+            self.gridbagsizer1.Add(self.status_labels[cfl_key],        0, wx.EXPAND | wx.ALL, 3)
+
+        # Share references with TopLevelParent
         self.TopLevelParent.button_cfl_active = self.button_cfl_active
-
-        # Column 2 Value specification per CFL
-        self.static_text_attr_cfl = wx.StaticText(self, -1, self.translator.translate('setting_attribute_value_CFL')) # Reverted to 'Attributwert VFS'
-        self.gridbagsizer1.Add(self.static_text_attr_cfl,
-                          pos=(0, 1), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_cfl_value = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                  "cfl_1": wx.SpinCtrl(self, -1, ""),
-                                  "cfl_2": wx.SpinCtrl(self, -1, ""),
-                                  "cfl_3": wx.SpinCtrl(self, -1, ""),
-                                  "cfl_4": wx.SpinCtrl(self, -1, ""),
-                                  "cfl_5": wx.SpinCtrl(self, -1, "")}
-        tmp_iterator = 1
-        for btn in self.buttons_cfl_value.values():
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 1), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
-
         self.TopLevelParent.buttons_cfl_value = self.buttons_cfl_value
-
-        # Column 2 Selection of exchange function per CFL
-        self.static_text_exchange_fcn = wx.StaticText(self, -1, (self.translator.translate('setting_exchange_function')))
-        self.gridbagsizer1.Add(self.static_text_exchange_fcn,
-                          pos=(0, 2), flag=wx.ALIGN_CENTER | wx.ALL)
-
-        self.buttons_value_k_neighbor_cfl = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                            "cfl_1": wx.SpinCtrl(self, -1, ""),
-                                            "cfl_2": wx.SpinCtrl(self, -1, ""),
-                                            "cfl_3": wx.SpinCtrl(self, -1, ""),
-                                            "cfl_4": wx.SpinCtrl(self, -1, ""),
-                                            "cfl_5": wx.SpinCtrl(self, -1, "")}
-        tmp_iterator = 1
-        for btn in self.buttons_value_k_neighbor_cfl.values():
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 2), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
-
         self.TopLevelParent.buttons_value_k_neighbor_cfl = self.buttons_value_k_neighbor_cfl
-
-        # Column 3 Supply function
-        self.static_text_supply_fcn = wx.StaticText(self, -1, (self.translator.translate('setting_supply_function')))
-        self.gridbagsizer1.Add(self.static_text_supply_fcn,
-            pos=(0, 3), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_value_n_supplier = {"cfl_0": wx.SpinCtrl(self, -1, ""), # Reverted to 'VFS 0'
-                                          "cfl_1": wx.SpinCtrl(self, -1, ""),
-                                          "cfl_2": wx.SpinCtrl(self, -1, ""),
-                                          "cfl_3": wx.SpinCtrl(self, -1, ""),
-                                          "cfl_4": wx.SpinCtrl(self, -1, ""),
-                                          "cfl_5": wx.SpinCtrl(self, -1, "")}
-
-        tmp_iterator = 1
-        for btn in self.buttons_value_n_supplier.values():
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 3), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
-
         self.TopLevelParent.buttons_value_n_supplier = self.buttons_value_n_supplier
 
-        # Export Matrix Buttons
-        self.static_text_visum_as = wx.StaticText(self, -1, self.translator.translate('setting_create_in_visum'))
-        self.gridbagsizer1.Add(self.static_text_visum_as,
-            pos=(0, 4), span=(1, 2), flag=wx.ALIGN_CENTER | wx.ALL)
-        self.buttons_export_mat = {"cfl_0": wx.Button(self, -1, "MTX"), # Reverted to 'VFS 0'
-                                   "cfl_1": wx.Button(self, -1, "MTX"),
-                                   "cfl_2": wx.Button(self, -1, "MTX"),
-                                   "cfl_3": wx.Button(self, -1, "MTX"),
-                                   "cfl_4": wx.Button(self, -1, "MTX"),
-                                   "cfl_5": wx.Button(self, -1, "MTX")}
+        # Initially disable all CFL SpinCtrls – enabled when checkbox is ticked
+        for cfl_key in self.button_cfl_active:
+            self.buttons_cfl_value[cfl_key].Enable(False)
+            self.buttons_value_k_neighbor_cfl[cfl_key].Enable(False)
+            self.buttons_value_n_supplier[cfl_key].Enable(False)
 
-        tmp_iterator = 1
-        for cfl_level, btn in self.buttons_export_mat.items():
-            btn.cfl = cfl_level
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 4), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
+        self._gridbox_sizer.Add(self.gridbagsizer1, 1, wx.ALL | wx.EXPAND, 6)
 
-        # Buttons Export Net
-        self.buttons_export_net = {"cfl_0": wx.Button(self, -1, "Net"), # Reverted to 'VFS 0'
-                                   "cfl_1": wx.Button(self, -1, "Net"),
-                                   "cfl_2": wx.Button(self, -1, "Net"),
-                                   "cfl_3": wx.Button(self, -1, "Net"),
-                                   "cfl_4": wx.Button(self, -1, "Net"),
-                                   "cfl_5": wx.Button(self, -1, "Net")}
-        tmp_iterator = 1
-        for cfl_level, btn in self.buttons_export_net.items():
-            btn.cfl = cfl_level
-            self.gridbagsizer1.Add(btn, pos=(tmp_iterator, 5), flag=wx.ALIGN_CENTER)
-            tmp_iterator += 1
-
-        # Buttons export all
-        self.btn_export_master = wx.Button(self, -1, (self.translator.translate('setting_import_to_visum'))) # Reverted to 'Import nach Visum alle VFS'
-        self.btn_export_master.cfl_level = 'all'
-        self.gridbagsizer1.Add(self.btn_export_master,
-                          pos=(7, 4), span=(3, 2), flag=wx.EXPAND)
-
-        # Button list with supported list functions
-        self.cb_dist_fcn = wx.ComboBox(self, size=(200, -1),
-                                       choices=["euclidean"], #, "haversine"], actual triangulation method for projections only
+        # --- Bottom strip: distance function (cols 0-2) + calculate button (cols 3-4) ---
+        # Both live outside the FlexGrid so the grid rows are never squished,
+        # and the dist label/combo are vertically aligned with the calculate button.
+        self.cb_dist_fcn = wx.ComboBox(self, size=(150, -1),
+                                       choices=["euclidean"],
                                        style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-
         self.cb_dist_fcn.Label = 'attr_dist_fcn'
         self.TopLevelParent.cb_dist_fcn = self.cb_dist_fcn
 
         self.static_text_dist_fcn_label = wx.StaticText(self, -1, self.translator.translate('label_distance_calculation_function'))
-        self.gridbagsizer1.Add(self.static_text_dist_fcn_label, pos=(8, 0), span=(1, 1),
-                          flag=wx.EXPAND)
-        self.gridbagsizer1.Add(self.cb_dist_fcn, pos=(8, 1), span=(1, 1), flag=wx.EXPAND)
 
-        # Layout structure
-        vbox_outer.Add(self.hbox1, 0, wx.ALL | wx.EXPAND, 1)
-        vbox_outer.Add(self.gridbagsizer1, 1, wx.ALL | wx.EXPAND, 6)
+        self.btn_calculate = wx.Button(self, -1, self.translator.translate('btn_calculate'))
+        self.btn_calculate.SetMinSize((-1, 50))  # double height
+
+        # Left part: dist label + combo (fixed width, not expanding), then spacer fills the rest
+        _dist_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        _dist_sizer.Add(self.static_text_dist_fcn_label, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
+        _dist_sizer.Add(self.cb_dist_fcn, 0, wx.ALIGN_CENTER_VERTICAL)
+        _dist_sizer.AddStretchSpacer(1)
+
+        # Bottom strip: dist (3 parts) + calculate button (2 parts)
+        _bottom_strip = wx.BoxSizer(wx.HORIZONTAL)
+        _bottom_strip.Add(_dist_sizer, 3, wx.EXPAND | wx.ALL, 4)
+        _bottom_strip.Add(self.btn_calculate, 2, wx.EXPAND | wx.ALL, 4)
+
+        self._gridbox_sizer.Add(_bottom_strip, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
+
+        # ---- Box 3: Export to Visum ----
+        self._box_export = wx.StaticBox(self, label=self.translator.translate('export_to_visum_section'))
+        self._export_sizer = wx.StaticBoxSizer(self._box_export, wx.VERTICAL)
+
+        self.static_text_visum_as = None  # removed duplicate label (box title already shows this)
+
+        _btn_size = (-1, 50)
+        self.btn_export_mtx = wx.Button(self, -1, self.translator.translate('btn_export_mtx'))
+        self.btn_export_mtx.SetMinSize(_btn_size)
+        self._export_sizer.Add(self.btn_export_mtx, 0, wx.EXPAND | wx.ALL, 4)
+
+        self.btn_export_net = wx.Button(self, -1, self.translator.translate('btn_export_net'))
+        self.btn_export_net.SetMinSize(_btn_size)
+        self._export_sizer.Add(self.btn_export_net, 0, wx.EXPAND | wx.ALL, 4)
+
+        self.btn_export_master = wx.Button(self, -1, self.translator.translate('setting_import_to_visum'))
+        self.btn_export_master.cfl_level = 'all'
+        self.btn_export_master.SetMinSize(_btn_size)
+        self._export_sizer.Add(self.btn_export_master, 0, wx.EXPAND | wx.ALL, 4)
+
+        # Start with export buttons greyed out
+        self._set_export_buttons_state(enabled=False)
+
+        # ---- Horizontal container: settings + export ----
+        hbox_main = wx.BoxSizer(wx.HORIZONTAL)
+        hbox_main.Add(self._gridbox_sizer, 3, wx.ALL | wx.EXPAND, 5)
+        hbox_main.Add(self._export_sizer,  1, wx.ALL | wx.EXPAND, 5)
+
+        vbox_outer.Add(self.hbox1, 0, wx.ALL | wx.EXPAND, 5)
+        vbox_outer.Add(hbox_main,  1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(vbox_outer)
 
         # ==== Event binding
@@ -758,42 +857,161 @@ class MainTab(wx.Panel):
     #  connecting them to the appropriate event handlers in the parent frame.
     def __bind_events__(self):
 
-        for cfl_level, btn in self.buttons_export_net.items():
-            btn.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_net)
-
-        for cfl_level, btn in self.buttons_export_mat.items():
-            btn.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_mtx)
+        self.btn_export_mtx.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_mtx_selected)
+        self.btn_export_net.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_net_selected)
 
         self.btn_export_master.Bind(wx.EVT_BUTTON, self.TopLevelParent.event_export_master)
+
+        # Calculate button
+        self.btn_calculate.Bind(wx.EVT_BUTTON, self.on_calculate)
 
         self.cb_cfl.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_origin.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
         self.cb_destination.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
+        self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self._on_settings_changed)
         self.cb_dist_fcn.Bind(wx.EVT_COMBOBOX, self.TopLevelParent.event_choose_attr)
 
+        # Enable/disable SpinCtrls based on checkbox state; also mark status outdated on change
+        for cfl_key, checkbox in self.button_cfl_active.items():
+            checkbox.Bind(wx.EVT_CHECKBOX, self.on_cfl_checkbox_toggle)
+        for cfl_key in self.button_cfl_active:
+            for spin in (self.buttons_cfl_value[cfl_key],
+                         self.buttons_value_k_neighbor_cfl[cfl_key],
+                         self.buttons_value_n_supplier[cfl_key]):
+                spin.cfl_key = cfl_key   # attach key as attribute
+                spin.Bind(wx.EVT_SPINCTRL, self._on_spin_changed)
+
+
+    ## Enables or disables the three SpinCtrl fields for a CFL row based on its checkbox state.
+    #  @param event The checkbox event. The event object's GetEventObject() identifies which checkbox fired.
+    def on_cfl_checkbox_toggle(self, event):
+        checkbox = event.GetEventObject()
+        cfl_key = next((k for k, cb in self.button_cfl_active.items() if cb is checkbox), None)
+        if cfl_key is None:
+            return
+        enabled = checkbox.IsChecked()
+        self.buttons_cfl_value[cfl_key].Enable(enabled)
+        self.buttons_value_k_neighbor_cfl[cfl_key].Enable(enabled)
+        self.buttons_value_n_supplier[cfl_key].Enable(enabled)
+        # Update status
+        if enabled:
+            # Only mark as not-calculated if it was inactive before
+            if self._cfl_status[cfl_key] == 'inactive':
+                self._set_row_status(cfl_key, 'not_calculated')
+        else:
+            self._set_row_status(cfl_key, 'inactive')
+        self._refresh_export_button_state()
+        event.Skip()
+
+    ## Marks a row as outdated when a SpinCtrl value is changed after calculation.
+    def _on_spin_changed(self, event):
+        spin = event.GetEventObject()
+        cfl_key = getattr(spin, 'cfl_key', None)
+        if cfl_key and self._cfl_status.get(cfl_key) in ('calculated', 'exported'):
+            self._set_row_status(cfl_key, 'outdated')
+            self._refresh_export_button_state()
+        event.Skip()
+
+    ## Marks all active rows as outdated when distance function changes.
+    def _on_settings_changed(self, event):
+        for cfl_key, status in self._cfl_status.items():
+            if status in ('calculated', 'exported'):
+                self._set_row_status(cfl_key, 'outdated')
+        self._refresh_export_button_state()
+        event.Skip()
+
+    ## Performs the calculation and updates status labels.
+    def on_calculate(self, event):
+        self.TopLevelParent.event_calculate(event)
+        # Mark all active (non-inactive) rows as calculated
+        for cfl_key, cb in self.button_cfl_active.items():
+            if cb.IsChecked():
+                self._set_row_status(cfl_key, 'calculated')
+        self._refresh_export_button_state()
+
+    ## Sets the status of a single CFL row and updates its label colour.
+    def _set_row_status(self, cfl_key, status):
+        self._cfl_status[cfl_key] = status
+        lbl = self.status_labels[cfl_key]
+        _colors = {
+            'not_calculated': wx.Colour(180, 80, 0),
+            'calculated':     wx.Colour(0, 140, 0),
+            'outdated':       wx.Colour(180, 130, 0),
+            'exported':       wx.Colour(0, 100, 180),
+            'inactive':       wx.Colour(150, 150, 150),
+        }
+        _keys = {
+            'not_calculated': 'status_not_calculated',
+            'calculated':     'status_calculated',
+            'outdated':       'status_outdated',
+            'exported':       'status_exported',
+            'inactive':       'status_inactive',
+        }
+        lbl.SetLabel(self.translator.translate(_keys[status]))
+        lbl.SetForegroundColour(_colors.get(status, wx.Colour(0, 0, 0)))
+        lbl.Refresh()
+
+    ## Enables or greys-out the export buttons depending on whether all active rows are 'calculated' or 'exported'.
+    def _refresh_export_button_state(self):
+        active_statuses = [
+            self._cfl_status[k] for k, cb in self.button_cfl_active.items() if cb.IsChecked()
+        ]
+        all_ready = active_statuses and all(s in ('calculated', 'exported') for s in active_statuses)
+        self._set_export_buttons_state(all_ready)
+
+    ## Enables or disables (greys out) the export buttons.
+    def _set_export_buttons_state(self, enabled: bool):
+        _grey = wx.Colour(180, 180, 180)
+        _normal = wx.NullColour
+        for btn in (self.btn_export_mtx, self.btn_export_net, self.btn_export_master):
+            btn.Enable(enabled)
+            btn.SetBackgroundColour(_normal if enabled else _grey)
+            btn.Refresh()
+
+    ## Marks all active rows as 'exported'; called after a successful export.
+    def mark_exported(self, cfl_keys=None):
+        if cfl_keys is None:
+            cfl_keys = [k for k, cb in self.button_cfl_active.items() if cb.IsChecked()]
+        for k in cfl_keys:
+            if self._cfl_status.get(k) in ('calculated', 'exported'):
+                self._set_row_status(k, 'exported')
+        self._refresh_export_button_state()
 
     ## Updates all text elements in the main tab to the current language.
     def refresh_gui_text(self):
+        # Update StaticBox labels
+        self._box_zone_attrs.SetLabel(self.translator.translate('zone_attributes'))
+        self._box_cfl.SetLabel(self.translator.translate('cfl_vfs_settings'))
+        self._box_export.SetLabel(self.translator.translate('export_to_visum_section'))
+
         # Update StaticText widgets
         self.static_text_centrality.SetLabel(self.translator.translate('setting_zone_attribute_centrality'))
         self.static_text_origin.SetLabel(self.translator.translate('setting_zone_attribute_origin'))
         self.static_text_destination.SetLabel(self.translator.translate('setting_zone_attribute_destination'))
         self.static_text_cfl_label.SetLabel(self.translator.translate('setting_cfl'))
-        self.static_text_attr_cfl.SetLabel(self.translator.translate('setting_attribute_value_CFL')) # Reverted to 'Attributwert VFS'
+        self.static_text_attr_cfl.SetLabel(self.translator.translate('setting_attribute_value_CFL'))
         self.static_text_exchange_fcn.SetLabel(self.translator.translate('setting_exchange_function'))
         self.static_text_supply_fcn.SetLabel(self.translator.translate('setting_supply_function'))
-        self.static_text_visum_as.SetLabel(self.translator.translate('setting_create_in_visum'))
+        self.static_text_status_header.SetLabel(self.translator.translate('setting_status'))
         self.static_text_dist_fcn_label.SetLabel(self.translator.translate('label_distance_calculation_function'))
 
-        # Update CheckBox labels (iterate over existing objects)
+        # Update Calculate button
+        self.btn_calculate.SetLabel(self.translator.translate('btn_calculate'))
+
+        # Update CheckBox labels
         for key, checkbox in self.button_cfl_active.items():
             str_cfl = self.translator.translate('cfl')
             no_cfl = int(key.split('_')[1])
-            # The keys are 'VFS 0', 'VFS 1', etc., so we translate these keys directly
             checkbox.SetLabel(f"{str_cfl} {no_cfl}")
 
+        # Update status labels to current language keeping their current state
+        for cfl_key, status in self._cfl_status.items():
+            self._set_row_status(cfl_key, status)
+
         # Update master export button label
-        self.btn_export_master.SetLabel(self.translator.translate('setting_import_to_visum')) # Reverted to 'Import nach Visum alle VFS'
+        self.btn_export_master.SetLabel(self.translator.translate('setting_import_to_visum'))
+        self.btn_export_mtx.SetLabel(self.translator.translate('btn_export_mtx'))
+        self.btn_export_net.SetLabel(self.translator.translate('btn_export_net'))
 
         self.Layout()
         self.Refresh()
@@ -963,9 +1181,133 @@ class HelpPopUp(wx.Frame):
 
 
 
+## @class LoadingSplash
+#a loading screen to show the tool is responding
+class LoadingSplash(wx.Frame):
+
+    # ---- colours & geometry ------------------------------------------------
+    _BG        = wx.Colour(28,  28,  34)
+    _BAR_BG    = wx.Colour(55,  55,  65)
+    _BAR_FG    = wx.Colour(70, 130, 220)
+    _WHITE     = wx.Colour(255, 255, 255)
+    _GREY      = wx.Colour(160, 160, 175)
+    _HINT      = wx.Colour(100, 100, 115)
+
+    W, H       = 440, 210
+    BAR_W      = 360
+    BAR_H      = 12
+    BAR_X      = (W - BAR_W) // 2
+    BAR_Y      = 138
+    BLOCK_LEN  = 90
+    STEP_PX    = 5
+
+    ## Initializes and immediately paints the loading splash screen.
+    def __init__(self):
+        super().__init__(None,
+                         style=wx.BORDER_NONE | wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
+        self.SetClientSize((self.W, self.H))
+        self.Centre()
+
+        self._pos  = 0
+        self._hint = "Starting up\u2026"
+
+        self.Bind(wx.EVT_PAINT,            self._on_paint)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, lambda e: None)  # prevent grey flash
+
+
+        self._timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
+        self._timer.Start(40)
+
+
+        self.Show()
+        self.Refresh()
+        self.Update()
+        wx.SafeYield()
+
+    # -----------------------------------------------------------------------
+    def _on_timer(self, _event):
+        """Advance the bar position and request a repaint on every tick."""
+        self._pos = (self._pos + self.STEP_PX) % (self.BAR_W + self.BLOCK_LEN)
+        self.Refresh()
+        self.Update()
+
+    # -----------------------------------------------------------------------
+    def _on_paint(self, _event):
+        """Draw the entire splash content via DC """
+        dc = wx.PaintDC(self)
+        w  = self.W
+
+        # Background
+        dc.SetBackground(wx.Brush(self._BG))
+        dc.Clear()
+
+        # Title
+        dc.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT,
+                           wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        dc.SetTextForeground(self._WHITE)
+        title = "Direct Line Network Tool"
+        dc.DrawText(title, (w - dc.GetTextExtent(title)[0]) // 2, 28)
+
+        # Subtitle
+        dc.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT,
+                           wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+        dc.SetTextForeground(self._GREY)
+        sub = "Initializing, please wait\u2026"
+        dc.DrawText(sub, (w - dc.GetTextExtent(sub)[0]) // 2, 66)
+
+        # Bar track
+        dc.SetPen(wx.TRANSPARENT_PEN)
+        dc.SetBrush(wx.Brush(self._BAR_BG))
+        dc.DrawRoundedRectangle(self.BAR_X, self.BAR_Y, self.BAR_W, self.BAR_H, 6)
+
+        # Animated gliding block
+        block_x = self.BAR_X + self._pos - self.BLOCK_LEN
+        clip_x  = max(block_x, self.BAR_X)
+        clip_w  = min(block_x + self.BLOCK_LEN, self.BAR_X + self.BAR_W) - clip_x
+        if clip_w > 0:
+            dc.SetBrush(wx.Brush(self._BAR_FG))
+            dc.DrawRoundedRectangle(clip_x, self.BAR_Y, clip_w, self.BAR_H, 6)
+
+        # Hint text (current loading phase)
+        dc.SetFont(wx.Font(8, wx.FONTFAMILY_DEFAULT,
+                           wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+        dc.SetTextForeground(self._HINT)
+        dc.DrawText(self._hint,
+                    (w - dc.GetTextExtent(self._hint)[0]) // 2,
+                    self.BAR_Y + self.BAR_H + 14)
+
+
+
+    #  @param text Short description of the current loading phase.
+    def set_hint(self, text: str):
+        self._hint = text
+        self.Refresh()
+        self.Update()
+        wx.SafeYield()  # let the timer fire at least once before blocking again
+
+    ## Stops the timer and destroys the splash window.
+    def close(self):
+        self._timer.Stop()
+        self.Destroy()
+
+
 if __name__ == '__main__':
     # Initialize translator outside the app
     translator = Translator(Path(__file__).parent / "Translations.json", language="en")
     app = wx.App()
-    frame = DirectLineNetworkToolFrame(translator)
+
+    # Show the splash *before* any heavy work.  The timer starts inside __init__
+    # but will only fire while the event loop is running (MainLoop or SafeYield).
+    splash = LoadingSplash()
+
+    # Defer the actual initialization via CallLater so that MainLoop() is already running when the heavy work starts.  This means the splash timer fires freely for the first 100 ms and then continues to fire at every wx.SafeYield() call that is placed inside the heavy init steps.
+    def _do_init():
+        global frame
+        splash.set_hint("Loading Visum connection\u2026")
+        frame = DirectLineNetworkToolFrame(translator)
+        splash.set_hint("Ready.")
+        wx.CallAfter(splash.close)
+
+    wx.CallLater(100, _do_init)
     app.MainLoop()
